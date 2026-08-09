@@ -1,0 +1,58 @@
+# Python runtime/cache artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+*$py.class
+
+# Virtual environments / dependency directories
+.venv/
+venv/
+ENV/
+env/
+.env/
+*.egg-info/
+build/
+dist/
+.eggs/
+coverage/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+pip-wheel-metadata/
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Maya user/runtime generated artifacts
+# 常见 Maya 自动保存/临时文件，避免把本地工作票据和缓存落进仓库
+*.autosave
+*.autosave.mel
+*.mayaSwatches
+mayaTemp/
+MayaTemp/
+MayaCache/
+cache/
+
+# Local generated / packaged outputs
+*.zip
+*.tar
+*.tgz
+*.whl
+
+# Native/plugin runtime artifacts are intentionally preserved in this repo
+# (do not ignore pyd / so files)
+*.dylib
+*.dll

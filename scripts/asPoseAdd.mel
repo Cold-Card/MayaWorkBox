@@ -1,0 +1,54 @@
+global proc asPoseAdd ()
+{
+global string $gChannelBoxName;
+string $m,$existingCmd,$newCmd,$cmd;
+string $sel[]=`ls -sl`;
+string $selectedMainAttrs[]=`channelBox -q -sma $gChannelBoxName`;
+string $list[],$objAttrList[],$keyableAttrs[],$existingCmdBuffer[];
+
+
+if (!size($sel))
+	error "Nothing Selected";
+for ($i=0;$i<size($sel);$i++)
+	{
+	if (size($selectedMainAttrs)==0)
+		$list[size($list)]=$sel[$i];
+	else
+		for ($y=0;$y<size($selectedMainAttrs);$y++)
+			$list[size($list)]=$sel[$i]+"."+$selectedMainAttrs[$y];
+	}
+
+$m="Add the following to the \"Build Pose\" ?\n\n"+`stringArrayToString $list "\n"`;
+
+if (`confirmDialog -t "Add ?" -m $m -b "OK" -b "Cancel" -db "Cancel" -ds "Cancel"`!="OK")
+	return;
+
+if (!`attributeExists run FitSkeleton`)
+	addAttr -ln run -dt "string" FitSkeleton;
+$existingCmd=`getAttr FitSkeleton.run`;
+$newCmd=$existingCmd;
+tokenize $existingCmd ";" $existingCmdBuffer;
+
+for ($i=0;$i<size($list);$i++)
+	if (`gmatch $list[$i] "*.*"`)
+		$objAttrList[size($objAttrList)]=$list[$i];
+	else
+		{
+		$keyableAttrs=`listAttr -k $list[$i]`;
+		for ($y=0;$y<size($keyableAttrs);$y++)
+			$objAttrList[size($objAttrList)]=$list[$i]+"."+$keyableAttrs[$y];
+		}
+
+for ($i=0;$i<size($objAttrList);$i++)
+	{
+	$cmd="setAttr "+$objAttrList[$i]+" "+`getAttr $objAttrList[$i]`;
+	if (`stringArrayCount $cmd $existingCmdBuffer`)
+		print ("// \""+$cmd+"\" Already in FitSkeleton.run\n");
+	else
+		$newCmd+=$cmd+";";
+	}
+setAttr -type "string" FitSkeleton.run $newCmd;
+print "// Build Pose Updated (FitSkeleton.run)\n";
+}
+
+asPoseAdd;

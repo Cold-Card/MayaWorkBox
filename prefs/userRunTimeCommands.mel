@@ -1,0 +1,19 @@
+//Maya Preference 2022 (Release 1)
+//
+//
+
+runTimeCommand
+	-label ""
+	-annotation ""
+	-longAnnotation ""
+	-category "Custom Scripts"
+	-image ""
+	-tags ""
+	-keywords ""
+	-plugin ""
+	-helpUrl ""
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("import maya.cmds as cmds\nobjs = cmds.ls(sl=True)\nfor obj in objs:\n    cmds.xform(obj,t=[0,0,0],ro=[0,0,0],s=[1,1,1])")
+	RestRTS;
+

@@ -1,0 +1,49 @@
+//Maya Preference 2022 (Release 1)
+//
+//
+
+//
+// The hotkey set
+//
+hotkeySet -source "Maya_Default" -current WRL_HotKey;
+//
+// The hotkey contexts and hotkeys
+//
+hotkey -keyShortcut "9" -alt -releaseName ("Hotkeys_9");
+hotkey -keyShortcut "n" -releaseName ("");
+hotkey -keyShortcut "n" -name ("oneLinerNameCommand");
+hotkey -keyShortcut "5" -alt -releaseName ("Hotkeys_5");
+hotkey -keyShortcut "t" -alt -name ("generateAllUvTilePreviewsNameCommand");
+hotkey -keyShortcut "3" -alt -releaseName ("");
+hotkey -keyShortcut "3" -alt -name ("GraphEditorNameCommand");
+hotkey -keyShortcut "7" -alt -releaseName ("Hotkeys_7");
+hotkey -keyShortcut "h" -ctl -alt -releaseName ("HAHATools");
+hotkey -keyShortcut "r" -alt -name ("RestRTSNameCommand");
+hotkey -keyShortcut "g" -alt -releaseName ("LastTools");
+hotkey -keyShortcut "0" -alt -releaseName ("Hotkeys_0");
+hotkey -keyShortcut "8" -alt -releaseName ("Hotkeys_8");
+hotkey -keyShortcut "2" -alt -releaseName ("");
+hotkey -keyShortcut "2" -alt -name ("NodeEditorWindowNameCommand");
+hotkey -keyShortcut "6" -alt -releaseName ("Hotkeys_6");
+hotkey -keyShortcut "1" -alt -releaseName ("");
+hotkey -keyShortcut "4" -alt -releaseName ("Hotkeys_4");
+hotkey -keyShortcut "1" -alt -name ("OutlinerWindowNameCommand");
+hotkeyCtx -type "Editor" -addClient "polyTexturePlacementPanel";
+hotkeyCtx -type "Editor" -addClient "nodeEditorPanel";
+hotkeyCtx -type "Editor" -addClient "posePanel";
+hotkeyCtx -type "Editor" -addClient "hyperShadePanel";
+hotkeyCtx -type "Editor" -addClient "dopeSheetPanel";
+hotkeyCtx -type "Editor" -addClient "hyperGraphPanel";
+hotkeyCtx -type "Editor" -addClient "profilerPanel";
+hotkeyCtx -type "Editor" -addClient "timeEditorPanel";
+hotkeyCtx -type "Editor" -addClient "outlinerPanel";
+hotkeyCtx -type "Editor" -addClient "graphEditor";
+hotkeyCtx -type "Editor" -addClient "shapePanel";
+hotkeyCtx -type "Tool" -addClient "bpDraw";
+hotkeyCtx -type "Tool" -addClient "polyCutUV";
+hotkeyCtx -type "Tool" -addClient "Unfold3DBrush";
+hotkeyCtx -type "Tool" -addClient "xgmIGBrush";
+hotkeyCtx -type "Tool" -addClient "SymmetrizeUVBrush";
+hotkeyCtx -type "Tool" -addClient "texSculptCacheContext";
+hotkeyCtx -type "Tool" -addClient "texCutContext";
+hotkeyCtx -type "Tool" -addClient "sculptMeshCache";

@@ -1,0 +1,2441 @@
+global proc shelf_WRL () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "openPipeline" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "openPipeline" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "OP.png" 
+        -image1 "OP.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "source \"openPipeline_0.9.2/openPipeline.mel\"; \nopenPipeline;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "bar" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "bar" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "facialSys_Vis.png" 
+        -image1 "facialSys_Vis.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import sys\nif sys.version > '3':\n    from importlib import reload\nimport faceArt_toolsBar as ToolsBarUI \nreload(ToolsBarUI)\nToolsBarUI.ToolsBarUI()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "AdvancedSkeleton" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "AdvancedSkeleton" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "6.600" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/AdvancedSkeleton6.600/AdvancedSkeletonFiles/icons/AS.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/AdvancedSkeleton6.600/AdvancedSkeletonFiles/icons/AS.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "source \"D:/ColdCard/Documents/maya/workBox/scripts/AdvancedSkeleton6.600/AdvancedSkeleton.mel\";AdvancedSkeleton;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "import jnts_template\njnts_template.load_jnts_template()" 
+        -enableBackground 1
+        -backgroundColor 0.144686 0.144686 0.144686 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "JntTemp" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "JntTemp" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.752774 0.0944294 0.0947646 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import jnts_template.jnts_template as jnts_template\njnts_template.load_jnts_template()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "PoseAdd" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "PoseAdd" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "PoseAdd" 
+        -overlayLabelColor 1 1 0 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "source \"D:/ColdCard/Documents/maya/workBox/scripts/asPoseAdd.mel\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:/Users/wangruilong/Documents/maya/PY_RIGASSIT/icons/label/shelf_icons/PyAssistantBase1.png" 
+        -image1 "C:/Users/wangruilong/Documents/maya/PY_RIGASSIT/icons/label/shelf_icons/PyAssistantBase1.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "\nfrom BatchGUI import BatchGUI\nGUT = BatchGUI()\nGUT.showWindow()\n        " 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:/Users/wangruilong/Documents/maya/PY_RIGASSIT/icons/label/shelf_icons/QT_logo.png" 
+        -image1 "C:/Users/wangruilong/Documents/maya/PY_RIGASSIT/icons/label/shelf_icons/QT_logo.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "\nfrom QuickTools.QuickToolsUI import QuickToolUI\nQT = QuickToolUI()\nQT.showWindow()\n        " 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "TH RIG TOOLS" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/ThRigTools/thRigToolsFiles/files/icons/icon.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/ThRigTools/thRigToolsFiles/files/icons/icon.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import os\nimport sys\nimport maya.cmds as cmds\n#\nTH_TOOLS_FILE_PATH = 'D:/ColdCard/Documents/maya/workBox/ThRigTools'\n# 加入路徑\nif not os.path.exists(TH_TOOLS_FILE_PATH):\n    raise IOError(f'Cannot find: {TH_TOOLS_FILE_PATH}')\n#\nif TH_TOOLS_FILE_PATH not in sys.path:\n    sys.path.insert(0, TH_TOOLS_FILE_PATH)\n# 透過 Maya 的 MQtUtil 或內建指令來確保舊視窗存在時將其安全刪除，此處改用預防 GC 閃退的持久化清理\nif hasattr(cmds, \"thMainUiInstance\"):\n    try:\n        cmds.thMainUiInstance.close()\n        cmds.thMainUiInstance.deleteLater()\n    except:\n        pass\n#\nif hasattr(cmds, \"thLogoUiInstance\"):\n    try:\n        cmds.thLogoUiInstance.close()\n        cmds.thLogoUiInstance.deleteLater()\n    except:\n        pass\n# 在刪除模組前，先清理 QApplication 中的翻譯器\nif 'thRigToolsFiles.rig' in sys.modules:\n    try:\n        sys.modules['thRigToolsFiles.rig'].ThLanguage.setLanguageF('zh_TW')\n    except Exception as e:\n        print(f\"清理語言失敗: {e}\")\n# 強制清除模組\nfor mod in list(sys.modules.keys()):\n    if mod.startswith('thRigToolsFiles.rig'):\n        sys.modules.pop(mod)\n# 重新載入\nimport thRigToolsFiles.rig\n# 顯示 UI\nthRigToolsFiles.rig.ThInitUi.initDataF()\n# 將視窗實例動態註冊到 cmds 模組中，等同於 Blender 的 bpy.types 作法\ncmds.thMainUiInstance = thRigToolsFiles.rig.ThUiMain()\ncmds.thMainUiInstance.show()\n#\ncmds.thLogoUiInstance = thRigToolsFiles.rig.ThUiLogoShow()\ncmds.thLogoUiInstance.show()\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "WRL_BatchTool" 
+        -enableBackground 1
+        -backgroundColor 0.170336 0.170336 0.170336 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "BatchTool" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Batch" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.42 0.56 0.75 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import WRL_BatchTool.WRL_BatchTool as WRL_BatchTool\nWRL_BatchTool.MainPY().ui.create_window()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "bb_Tools" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "bb_Tools" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/bb_Tools/Icon/BB.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/bb_Tools/Icon/BB.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "source \"D:/ColdCard/Documents/maya/workBox/scripts/bb_Tools/bb_Tools.mel\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "bb_Tools" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "bb_Tools" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/bb_Tools/Icon/List.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/bb_Tools/Icon/List.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "source \"D:/ColdCard/Documents/maya/workBox/scripts/bb_Tools/Script/bb_listTool.mel\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "adPose" 
+        -enableBackground 1
+        -backgroundColor 0.465202 0.367361 0.105806 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "adPose" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "adPose" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from adPose import ui\nui.show_in_maya()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "SculptInbetweenEditor_py2" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "SculptInbetweenEditor_py2" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "py2" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "dslSieIcon.xpm" 
+        -image1 "dslSieIcon.xpm" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import dslSculptInbetweenEditor_py2.dslSculptInbetweenEditor as dslSie\ncreate = dslSie.SculptInbetweenEditor()\ncreate.ui()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "SculptInbetweenEditor_py3" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "SculptInbetweenEditor_py3" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "py3" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "dslSieIcon.xpm" 
+        -image1 "dslSieIcon.xpm" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import dslSculptInbetweenEditor_py3.dslSculptInbetweenEditor as dslSie\ncreate = dslSie.SculptInbetweenEditor()\ncreate.ui()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "import create_vis_ctrl\ncreate_vis_ctrl.create_control_group_dialog()" 
+        -enableBackground 1
+        -backgroundColor 0.631922 0.305409 0.374502 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "VIS" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "VIS" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import create_vis_ctrl\ncreate_vis_ctrl.create_control_group_dialog()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Connect DisplayType" ( "import create_vis_ctrl\ncreate_vis_ctrl.connect_meshDisplayType()" )
+        -mip 0
+        -mi "Connect Display" ( "import create_vis_ctrl\ncreate_vis_ctrl.connect_modelVis()" )
+        -mip 1
+        -mi "ReBuild VIS" ( "import create_vis_ctrl\ncreate_vis_ctrl.rebuild_shape()" )
+        -mip 2
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Ribbonizer" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Ribbonizer" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Ribbonizer" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import oa_ribbonizer\noa_ribbonizer.UI()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "import kr_catenary" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "CrvRig" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "CrvRig" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import kr_catenary\nimport importlib\nimportlib.reload(kr_catenary)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Toggle vertex normal visibility" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Vertex Normals" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "VN" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "menuIconDisplay.png" 
+        -image1 "menuIconDisplay.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "ToggleVertexNormalDisplay" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "AllMask" 
+        -enableBackground 1
+        -backgroundColor 0.161166 0.161166 0.161166 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "AllMask" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "AllMask" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "selectMode -object; selectType -handle 1 -ikHandle 1 -joint 1 -nurbsCurve 1 -cos 1 -stroke 1 -nurbsSurface 1 -polymesh 1 -subdiv 1 -plane 1 -lattice 1 -cluster 1 -sculpt 1 -nonlinear 1 -particleShape 1 -emitter 1 -field 1 -spring 1 -rigidBody 1 -fluid 1 -hairSystem 1 -follicle 1 -nCloth 1 -nRigid 1 -dynamicConstraint 1 -rigidConstraint 1 -collisionModel 1 -light 1 -camera 1 -texture 1 -ikEndEffector 1 -locator 1 -dimension 1;selectType -byName gpuCache 0;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "CrvMask" 
+        -enableBackground 1
+        -backgroundColor 0.161166 0.161166 0.161166 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "CrvMask" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "CrvMask" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0.4922 1 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "selectMode -object; selectType -handle 0 -ikHandle 0 -joint 0 -nurbsCurve 1 -cos 1 -stroke 1 -nurbsSurface 0 -polymesh 0 -subdiv 0 -plane 0 -lattice 0 -cluster 0 -sculpt 0 -nonlinear 0 -particleShape 0 -emitter 0 -field 0 -spring 0 -rigidBody 0 -fluid 0 -hairSystem 0 -follicle 0 -nCloth 0 -nRigid 0 -dynamicConstraint 0 -rigidConstraint 0 -collisionModel 0 -light 0 -camera 0 -texture 0 -ikEndEffector 0 -locator 0 -dimension 0;selectType -byName gpuCache 0;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "MeshMask" 
+        -enableBackground 1
+        -backgroundColor 0.161166 0.161166 0.161166 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "MeshMask" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "MeshMask" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 1 0.00570011 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "selectMode -object; selectType -handle 0 -ikHandle 0 -joint 0 -nurbsCurve 0 -cos 0 -stroke 0 -nurbsSurface 1 -polymesh 1 -subdiv 1 -plane 1 -lattice 0 -cluster 0 -sculpt 0 -nonlinear 0 -particleShape 0 -emitter 0 -field 0 -spring 0 -rigidBody 0 -fluid 0 -hairSystem 0 -follicle 0 -nCloth 0 -nRigid 0 -dynamicConstraint 0 -rigidConstraint 0 -collisionModel 0 -light 0 -camera 0 -texture 0 -ikEndEffector 0 -locator 0 -dimension 0;selectType -byName gpuCache 1;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "JntVis" 
+        -enableBackground 1
+        -backgroundColor 0 0.481682 0.481682 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "JntVis" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "JntVis" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import maya.cmds as cmds\njnts = cmds.ls(sl=True,type='joint')\nif not jnts:\n    jnts = cmds.ls(type='joint')\nfor jnt in jnts:\n    try:\n        cmds.setAttr(jnt+'.drawStyle',0)    # 0 显示，2 隐藏\n    except:\n        continue" 
+        -sourceType "python" 
+        -doubleClickCommand "import maya.cmds as cmds\njnts = cmds.ls(sl=True,type='joint')\nif not jnts:\n    jnts = cmds.ls(type='joint')\nfor jnt in jnts:\n    try:\n        cmds.setAttr(jnt+'.drawStyle',2)    # 0 显示，2 隐藏\n    except:\n        continue" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "ADV Skin Jnt Show" ( "import maya.cmds as cmds\njnts = ['Eye_R', 'Jaw_M', 'Head_M', 'NeckPart2_M', 'NeckPart1_M', 'Neck_M', 'ThumbFinger3_R', 'ThumbFinger2_R', 'ThumbFinger1_R', 'IndexFinger3_R', 'IndexFinger2_R', 'IndexFinger1_R', 'IndexFingerCtrl_R', 'MiddleFinger3_R', 'MiddleFinger2_R', 'MiddleFinger1_R', 'MiddleFingerCtrl_R', 'RingFinger3_R', 'RingFinger2_R', 'RingFinger1_R', 'RingFingerCtrl_R', 'PinkyFinger3_R', 'PinkyFinger2_R', 'PinkyFinger1_R', 'PinkyFingerCtrl_R', 'Wrist_R', 'Elbow_R', 'ElbowPart1_R', 'ElbowPart2_R', 'ElbowPart3_R', 'Shoulder_R', 'ShoulderPart1_R', 'ShoulderPart2_R', 'ShoulderPart3_R', 'Scapula_R', 'Chest_M', 'Spine3Part1_M', 'Spine3_M', 'Spine2Part1_M', 'Spine2_M', 'Spine1Part1_M', 'Spine1_M', 'Toes_R', 'Ankle_R', 'Knee_R', 'KneePart1_R', 'KneePart2_R', 'KneePart3_R', 'Hip_R', 'HipPart1_R', 'HipPart2_R', 'HipPart3_R', 'LegAim_R', 'Root_M', 'Eye_L', 'ThumbFinger3_L', 'ThumbFinger2_L', 'ThumbFinger1_L', 'IndexFinger3_L', 'IndexFinger2_L', 'IndexFinger1_L', 'IndexFingerCtrl_L', 'MiddleFinger3_L', 'MiddleFinger2_L', 'MiddleFinger1_L', 'MiddleFingerCtrl_L', 'RingFinger3_L', 'RingFinger2_L', 'RingFinger1_L', 'RingFingerCtrl_L', 'PinkyFinger3_L', 'PinkyFinger2_L', 'PinkyFinger1_L', 'PinkyFingerCtrl_L', 'Wrist_L', 'Elbow_L', 'ElbowPart1_L', 'ElbowPart2_L', 'ElbowPart3_L', 'Shoulder_L', 'ShoulderPart1_L', 'ShoulderPart2_L', 'ShoulderPart3_L', 'Scapula_L', 'Toes_L', 'Ankle_L', 'Knee_L', 'KneePart1_L', 'KneePart2_L', 'KneePart3_L', 'Hip_L', 'HipPart1_L', 'HipPart2_L', 'HipPart3_L', 'LegAim_L']\nfor jnt in jnts:\n    try:\n        cmds.setAttr(jnt+'.drawStyle',0)    # 0 显示，2 隐藏\n    except:\n        continue" )
+        -mip 0
+        -mi "ADV Skin Jnt Hide" ( "import maya.cmds as cmds\njnts = ['Eye_R', 'Jaw_M', 'Head_M', 'NeckPart2_M', 'NeckPart1_M', 'Neck_M', 'ThumbFinger3_R', 'ThumbFinger2_R', 'ThumbFinger1_R', 'IndexFinger3_R', 'IndexFinger2_R', 'IndexFinger1_R', 'IndexFingerCtrl_R', 'MiddleFinger3_R', 'MiddleFinger2_R', 'MiddleFinger1_R', 'MiddleFingerCtrl_R', 'RingFinger3_R', 'RingFinger2_R', 'RingFinger1_R', 'RingFingerCtrl_R', 'PinkyFinger3_R', 'PinkyFinger2_R', 'PinkyFinger1_R', 'PinkyFingerCtrl_R', 'Wrist_R', 'Elbow_R', 'ElbowPart1_R', 'ElbowPart2_R', 'ElbowPart3_R', 'Shoulder_R', 'ShoulderPart1_R', 'ShoulderPart2_R', 'ShoulderPart3_R', 'Scapula_R', 'Chest_M', 'Spine3Part1_M', 'Spine3_M', 'Spine2Part1_M', 'Spine2_M', 'Spine1Part1_M', 'Spine1_M', 'Toes_R', 'Ankle_R', 'Knee_R', 'KneePart1_R', 'KneePart2_R', 'KneePart3_R', 'Hip_R', 'HipPart1_R', 'HipPart2_R', 'HipPart3_R', 'LegAim_R', 'Root_M', 'Eye_L', 'ThumbFinger3_L', 'ThumbFinger2_L', 'ThumbFinger1_L', 'IndexFinger3_L', 'IndexFinger2_L', 'IndexFinger1_L', 'IndexFingerCtrl_L', 'MiddleFinger3_L', 'MiddleFinger2_L', 'MiddleFinger1_L', 'MiddleFingerCtrl_L', 'RingFinger3_L', 'RingFinger2_L', 'RingFinger1_L', 'RingFingerCtrl_L', 'PinkyFinger3_L', 'PinkyFinger2_L', 'PinkyFinger1_L', 'PinkyFingerCtrl_L', 'Wrist_L', 'Elbow_L', 'ElbowPart1_L', 'ElbowPart2_L', 'ElbowPart3_L', 'Shoulder_L', 'ShoulderPart1_L', 'ShoulderPart2_L', 'ShoulderPart3_L', 'Scapula_L', 'Toes_L', 'Ankle_L', 'Knee_L', 'KneePart1_L', 'KneePart2_L', 'KneePart3_L', 'Hip_L', 'HipPart1_L', 'HipPart2_L', 'HipPart3_L', 'LegAim_L']\nfor jnt in jnts:\n    try:\n        cmds.setAttr(jnt+'.drawStyle',2)    # 0 显示，2 隐藏\n    except:\n        continue" )
+        -mip 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Click to place joint, click on existing joint to add to skeleton, click/drag to position joint" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Create Joints" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "kinJoint.png" 
+        -image1 "kinJoint.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "JointTool" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "JntOri" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "JntOri" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "JntOri" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import maya.cmds as cmds\njoints = cmds.ls(sl=True)\naixs = ['X','Y','Z']\nfor joint in joints:\n    for aix in aixs:\n        cmds.setAttr(joint+'.jointOrient{}'.format(aix),0)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Smooth bind skin" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Bind Skin" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "smoothSkin.png" 
+        -image1 "smoothSkin.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "SmoothBindSkin" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Adds the selected object as an influence to the selceted skinCluster" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Add Influence" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "addWrapInfluence.png" 
+        -image1 "addWrapInfluence.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "AddInfluence" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "bindPre" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "bindPre" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "bindPre" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import pymel.core as pm\ndef connectMatrix(geoName):\n        skinNode = pm.PyNode(geoName).listHistory(pdo=1, type='skinCluster')\n        if skinNode:\n            for jnt in pm.skinCluster(skinNode[0],q=1,inf=1):\n                jointIndex = [infc.name()[:-1].rsplit('[',1)[-1] for infc in jnt.obcc.listConnections(s=0, p=1) if skinNode[0].name() in infc.name()]\n                if not pm.isConnected(jnt.parentInverseMatrix[0],skinNode[0].bindPreMatrix[int(jointIndex[0])]):\n                    jnt.parentInverseMatrix[0] >> skinNode[0].bindPreMatrix[int(jointIndex[0])]\n                    \nobjs = pm.ls(sl=True)\nfor obj in objs:\n    connectMatrix(obj)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:ColdCardDocumentsmayaworkBoxPY_RIGASSITicons/label/shelf_icons/pyOpenpipeline.png" 
+        -image1 "D:ColdCardDocumentsmayaworkBoxPY_RIGASSITicons/label/shelf_icons/pyOpenpipeline.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import openpipeline.pyopenpipeline as openpipeline\nopenpipeline.main()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Assigns selected vertices with the same weight values as their neighboring vertices" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Hammer Skin Weights" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "HSW" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "menuIconSkinning.png" 
+        -image1 "menuIconSkinning.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "WeightHammer" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Add blend shape options" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "menuItem1528" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "blendShapePlus.png" 
+        -image1 "blendShapePlus.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "AddBlendShapeOptions" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Rivet" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Rivet" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Rivet" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import pymel.core as pm\n\nrivets = []\nobjs = pm.ls(sl=True)\nfor obj in objs[:-1]:\n    print(obj)\n    rivet = pm.duplicate(objs[-1],n='{}_rivet'.format(obj))\n    pm.delete(pm.parentConstraint(obj, rivet, weight=True))\n    rivets.append(rivet)\n#pm.group(rivets, n='rivet_Grp')\npm.delete(objs[-1])\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Select hierarchy" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Hierarchy" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Hier" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "menuIconSelect.png" 
+        -image1 "menuIconSelect.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "SelectHierarchy" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "ngst" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "ngst" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "ngSkinTools2ShelfIcon.png" 
+        -image1 "ngSkinTools2ShelfIcon.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import ngSkinTools2; ngSkinTools2.open_ui()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "FixSpine" 
+        -enableBackground 1
+        -backgroundColor 0.452384 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "FixSpine" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "FixSpine" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import Fix_ADV_Spine\nFix_ADV_Spine.run()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Fix_ADV_Spine_Q" ( "import Fix_ADV_Spine_Q\nFix_ADV_Spine_Q.run()" )
+        -mip 0
+        -mi "Fix_ADV_Neck" ( "import Fix_ADV_Neck\nFix_ADV_Neck.run()" )
+        -mip 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "绑定师助手" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "绑定师助手" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "BDSZS" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:/Users/wangruilong/Documents/maya/HH_TOOLS_V1.61/scripts/RiggingHelper/Icons/icos.png" 
+        -image1 "C:/Users/wangruilong/Documents/maya/HH_TOOLS_V1.61/scripts/RiggingHelper/Icons/icos.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "HExecuteScript \"C:/Users/wangruilong/Documents/maya/HH_TOOLS_V1.61/tools/Rigging/绑定师助手.mel\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "TAG" 
+        -enableBackground 1
+        -backgroundColor 0.527474 0.527474 0.527474 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "TAG" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "TAG" 
+        -overlayLabelColor 0 1 1 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "TAG2CopySkinWeights();\n\nglobal proc TAG2CopySkinWeights()\n{\nif (`window -ex TAG2CopySkinWeights`) {deleteUI TAG2CopySkinWeights;}\nstring $windowName =`window -title \"TAG2CopySkinWeights\" TAG2CopySkinWeights`;\n//string $progress = \"\";\n\ncolumnLayout -adjustableColumn true;\nrowLayout -numberOfColumns 2 -columnWidth2 160 160;\nbutton -label \"from\" -w 160 -c \"TAG2CopySkinWeightsList(0,0)\";\nbutton -label \"to\" -w 160 -c \"TAG2CopySkinWeightsList(1,0)\";\nsetParent ..;\nrowLayout -numberOfColumns 3 -columnWidth3 160 160 160;\ntextScrollList -w 160 -nr 15 -ams 0 copyListA;\ntextScrollList -w 160 -nr 15 -ams 0 copyListB;\nsetParent ..;\nrowLayout -numberOfColumns 1 -columnWidth1 322;\nbutton -label \"1.SmoothBind\" -w 322 -c \"TAG2SmoothBindApp\";\nsetParent ..;\nrowLayout -numberOfColumns 1 -columnWidth1 322;\nbutton -label \"2.AddInfluence\" -w 322 -c \"TAG2AddInfluenceApp\";\nsetParent ..;\nrowLayout -numberOfColumns 1 -columnWidth1 322;\nbutton -label \"3.CopySkinWeights\" -w 322 -c \"TAG2CopySkinWeightsApp\";\nsetParent ..;\n/*\nrowLayout -numberOfColumns 1 -columnWidth1 322;\nbutton -label \"4.RemoveUnusedInfluence\" -w 322 -c \"TAG2RemoveUnusedInfluenceApp\";\nsetParent ..;\n*/\nseparator -st \"in\" -h 8;\nrowLayout -numberOfColumns 1 -columnWidth1 322;\nbutton -label \"Run All\" -w 322 -c \"TAG2CopySkinWeightsAllApp\";\nsetParent ..;\nseparator -st \"in\" -h 8;\nrowLayout -numberOfColumns 1 -columnWidth1 322;\ntext -label \"After Run; skin > Edit Smooth Skin > Remove Unused skin\";\nsetParent ..;\n/*\nrowLayout -numberOfColumns 1 -columnWidth1 322;\ncolumnLayout;\ntext -label $progress progressText;\nsetParent ..;\nsetParent ..;\n*/\nsetParent ..;\nshowWindow;\n}\n\nglobal proc TAG2CopySkinWeightsList(int $num1,int $num2)\n{\nif ($num1 == 0)\n{\nstring $selObjA[] = `ls -sl`;\n/*\nstring $selDagA[];\n$selDagA = `ls -sl`;\n*/\ntextScrollList -e -ra copyListA;\nfor ($i=0; $i<size($selObjA); $i++)\n{\ntextScrollList -e -append $selObjA[$i] copyListA;\n}\n}\nif($num1 == 1)\n{\nstring $selDagB[] = `ls -sl`;\ntextScrollList -e -ra copyListB;\nfor($i=0; $i<size($selDagB); $i++)\n{\ntextScrollList -e -append $selDagB[$i] copyListB;\n}\n}\n}\n\nglobal proc TAG2CopySkinWeightsAllApp()\n{\nTAG2SmoothBindApp();\nTAG2AddInfluenceApp();\nTAG2CopySkinWeightsApp();\nTAG2RemoveUnusedInfluenceApp();\n}\n\nglobal proc TAG2SmoothBindApp()\n{\n//text -e -label \"SmoothBind...\" progressText;\n\nstring $texA[] = `textScrollList -q -ai copyListA`;\nstring $texB[] = `textScrollList -q -ai copyListB`;\nstring $weightedInf[];\nselect -cl;\n\nfor($i=0; $i<size($texA); $i++)\n{\n$weightedInf = `skinCluster -q -weightedInfluence $texA[$i]`;\nselect -add $weightedInf;\n}\nstring $infJoint[] = `ls -sl -type joint`;\nfor($i=0; $i<size($texB); $i++)\n{\nselect -r $infJoint;\nselect -add $texB[$i];\nskinCluster -toSelectedBones -removeUnusedInfluence false /*-skinMethod 0*/;\n}\n//text -e -label \"\" progressText;\n}\n\nglobal proc TAG2AddInfluenceApp ()\n{\n//text -e -label \"AddInfluence...\" progressText;\nstring $texA[] = `textScrollList -q -ai copyListA`;\nstring $texB[] = `textScrollList -q -ai copyListB`;\nstring $weightedInf[];\nselect -cl;\nfor($i=0; $i<size($texA); $i++)\n{\n$weightedInf = `skinCluster -q -weightedInfluence $texA[$i]`;\nselect -add $weightedInf;\n}\nstring $infJoint[] = `ls -sl -type joint`;\n\n//select -r $infJoint;\nselect -deselect $infJoint;\nstring $infTransform[] = `ls -sl`;\nfor($i=0; $i<size($texB); $i++)\n{\nfor ($j=0; $j<size($infTransform); $j++)\n{\nselect -r $texB[$i];\nskinCluster -e -dr 0 -ps 0 -ns 0 -ai $infTransform[$j];\n}\n}\n//text -e -label \"\" progressText;\n}\n\nglobal proc TAG2CopySkinWeightsApp()\n{\n//text -e -label \"CopySkinWeights...\" progressText;\nstring $texA[] = `textScrollList -q -ai copyListA`;\nstring $texB[] = `textScrollList -q -ai copyListB`;\nfor ($i=0; $i<size($texB); $i++)\n{\nselect -r $texA;\nselect -add $texB[$i];\ncopySkinWeights -noMirror -surfaceAssociation closestPoint\n-influenceAssociation closestJoint -influenceAssociation oneToOne;\n}\n//text -e -label \"\" progressText;\n}\n\n\nglobal proc TAG2RemoveUnusedInfluenceApp()\n{\n//text -e -label \"RemoveUnusedInfluence...\" progressText;\nstring $texA[] = `textScrollList -q -ai copyListA`;\nstring $texB[] = `textScrollList -q -ai copyListB`;\nstring $allInf[];\nstring $weightedInf[];\nstring $unusedInf[];\nstring $skinClst;\nselect -cl;\nfor($i=0; $i<size($texB); $i++)\n{\n$allInf = `skinCluster -q -influence $texB[$i]`;\n$weightedInf = `skinCluster -q -weightedInfluence $texB[$i]`;\nselect -r $allInf;\nselect -deselect $weightedInf;\nstring $selUnused[] = `ls -sl`;\nfor($j=0; $j<size($selUnused); $j++)\n{\n$skinClst = `findRelatedSkinCluster $texB[$i]`;\nskinCluster -e -ri $selUnused[$j] $skinClst;\n}\n}\n//text -e -label \"\" progressText;\n}\n\n" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "RibSpline" 
+        -enableBackground 1
+        -backgroundColor 0 0.31928 0.643183 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "RibSpline" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "RibSpline" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import splineCreate.SplineCreate as SplineCreate\nSplineCreate.Win().show()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "SlideSet" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "SlideSet" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "SlideSet" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import spline_slide_set\nspline_slide_set.createSlideWin()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "splineIK" 
+        -enableBackground 1
+        -backgroundColor 0 0.31928 0.643183 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "CVSpline" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "CVSpline" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "source \"D:/ColdCard/Documents/maya/workBox/scripts/splineIK.mel\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "sdd_UIDesigner" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "sdd_UIDesigner" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/sdd_UIDesignerNew_py3/icons/uid.bmp" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/sdd_UIDesignerNew_py3/icons/uid.bmp" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from sdd_UIDesignerNew_py3.scripts import sdd_UIDNew\nsdd_UIDNew.UIDesigner('D:/ColdCard/Documents/maya/workBox/scripts/sdd_UIDesignerNew_py3/scripts').show()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "from LogicCompiler import ui\nui.show()" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Logic" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Logic" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "nodeGrapherModeToggle.png" 
+        -image1 "nodeGrapherModeToggle.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from LogicCompiler import ui\nui.show()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 35
+        -enable 1
+        -width 38
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "DreamWall Picker" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "DreamWall Picker" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/dwpicker/dwpicker/icons/dreamwallpicker.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/dwpicker/dwpicker/icons/dreamwallpicker.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import dwpicker\ndwpicker.show()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "MBT" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "MBT" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "MBT" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import pymel.core as pm\nsel = pm.ls(sl=True)\npm.copyAttr(sel[0],sel[1],v=1)\nbsNode = pm.blendShape()[0]\npm.setKeyframe('{}.w[0]'.format(bsNode),t=0,v=0)\npm.setKeyframe('{}.w[0]'.format(bsNode),t=22,v=1)\npm.setKeyframe('{}.v'.format(sel[0]),t=21,v=0)\npm.setKeyframe('{}.v'.format(sel[0]),t=22,v=1)\npm.setKeyframe('{}.v'.format(sel[1]),t=21,v=1)\npm.setKeyframe('{}.v'.format(sel[1]),t=22,v=0)\nshape = sel[1].getShape()\npm.setAttr('{}.overrideEnabled'.format(shape),1)\npm.setAttr('{}.overrideDisplayType'.format(shape),2)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "UnLock" 
+        -enableBackground 1
+        -backgroundColor 0.515007 0.241016 0.356939 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "UnLock" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "UnLock" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import pymel.core as pm\nattrs = ['tx','ty','tz','rx','ry','rz','sx','sy','sz','v']\nsels = pm.ls(sl=True)\nfor sel in sels:\n    for attr in attrs:\n        pm.setAttr('{}.{}'.format(sel,attr),lock=False,keyable=True,channelBox=False)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 35
+        -enable 1
+        -width 38
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "DreamWall Picker" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "DreamWall Picker" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/dwpicker/dwpicker/icons/dreamwallpicker.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/dwpicker/dwpicker/icons/dreamwallpicker.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import os\nimport sys\nfrom maya import cmds\n\npath = 'L:\\VVSArtistFile\\wangruilong\\workBox\\scripts\\dwpicker'\n\nif not os.path.exists(path):\n    message = (\n        \"DreamWall Picker folder is missing!\\n\"\n        \"Did you moved the installation folder ?\\n\"\n        \"Please re-install.\")\n    cmds.confirmDialog(message=message, button=[\"ok\"])\n    raise FileNotFoundError('DreamWall Picker is gone :/')\n\nif path not in sys.path:\n    sys.path.insert(0, path)\n\nimport dwpicker\ndwpicker.show(editable=False,pickers=None,ignore_scene_pickers=True)\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Picker Loader" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Picker Loader" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/dwpicker/dwpicker/icons/mini-open.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/dwpicker/dwpicker/icons/mini-open.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import load_picker\nload_picker.create_picker_loader()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "import imp\nif \"ctUI\" not in globals(): \n\timport Character_Tool\n\timp.reload(Character_Tool)\n\tctUI = Character_Tool.CharacterTool()\n\nctUI.show()" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Picker" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/Icons/Logo_Icon.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/Icons/Logo_Icon.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import imp\nif \"ctUI\" not in globals(): \n\timport Character_Tool\n\timp.reload(Character_Tool)\n\tctUI = Character_Tool.CharacterTool()\n\nctUI.show()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "CorrJnt" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "CorrJnt" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "CorrJnt" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import mxgdn_corrective_joints\nimport imp\nimp.reload(mxgdn_corrective_joints)\nmxgdn_corrective_joints.IB()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "FKleg" 
+        -enableBackground 1
+        -backgroundColor 0.17583 0.17583 0.17583 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "FKleg" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "FKleg" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "setAttr \"FKIKLeg_R.FKIKBlend\" 0;\nsetAttr \"FKIKLeg_L.FKIKBlend\" 0;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "FKQleg" 
+        -enableBackground 1
+        -backgroundColor 0.208789 0.208789 0.208789 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "FKQleg" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "FKQleg" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "setAttr \"FKIKLegBack_R.FKIKBlend\" 0;\nsetAttr \"FKIKLegFront_L.FKIKBlend\" 0;\nsetAttr \"FKIKLegFront_R.FKIKBlend\" 0;\nsetAttr \"FKIKLegBack_L.FKIKBlend\" 0;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "CurveFromTubes" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "CFT" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "CFT" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import CurveFromTubes\ntry:\n    CFT.close()\nexcept:\n    pass\nmaya = CurveFromTubes.getMayaWindow()\nCFT = CurveFromTubes.CurveFromTubes(maya)\nCFT.show()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Root" 
+        -enableBackground 1
+        -backgroundColor 0.319493 0.470893 0.258503 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Root" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Root" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import root_ctrl_set.import_root_ctrl as root_ctrl\nroot_ctrl.import_root_ctrl()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Ctrl" 
+        -enableBackground 1
+        -backgroundColor 0.276799 0.355093 0.504295 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Ctrl" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Ctrl" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import create_ctrl_fix\ncreate_ctrl_fix.show()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Sat2022" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Sat2022" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Sat2022" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import sat_2022\nimport importlib\nimportlib.reload(sat_2022)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "sat2025" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "sat2025" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "sat2025" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import sat_2025\nimport importlib\nimportlib.reload(sat_2025)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "AnimPolish" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "AnimPolish" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "AnimPolish" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import animPolish.ui as ui\ntry:\n\tfrom importlib import reload\nexcept:\n\tpass\nreload (ui)\nui.ui (dock = 1)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Highlight Affected" 
+        -enableBackground 1
+        -backgroundColor 0.617212 0 0.617212 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Highlight Affected" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "HA" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "menuIconDisplay.png" 
+        -image1 "menuIconDisplay.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "displayPref -displayAffected 1;" 
+        -sourceType "mel" 
+        -doubleClickCommand "displayPref -displayAffected 0;" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "TheKeyMachine" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "TheKeyMachine" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:\\Users\\wangruilong\\Documents\\maya\\scripts\\TheKeyMachine\\data\\img\\TheKeyMachine_shelf_icon.png" 
+        -image1 "C:\\Users\\wangruilong\\Documents\\maya\\scripts\\TheKeyMachine\\data\\img\\TheKeyMachine_shelf_icon.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import TheKeyMachine;TheKeyMachine.toggle()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "SSDR" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "SSDR" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "SSDR" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import SSDR_local_sp.main\n\nif __name__ == '__main__':\n    try:\n        ssdr.closeUI()\n    except:\n        pass\n    SSDR_local_sp.main.SSDCheckLoad()\n    ssdr = SSDR_local_sp.main.MainWindow()\n    ssdr.showUI()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "MuscleJnt" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "MuscleJnt" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "MuscleJnt" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import importlib    \nimport MuscleJointSystem_py3.main\nimportlib.reload(MuscleJointSystem_py3.main)\nif __name__ == '__main__':\n    try:\n        test.closeUI()\n    except:\n        pass\n    test = MuscleJointSystem_py3.main.MainWindow()\n    test.showUI()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Fix FaceArt Lid" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Fix FaceArt Lid" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "fixLid" 
+        -overlayLabelColor 0.7562 1.4195 0.4393 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "setAttr \"L_UpLid_A_blinkWire_wire.scale[0]\" 0;\nsetAttr \"L_LoLid_A_blinkWire_wire.scale[0]\" 0;\nsetAttr \"R_UpLid_A_blinkWire_wire.scale[0]\" 0;\nsetAttr \"R_LoLid_A_blinkWire_wire.scale[0]\" 0;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Allows interaction with objects during playback" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Interactive Playback" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "interactivePlayback.png" 
+        -image1 "interactivePlayback.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "InteractivePlayback" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "playblast" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "playblast" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "playblast" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "playblast.png" 
+        -image1 "playblast.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from zurbrigg_advanced_playblast.zurbrigg_advanced_playblast_ui import ZurbriggAdvancedPlayblastUi\nZurbriggAdvancedPlayblastUi.display()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "attrImEx" 
+        -enableBackground 1
+        -backgroundColor 0.504799 0.540002 0.1906 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "attrImEx" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "attrImEx" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import attr_import_export\nattr_import_export.show_ui()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "import importlib\nimport addScale_py3 as addScale\nimportlib.reload(addScale)\naddScale.utilities().UI()" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "addScale" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "addScale" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import importlib\nimport addScale_py3 as addScale\nimportlib.reload(addScale)\naddScale.utilities().UI()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Studio Library" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Studio Library" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:\\Users\\wangruilong\\Documents\\maya\\studiolibrary\\src\\studiolibrary\\resource\\icons\\icon.png" 
+        -image1 "C:\\Users\\wangruilong\\Documents\\maya\\studiolibrary\\src\\studiolibrary\\resource\\icons\\icon.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "\n# -----------------------------------\n# Studio Library\n# www.studiolibrary.com\n# -----------------------------------\n\nimport os\nimport sys\n    \nif not os.path.exists(r'C:\\Users\\wangruilong\\Documents\\maya\\studiolibrary\\src'):\n    raise IOError(r'The source path \"C:\\Users\\wangruilong\\Documents\\maya\\studiolibrary\\src\" does not exist!')\n    \nif r'C:\\Users\\wangruilong\\Documents\\maya\\studiolibrary\\src' not in sys.path:\n    sys.path.insert(0, r'C:\\Users\\wangruilong\\Documents\\maya\\studiolibrary\\src')\n    \nimport studiolibrary\nstudiolibrary.main()\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "studiolibrary" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "studiolibrary" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "studiolibrary" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:/Users/wangruilong/Documents/maya/studiolibrary/src/studiolibrary/resource/icons/icon.png" 
+        -image1 "C:/Users/wangruilong/Documents/maya/studiolibrary/src/studiolibrary/resource/icons/icon.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "import studiolibrary\nlibraries = [\n    {\"name\":\"Local\", \"path\":r\"D:\\WorkTemp\\StudioLibrary\",\"default\":True},\n    {\"name\":\"DM\", \"path\":r\"\\\\192.168.100.101\\Project\\1036_DM\\VFX\\Reference\\AnimationLibrary\"},\n]\nstudiolibrary.setLibraries(libraries)\nstudiolibrary.main()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "snakeRigTool" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:\\Users/wangruilong/Documents/maya/scripts/snakeRigTool\\/uiAPI/icon/snake.png" 
+        -image1 "C:\\Users/wangruilong/Documents/maya/scripts/snakeRigTool\\/uiAPI/icon/snake.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "\nimport os\nimport sys\n\nif not os.path.exists(r'D:/ColdCard/Documents/maya/workBox/scripts/snakeRigTool'):\n    raise IOError(r'The source path \"D:/ColdCard/Documents/maya/workBox/scripts/snakeRigTool\" does not exist!')\n\nif r'D:/ColdCard/Documents/maya/workBox/scripts/snakeRigTool' not in sys.path:\n    sys.path.insert(0, r'D:/ColdCard/Documents/maya/workBox/scripts/snakeRigTool')\n    \nfrom snakeRigTool import ui\n\nui.show()\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "SnakeTool" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/scripts/SnakeTool/images/logo" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/scripts/SnakeTool/images/logo" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "path = 'D:/ColdCard/Documents/maya/workBox/scripts/SnakeTool/Scripts'\nimport sys\nsys.path.append(path)\n\nfrom SnakeUI import SnakeToolsUI\nSnakeToolsUI = SnakeToolsUI()\nSnakeToolsUI.showWindow()\n\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "UltimateAdjustableCarRig" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "UltimateAdjustableCarRig" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "D:/ColdCard/Documents/maya/workBox/UltimateAdjustableCarRig/icons/icon_UltimateAdjustableCarRig.png" 
+        -image1 "D:/ColdCard/Documents/maya/workBox/UltimateAdjustableCarRig/icons/icon_UltimateAdjustableCarRig.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import sys;sys.path.append( 'D:/ColdCard/Documents/maya/workBox/UltimateAdjustableCarRig/' ); import UltimateAdjustableCarRig; import imp; imp.reload( UltimateAdjustableCarRig ); UltimateAdjustableCarRig.ui( 'v2.892' ).build()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 

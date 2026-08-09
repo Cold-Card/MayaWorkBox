@@ -1,0 +1,979 @@
+if (`window -ex stretchWin`) deleteUI stretchWin;
+window -t "stretch Ctrl Create Window" -menuBar true -w 300 -h 700 -s true stretchWin;
+    menu-label "help";
+        menuItem -label "user help" -c "";
+        menuItem -label "about..." -c "";
+columnLayout -w 350 -h 700 colustretch;
+    rowColumnLayout -nr 27 -rh 1 5 -rh 2 30 -rh 3 12 -rh 4 20 -rh 5 30 -rh 6 30 -rh 7 30 -rh 8 30 -rh 9 8 -rh 10 30 -rh 11 30 -rh 12 12 -rh 13 30 -rh 14 30 -rh 15 30 -rh 16 12 
+                    -rh 17 30 -rh 18 30 -rh 19 30 -rh 20 30 -rh 21 30 -rh 22 30 -rh 23 20 -rh 24 30 -rh 25 30 -rh 26 30 -rh 27 30 ;
+        //1
+        rowColumnLayout;
+        setParent ..;
+        //2
+        rowColumnLayout -nr 1 -columnOffset 1 "left" 22;
+            text -w 110 -l "载入曲线:" ;
+            textField -en 0 -w 150 cuvtextField;
+            button -l "<<" -bgc 0.1 0.2 0.1 -w 60 -c "insertText" cuvInputButton;
+            setParent ..;
+        //3
+        separator -w 600;
+        //4
+        rowColumnLayout -nr 1 -co 1 "left" 10;
+            text -l "请选择你需要的控制方式:   " ;
+            radioCollection;
+                radioButton -w 100 -h 20 -label "FK+IK" FKIKriobutton;
+                radioButton -w 100 -label "IK only" IKriobutton;
+                radioButton -e -sl FKIKriobutton;
+            setParent ..;
+        //5
+        rowColumnLayout -nr 1 -co 1 "left" 10 -w 600;
+            intSliderGrp -label "骨骼数量:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
+                        -minValue 2 -maxValue 10 -fieldMinValue 2 -fieldMaxValue 10000 -value 10 jntIntSliderGrp;
+            setParent ..;
+        //6
+        rowColumnLayout -nr 1 -co 1 "left" 10 -w 600;
+            intSliderGrp -label "控制器数量:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
+                        -minValue 2 -maxValue 10 -fieldMinValue 2 -fieldMaxValue 10000 -value 4 ctrlIntSliderGrp;
+            setParent ..;
+        //7
+        rowColumnLayout -nr 1 -co 1 "left" 10;
+            text -l "是否需要添加 nHair   " ;
+            radioCollection;
+                radioButton -w 100 -h 30 -label "Yes" haironriobutton;
+                radioButton -w 100 -label "No" hairoffriobutton;
+                radioButton -e -sl hairoffriobutton;
+            setParent ..;
+        //8
+        rowColumnLayout -nc 1 -co 1 "left" 200;
+            button -l "createCtrl" -bgc 0 0.2 0.5 -w 140 -h 35 -c "ctrlcurrency" createCtrlButton;
+            setParent ..;
+        //9
+        separator -w 600;
+        //10
+        rowColumnLayout -nr 1 -co 1 "left" 10 -w 600;
+            intSliderGrp -label "毛囊数量:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
+                        -minValue 2 -maxValue 10 -fieldMinValue 2 -fieldMaxValue 10000 -value 10 FloIntSliderGrp;
+            setParent ..;
+        //11
+        rowColumnLayout -nc 1 -co 1 "left" 200;
+            button -l "createFollice" -bgc 0 0.2 0.3 -w 140 -h 35 -c "addFollice" createFolliceButton; 
+            setParent ..;
+        //12
+        separator -w 600;
+        //13
+        rowColumnLayout -h 40-nr 1 -columnOffset 1 "left" 20;
+            text -w 110 -l "载入大环控制器:";
+            textField -en 0 -w 150 -ec "insertMainText" MaintextField;
+            button -l "<<" -bgc 0.0 0.2 0.1 -w 60 -c "insertMainText" MainInputButton;
+            setParent ..;
+        //14
+        rowColumnLayout -nc 1 -co 1 "left" 200;
+            button -l "> 关联控制器 <" -bgc 0 0.2 0.4 -w 140 -h 25 -c "conCtrl" conCtrlButton;
+            setParent ..;
+        //15
+        rowColumnLayout -nc 1 -co 1 "left" 200;
+            button -l "> 关联毛囊 <" -bgc 0 0.2 0.4 -w 140 -h 25 -c "confol" conFolliButton;
+            setParent ..;
+        //16
+        separator -w 600;
+        //17
+        rowColumnLayout -nc 1 -co 1 "left" 20;
+            text -l "nHair 系统关联";
+            setParent ..;
+        //18
+        rowColumnLayout -nc 2 -co 1 "left" 20;
+            text -l "先选择控制器,再选择 nHair 系统,点击执行!" -w 240;
+            button -l "执行关联" -bgc 0 0.2 0.4 -w 80 -h 25 -c "multconHair";
+            setParent ..;
+        //19
+        separator -w 600;
+        //20
+        rowColumnLayout -nc 1 -co 1 "left" 20;
+            text -l "多个曲线的 nHair 系统创建";
+            setParent ..;
+        //21
+        rowColumnLayout -nc 2 -co 1 "left" 20;
+            text -l "选择所有要添加 nHair 的曲线,点击执行!" -w 240;
+            button -l "执行curve" -bgc 0 0.2 0.4 -w 80 -h 25 -c "multconHaircv";
+            setParent ..;
+        //22
+        rowColumnLayout -nc 2 -co 1 "left" 20;
+            text -l "选择所有要关联缩放的曲线,点击执行!" -w 240;
+            button -l "执行关联" -bgc 0 0.2 0.4 -w 80 -h 25 -c "mutlconCtrl";
+            setParent ..;
+        //23
+        separator -w 600;
+        //24
+        rowColumnLayout -nr 1 -co 1 "left" 23 -w 600;
+            floatSliderGrp -label "Ctrl Radius" -field true
+                        -minValue 0.00 -maxValue 10.00 -cl3 "left" "left" "left" -cw3 60 40 210
+                        -fieldMinValue 0.00 -fieldMaxValue 10.00
+                        -value 0.05 ctrlrd;
+            setParent ..;
+        //25
+        rowColumnLayout -h 40 -nr 1 -columnOffset 1 "left" 20;
+            text -w 110 -l "载入要吸附的模型:";
+            textField -en 0 -w 150 -ec "insertAttachModel" Mainmodel;
+            button -l "<<" -bgc 0.0 0.2 0.1 -w 60 -c "insertAttachModel" mdInputButton;
+            setParent ..;
+        //26
+        rowColumnLayout -h 40 -nr 1 -columnOffset 1 "left" 280;
+            button -l "clear" -bgc 0.8 0.2 0.7 -w 60 -c "insertAttachClear" mdcInputButton;
+            setParent ..;
+        //27
+        rowColumnLayout -nc 2 -co 1 "left" 20;
+            text -l "选择曲线，点击执行！" -w 240;
+            button -l "simp_hair_set" -bgc 0 0.2 0.4 -w 80 -h 25 -c "multconHaircvonlyjnt";
+            setParent ..;
+    setParent ..;
+//create head squash ctrl;
+global proc InsertAttr(string $addAttr,string $ctrlName,float $minValue,float $maxValue)
+{
+    addAttr -ln $addAttr -at double -min $minValue -max $maxValue -dv 0 $ctrlName;
+    setAttr -e -keyable true ($ctrlName+"."+$addAttr);
+}
+global proc jntname(string $jntnewname)
+{
+    select -cl;
+    joint -p 0 0 0 -n $jntnewname;
+}
+global proc jntInsert(string $jntch,string $jntparent)
+{
+    parent $jntch $jntparent;
+    setAttr ($jntch+".tx") 0;
+    setAttr ($jntch+".ty") 0;
+    setAttr ($jntch+".tz") 0;
+    setAttr ($jntch+".rx") 0;
+    setAttr ($jntch+".ry") 0;
+    setAttr ($jntch+".rz") 0;
+    parent -w $jntch;
+}
+global proc ctrlInsert(string $Inctrl,string $Parentctrl)
+{
+    select -r $Inctrl;
+    group -n ($Inctrl+"_grp");
+    xform -os -piv 0 0 0;
+    group -n ($Inctrl+"_Grp");
+    xform -os -piv 0 0 0;
+    parent ($Inctrl+"_Grp") $Parentctrl;
+    setAttr ($Inctrl+"_Grp.tx") 0;
+    setAttr ($Inctrl+"_Grp.ty") 0;
+    setAttr ($Inctrl+"_Grp.tz") 0;
+    setAttr ($Inctrl+"_Grp.rx") 0;
+    setAttr ($Inctrl+"_Grp.ry") 0;
+    setAttr ($Inctrl+"_Grp.rz") 0;
+    parent -w ($Inctrl+"_Grp");
+}
+global proc int getCurveCVnum(string $CurName)
+{
+    int $cyrSpan=`getAttr($CurName+".spans")`;
+    int $curDegree=`getAttr($CurName+".degree")`;
+    int $curCVnum=$cyrSpan+$curDegree;
+    return $curCVnum;
+}
+global proc clusterCur(string $curveName,string $clusterName)
+{
+    int $curCVnum=getCurveCVnum($curveName);
+    int $j;
+    string $clu_grp[];
+    for($j=0;$j<$curCVnum;$j++)
+    {
+        cluster -n ($clusterName+"_"+$j) ($curveName+".cv["+$j+"]");
+        $clu_grp[$j]=($clusterName+"_"+$j+"Handle");
+    }
+    select -r $clu_grp;
+    group -n ($clusterName+"_grp");
+    clear($clu_grp);
+}
+global proc insertText()
+{
+    string $lssele[]=`ls -sl`;
+    if(size($lssele)>0)
+    {
+        string $lssshape[]=`listRelatives -s -f $lssele[0]`;
+        if(`objectType $lssshape[0]`=="nurbsCurve")
+        {
+            textField -e -tx $lssele[0] cuvtextField;
+        }
+        else
+        {
+            print "please select the curve";
+        }
+    }
+    else
+    {
+        print "please select the curve";
+    }
+}
+global proc insertMainText()
+{
+    string $lssele[]=`ls -sl`;
+    if(size($lssele)>0)
+    {   
+        //string $lssshape[]=`listRelatives -s -f $lssele[0]`;
+        //if(`objectType $lssshape[0]`=="nurbsCurve")
+        //{
+            textField -e -tx $lssele[0] MaintextField;
+        //}
+        //else
+        //{
+            //print "please select the curve";
+        //}
+    }
+    else
+    {
+        print "please select the curve";
+    }
+}
+global proc insertAttachModel()
+{
+    string $lssele[]=`ls -sl`;
+    if(size($lssele)>0)
+    {
+        string $lssshape[]=`listRelatives -s -f $lssele[0]`;
+        if(`objectType $lssshape[0]`=="mesh")
+        {
+            textField -e -tx $lssele[0] Mainmodel;
+        }
+        else
+        {
+            print "please select the polygonModel";
+        }
+    }        
+    else
+    {
+        print "please select the polygonModel";
+    }    
+}
+global proc ctrlcurrency()
+{
+    string $selc=`textField -q -tx cuvtextField`;
+    string $selcur[];
+    $selcur[0]=$selc;
+    select -cl;
+    group -em -n ($selcur[0]+"_hiding_grp");
+    string $cur_shape[]=`listRelatives -s $selcur[0]`;
+    // rebuildCurve -ch 1 -rpo 1 -rt 0 -end 1 -kr 0 -kcp 0 -kep 1 -kt 0 -s 4 -d 3 // -tol 0.01 $selcur[0];
+    createNode pointOnCurveInfo -n ($selcur[0]+"_potinfo");
+    connectAttr -f ($cur_shape[0]+".worldSpace[0]") ($selcur[0]+"_potinfo.inputCurve");
+    spaceLocator -p 0 0 0 -n ($selcur[0]+"loc");
+    connectAttr -f ($selcur[0]+"_potinfo.position") ($selcur[0]+"loc.translate");
+    float $jnt_spans=`intSliderGrp -q -v jntIntSliderGrp`;
+    float $spans_down=$jnt_spans-1;
+    int $i;
+    for($i=0;$i<$jnt_spans;$i++)
+    {
+        setAttr ($selcur[0]+"_potinfo.parameter") ($i/$spans_down);
+        jntname($selcur[0]+"_jnt"+$i);
+        jntInsert(($selcur[0]+"_jnt"+$i),($selcur[0]+"loc"));
+        InsertAttr("value",($selcur[0]+"_jnt"+$i),0,10);
+        if($i>0)
+        {
+            int $j=$i-1;
+            parent ($selcur[0]+"_jnt"+$i) ($selcur[0]+"_jnt"+$j);
+            joint -e -oj xyz -secondaryAxisOrient yup -ch -zso ($selcur[0]+"_jnt"+$j);
+        }
+    }
+    makeIdentity -apply true -t 0 -r 0 -s 1 -n 0 -jointOrient ($selcur[0]+"_jnt"+$spans_down);  
+    float $ctrlrd=`floatSliderGrp -q -v ctrlrd`;
+    circle -n ($selcur[0]+"_squash_ctrl_1") -c 0 0 0 -nr 0 1 0 -sw 360 -r 1 -d 3 -ut 0 -tol 0.01 -s 8 -ch 1;
+    rotate -r -os 0 0 90;
+    scale -r $ctrlrd $ctrlrd $ctrlrd;
+    makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 ($selcur[0]+"_squash_ctrl_1");
+    DeleteHistory;
+    ctrlInsert(($selcur[0]+"_squash_ctrl_1"),($selcur[0]+"_jnt0"));
+    curve -d 1 -p 0 1 0 -p 0.5 0.866025 0 -p 0.866025 0.5 0 -p 1 0 0 -p 0.866025 -0.5 0 -p 0.5 -0.866025 0 -p 0 -1 0 -p -0.5 -0.866025 0 -p -0.866025 -0.5 0 
+        -p -1 0 0 -p -0.866025 0.5 0 -p -0.5 0.866025 0 -p 0 1 0 -p 0 0.866025 -0.5 -p 0 0.5 -0.866025 -p 0 0 -1 -p 0 -0.5 -0.866025 -p 0 -0.866025 -0.5 
+        -p 0 -1 0 -p 0 -0.866025 0.5 -p 0 -0.5 0.866025 -p 0 0 1 -p 0 0.5 0.866025 -p 0 0.866025 0.5 -p 0 1 0 -p 0 0.866025 -0.5 -p 0 0.5 -0.866025 -p 0 0 -1 
+        -p 0.5 0 -0.866025 -p 0.866025 0 -0.5 -p 1 0 0 -p 0.866025 0 0.5 -p 0.5 0 0.866025 -p 0 0 1 -p -0.5 0 0.866025 -p -0.866025 0 0.5 -p -1 0 0 -p -0.866025 0 -0.5 
+        -p -0.5 0 -0.866025 -p 0 0 -1 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 
+        -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 -k 32 -k 33 -k 34 -k 35 -k 36 -k 37 -k 38 -k 39
+        -n ($selcur[0]+"_squash_ctrl_2");
+    scale -r $ctrlrd $ctrlrd $ctrlrd;
+    move -r -os -wd 0.1 0 0;
+    makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 ($selcur[0]+"_squash_ctrl_2");
+    DeleteHistory;
+    move 0 0 0 ($selcur[0]+"_squash_ctrl_2.scalePivot") ($selcur[0]+"_squash_ctrl_2.rotatePivot");
+    ctrlInsert(($selcur[0]+"_squash_ctrl_2"),($selcur[0]+"_jnt"+$spans_down));
+    InsertAttr("stretch",($selcur[0]+"_squash_ctrl_2"),0,1);
+    InsertAttr("value",($selcur[0]+"_squash_ctrl_2"),0,10);
+    float $ctrl_spans=`intSliderGrp -q -v ctrlIntSliderGrp`;
+    float $ctrl_sdown=$ctrl_spans-1;
+    int $si;
+    for($si=0;$si<=$ctrl_spans;$si++)
+    {
+        rename `duplicate -rr ($selcur[0]+"_squash_ctrl_1")` ($selcur[0]+"_sub_ctrl_"+$si);
+        parent -w ($selcur[0]+"_sub_ctrl_"+$si);
+        InsertAttr("value",($selcur[0]+"_sub_ctrl_"+$si),0,10);
+        setAttr ($selcur[0]+"_potinfo.parameter") ($si/$ctrl_spans);
+        jntname($selcur[0]+"_sub_ctrl_jnt"+$si);
+        jntInsert(($selcur[0]+"_sub_ctrl_jnt"+$si),($selcur[0]+"loc"));
+        if($si>0)
+        {
+            int $j=$si-1;
+            parent ($selcur[0]+"_sub_ctrl_jnt"+$si) ($selcur[0]+"_sub_ctrl_jnt"+$j);
+            joint -e -oj xyz -secondaryAxisOrient yup -ch -zso ($selcur[0]+"_sub_ctrl_jnt"+$j);
+        }
+    }
+    parent -w ($selcur[0]+"_sub_ctrl_jnt1");
+    delete ($selcur[0]+"_sub_ctrl_0") ($selcur[0]+"_sub_ctrl_"+$ctrl_spans);
+    for($si=1;$si<$ctrl_spans;$si++)
+    {
+        ctrlInsert(($selcur[0]+"_sub_ctrl_"+$si),($selcur[0]+"_sub_ctrl_jnt"+$si));
+        setAttr ($selcur[0]+"_sub_ctrl_"+$si+".t") 0 0 0;
+        setAttr ($selcur[0]+"_sub_ctrl_"+$si+".r") 0 0 0;
+        parent ($selcur[0]+"_sub_ctrl_jnt"+$si) ($selcur[0]+"_sub_ctrl_"+$si);
+    }
+    InsertAttr("value",($selcur[0]+"_squash_ctrl_1"),0,10);
+    parent ($selcur[0]+"_sub_ctrl_jnt"+$ctrl_spans) ($selcur[0]+"_squash_ctrl_2");
+    parent ($selcur[0]+"_sub_ctrl_jnt0") ($selcur[0]+"_squash_ctrl_1");
+    select -cl;
+    for($si=0;$si<=$ctrl_spans;$si++)
+    {
+        select -add ($selcur[0]+"_sub_ctrl_jnt"+$si);
+    }
+    string $sub_ctrl_jnt[]=`ls -sl -fl`;
+    createNode multiplyDivide -n ($selcur[0]+"_multiNodeA");
+    createNode multiplyDivide -n ($selcur[0]+"_multiNodeB");
+    createNode blendColors -n ($selcur[0]+"_conNodeA");
+    connectAttr -f ($selcur[0]+"_squash_ctrl_2.stretch") ($selcur[0]+"_conNodeA.blender");
+    string $spine_curveInfo=`arclen -ch on ($selcur[0])`;
+    rename $spine_curveInfo ($selcur[0]+"_curveInfo");
+    float $spine_curvelen=`getAttr ($selcur[0]+"_curveInfo.arcLength")`;
+    setAttr ($selcur[0]+"_multiNodeB.input1X") $spine_curvelen;
+    connectAttr -f ($selcur[0]+"_multiNodeB.outputX") ($selcur[0]+"_multiNodeA.input2X");
+    connectAttr -f ($selcur[0]+"_curveInfo.arcLength") ($selcur[0]+"_multiNodeA.input1X");
+    setAttr ($selcur[0]+"_multiNodeA.operation") 2;
+    connectAttr -f ($selcur[0]+"_multiNodeA.outputX") ($selcur[0]+"_conNodeA.color1R");
+    setAttr ($selcur[0]+"_conNodeA.color2R") 1;
+    int $h;
+    for($h=1;$h<$jnt_spans;$h++)
+    {
+        float $g_tx=`getAttr ($selcur[0]+"_jnt"+$h+".tx")`;
+        createNode multiplyDivide -n ($selcur[0]+"_jnt"+$h+"_multNode");
+        setAttr ($selcur[0]+"_jnt"+$h+"_multNode.input1X") $g_tx;
+        connectAttr -f ($selcur[0]+"_conNodeA.outputR") ($selcur[0]+"_jnt"+$h+"_multNode.input2X");
+        connectAttr -f ($selcur[0]+"_jnt"+$h+"_multNode.outputX") ($selcur[0]+"_jnt"+$h+".tx");
+        createNode frameCache -n ($selcur[0]+"_jnt"+$h+"_frameNode");
+        createNode multiplyDivide -n ($selcur[0]+"_jnt"+$h+"_multNodeA");
+        createNode multiplyDivide -n ($selcur[0]+"_jnt"+$h+"_multNodeB");
+        createNode multiplyDivide -n ($selcur[0]+"_jnt"+$h+"_multNodeC");
+        setAttr ($selcur[0]+"_jnt"+$h+"_multNodeA.operation") 2;
+        setAttr ($selcur[0]+"_jnt"+$h+"_multNodeB.operation") 3;
+        setAttr ($selcur[0]+"_jnt"+$h+"_multNodeC.operation") 3;
+        setAttr ($selcur[0]+"_jnt"+$h+"_multNodeB.input2X") 0.5;
+        connectAttr -f ($selcur[0]+"_conNodeA.outputR") ($selcur[0]+"_jnt"+$h+"_multNodeB.input1X");
+        setAttr ($selcur[0]+"_jnt"+$h+"_multNodeA.input1X") 1;
+        connectAttr -f ($selcur[0]+"_jnt"+$h+"_multNodeB.outputX") ($selcur[0]+"_jnt"+$h+"_multNodeA.input2X");
+        connectAttr -f ($selcur[0]+"_jnt"+$h+"_multNodeA.outputX") ($selcur[0]+"_jnt"+$h+"_multNodeC.input1X");
+        connectAttr -f ($selcur[0]+"_jnt"+$h+".value") ($selcur[0]+"_jnt"+$h+"_frameNode.stream");
+        connectAttr -f ($selcur[0]+"_jnt"+$h+"_frameNode.future[0]") ($selcur[0]+"_jnt"+$h+"_multNodeC.input2X");
+        int $m=$h-1;
+        connectAttr -f ($selcur[0]+"_jnt"+$h+"_multNodeC.outputX") ($selcur[0]+"_jnt"+$m+".sy");
+        connectAttr -f ($selcur[0]+"_jnt"+$h+"_multNodeC.outputX") ($selcur[0]+"_jnt"+$m+".sz");
+    }
+    //是否添加hair
+    int $switch_hair=`radioButton -q -sl haironriobutton`;
+    if($switch_hair==0)
+    {
+        string $ikname[]=`ikHandle -sol ikSplineSolver -ccv false -pcv false -n ($selcur[0]+"_ikHandle") -c $selcur[0] -sj ($selcur[0]+"_jnt0") -ee ($selcur[0]+"_jnt"+($jnt_spans-1))`;
+        rename $ikname[1] ($selcur[0]+"_effector");
+        parent ($selcur[0]+"_ikHandle") ($selcur[0]+"_hiding_grp");
+    }
+    if($switch_hair==1)
+    {
+        select -r $selcur[0];
+        string $attcmod=`textField -q -tx Mainmodel`;
+        if($attcmod!="")
+        {
+            select -tgl $attcmod;
+        }
+        makeCurvesDynamic 2 {"1", "0", "1", "1", "0"};
+        string $systemshp[]=`ls -sl`;
+        string $sysname[]=`listRelatives -p $systemshp[0]`;
+        string $newsys_name=`rename $sysname[0] ($selcur[0]+"_hairsystem")`;
+        rename ($sysname[0]+"OutputCurves") ($selcur[0]+"_hairOutputCurves");
+        string $Opcuv_name[]=`listRelatives -c ($selcur[0]+"_hairOutputCurves")`;
+        string $newopcuv_name=`rename $Opcuv_name[0] ($selcur[0]+"_OutputCurve")`;
+        string $cuvfillicle[]=`listRelatives -p $selcur[0]`;
+        string $newfol_name=`rename $cuvfillicle[0] ($selcur[0]+"_follicle")`;
+        string $cuvfolliclegrp[]=`listRelatives -p ($selcur[0]+"_follicle")`;
+        rename $cuvfolliclegrp[0] ($selcur[0]+"_follicle_grp");
+        setAttr ($newfol_name+"Shape.pointLock") 1;
+        string $ikname[]=`ikHandle -sol ikSplineSolver -ccv false -pcv false -n ($selcur[0]+"_ikHandle") -c ($selcur[0]+"_OutputCurve") -sj ($selcur[0]+"_jnt0") -ee ($selcur[0]+"_jnt"+($jnt_spans-1))`;
+        rename $ikname[1] ($selcur[0]+"_effector");
+        parent ($selcur[0]+"_ikHandle") ($selcur[0]+"_hairOutputCurves");
+        parent ($selcur[0]+"_hairsystem") ($selcur[0]+"_follicle_grp") ($selcur[0]+"_hairOutputCurves") ($selcur[0]+"_hiding_grp");
+    }
+    skinCluster -n ($selcur[0]+"_skinCluster") $sub_ctrl_jnt $selcur[0];
+    setAttr ($selcur[0]+"_ikHandle.dTwistControlEnable") 1;
+    setAttr ($selcur[0]+"_ikHandle.dWorldUpType") 4;
+    setAttr ($selcur[0]+"_ikHandle.dWorldUpType") 0;
+    setAttr ($selcur[0]+"_ikHandle.dTwistControlEnable") 0;
+    //需要手动设置advanced twist
+    int $FKIKselection=`radioButton -q -sl FKIKriobutton`;
+    if($FKIKselection==0)
+    {
+        addAttr -ln "follow" -at "enum" -en "lock:head:" ($selcur[0]+"_squash_ctrl_2");
+        setAttr -k on ($selcur[0]+"_squash_ctrl_2.follow");
+        group -em -n ($selcur[0]+"_squash_ctrl_2_world");
+        parent ($selcur[0]+"_squash_ctrl_2_world") ($selcur[0]+"_squash_ctrl_2");
+        setAttr ($selcur[0]+"_squash_ctrl_2_world.t") 0 0 0;
+        setAttr ($selcur[0]+"_squash_ctrl_2_world.r") 0 0 0;
+        parent -w ($selcur[0]+"_squash_ctrl_2_world");
+        int $g;
+        for($g=$ctrl_sdown;$g>=1;$g--)
+        {
+            $u=$g;
+            parentConstraint -mo -weight 1 -n ($selcur[0]+"_sub_ctrl_"+$u+"_grp_pacon") ($selcur[0]+"_squash_ctrl_1") ($selcur[0]+"_squash_ctrl_2") ($selcur[0]+"_sub_ctrl_"+$u+"_grp");
+            float $weita=$u/$ctrl_spans;
+            setAttr ($selcur[0]+"_sub_ctrl_"+$u+"_grp_pacon."+$selcur[0]+"_squash_ctrl_1W0") (1-$weita);
+            setAttr ($selcur[0]+"_sub_ctrl_"+$u+"_grp_pacon."+$selcur[0]+"_squash_ctrl_2W1") $weita;
+            parent ($selcur[0]+"_sub_ctrl_"+$u+"_Grp") ($selcur[0]+"_squash_ctrl_1_Grp");
+        }
+    }
+    else
+    {
+        int $g;
+        for($g=$ctrl_sdown;$g>1;$g--)
+        {
+            int $u=$g-1;
+            float $posf[]=`xform -q -rotatePivot -ws ($selcur[0]+"_sub_ctrl_"+$u)`;
+            move $posf[0] $posf[1] $posf[2] ($selcur[0]+"_sub_ctrl_"+$g+"_grp.scalePivot") ($selcur[0]+"_sub_ctrl_"+$g+"_grp.rotatePivot");
+            orientConstraint -mo -weight 1 -n ($selcur[0]+"_sub_ctrl_"+$g+"_grp_ori") ($selcur[0]+"_sub_ctrl_"+$u) ($selcur[0]+"_sub_ctrl_"+$g+"_grp");
+            parent ($selcur[0]+"_sub_ctrl_"+$g+"_Grp") ($selcur[0]+"_sub_ctrl_"+$u+"_grp");
+        }
+        float $ctrl_sdown=$ctrl_spans-1;
+        float $posf[]=`xform -q -rotatePivot -ws ($selcur[0]+"_sub_ctrl_"+$ctrl_sdown)`;
+        move $posf[0] $posf[1] $posf[2] ($selcur[0]+"_squash_ctrl_2_grp.scalePivot") ($selcur[0]+"_squash_ctrl_2_grp.rotatePivot");
+        orientConstraint -mo -weight 1 -n ($selcur[0]+"_squash_ctrl_2_grp_ori") ($selcur[0]+"_sub_ctrl_"+$ctrl_sdown) ($selcur[0]+"_squash_ctrl_2_grp");
+        parent ($selcur[0]+"_squash_ctrl_2_Grp") ($selcur[0]+"_sub_ctrl_"+$ctrl_sdown+"_grp");
+        float $posf[]=`xform -q -rotatePivot -ws ($selcur[0]+"_squash_ctrl_1")`;
+        move $posf[0] $posf[1] $posf[2] ($selcur[0]+"_sub_ctrl_1_grp.scalePivot") ($selcur[0]+"_sub_ctrl_1_grp.rotatePivot");
+        orientConstraint -mo -weight 1 -n ($selcur[0]+"_sub_ctrl_1_grp_ori") ($selcur[0]+"_squash_ctrl_1") ($selcur[0]+"_sub_ctrl_1_grp");
+        parent ($selcur[0]+"_sub_ctrl_1_Grp") ($selcur[0]+"_squash_ctrl_1_grp");
+    }
+    delete ($selcur[0]+"loc");
+}
+global proc addFollice()
+{
+    string $selc=`textField -q -tx cuvtextField`;
+    string $selcur[];
+    $selcur[0]=$selc;
+    // 添加毛囊
+    string $cur_shape[]=`listRelatives -s $selcur[0]`;
+    createNode pointOnCurveInfo -n ($selcur[0]+"_potinfo");
+    connectAttr -f ($cur_shape[0]+".worldSpace[0]") ($selcur[0]+"_potinfo.inputCurve");
+    spaceLocator -p 0 0 0 -n ($selcur[0]+"loc");
+    connectAttr -f ($selcur[0]+"_potinfo.position") ($selcur[0]+"loc.translate");
+    int $i;
+    float $jnt_spans=`intSliderGrp -q -v FloIntSliderGrp`;
+    float $spans_down=$jnt_spans-1;
+    for ($i=0;$i<$jnt_spans;$i++)
+    {
+        setAttr ($selcur[0]+"_potinfo.parameter") ($i/$spans_down);
+        jntname($selcur[0]+"_skin_jnt"+$i);
+        jntInsert(($selcur[0]+"_skin_jnt"+$i),($selcur[0]+"loc"));
+        if ($i>0)
+        {
+            int $j=$i-1;
+            parent ($selcur[0]+"_skin_jnt"+$i) ($selcur[0]+"_skin_jnt"+$j);
+            joint -e -oj xyz -secondaryAxisOrient yup -ch -zso ($selcur[0]+"_skin_jnt"+$j);
+        }
+    }
+    makeIdentity -apply true -t 0 -r 0 -s 1 -n 0 -jointOrient ($selcur[0]+"_skin_jnt"+$spans_down);
+    curve -d 2 -p 0 0 -0.25 -p 0 0 0 -p 0 0 0.25 -k 0 -k 0 -k 1 -k 1 -n "extrue_curve";
+    extrude -n ($selcur[0]+"_face") -ch true -rn false -po 0 -et 2 -ucp 1 -fpt 1 -upn 1 -rotation 0 -scale 1 -rsp 1 "extrue_curve" ($selcur[0]);
+    rebuildSurface -ch 1 -rpo 1 -rt 0 -end 1 -kr 0 -kcp 0 -kc 0 -su 1 -du 3 -sv ($spans_down-2) -dv 3 -tol 0.01 -fr 0 -dir 2 ($selcur[0]+"_face");
+    DeleteHistory;
+    string $sufaceshape[]=`listRelatives -s ($selcur[0]+"_face")`;
+    circle -n ($selcur[0]+"_single_ctrl_dup") -c 0 0 0 -nr 0 1 0 -sw 360 -r 0.5 -d 3 -ut 0 -tol 0.01 -s 8 -ch 1;
+    rotate -r -os 0 90 0;
+    scale -r 0.25 0.25 0.25;
+    makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 ($selcur[0]+"_single_ctrl_dup");
+    DeleteHistory;
+    if(!`objExists ("follicle_grp")`)
+    {
+        group -em -n "follicle_grp";
+    }
+    int $y;
+    for ($y=0;$y<=$spans_down;$y++)
+    {
+        string $follicleShape = `createNode follicle -n ($selcur[0]+"_single_follicleshp"+$y)`;
+        rename `listRelatives -parent $follicleShape` ($selcur[0]+"_single_follicle"+$y);
+        string $follicleTransform[] = {($selcur[0]+"_single_follicle"+$y)};
+        connectAttr -f ($sufaceshape[0]+".worldMatrix[0]") ($follicleShape+".inputWorldMatrix");
+        connectAttr -f ($selcur[0]+".local") ($follicleShape+".inputSurface");
+        connectAttr -f ($follicleShape+".outTransform") ($follicleTransform[0]+".translate");
+        connectAttr -f ($follicleShape+".outRotate") ($follicleTransform[0]+".rotate");
+        setAttr ($follicleTransform[0]+".parameterU") 0.5;
+        setAttr ($follicleTransform[0]+".parameterV") ($y/$spans_down);
+        rename `duplicate -rr ($selcur[0]+"_single_ctrl_dup")` ($selcur[0]+"_single_ctrl"+$y);
+        ctrlInsert(($selcur[0]+"_single_ctrl"+$y),$follicleTransform[0]);
+        parent ($selcur[0]+"_single_ctrl"+$y+"_Grp") $follicleTransform[0];
+        parentConstraint -mo -weight 1 -n ($selcur[0]+"_skin_jnt"+$y+"_parentcon") ($selcur[0]+"_single_ctrl"+$y) ($selcur[0]+"_skin_jnt"+$y);
+        scaleConstraint -mo -weight 1 -n ($selcur[0]+"_skin_jnt"+$y+"_scalecon") ($selcur[0]+"_single_ctrl"+$y) ($selcur[0]+"_skin_jnt"+$y);
+        parent $follicleTransform[0] follicle_grp;
+    }
+    parent ($selcur[0]+"_face") follicle_grp;
+    delete extrue_curve ($selcur[0]+"_single_ctrl_dup");
+}
+global proc conCtrl()
+{
+    string $selc=`textField -q -tx cuvtextField`;
+    string $selcur[];
+    $selcur[0]=$selc;
+    string $main_ctrl_name=`textField -q -tx MaintextField`;
+    connectAttr -f ($main_ctrl_name+".scaleX") ($selcur[0]+"_multiNodeB.input2X");
+}
+global proc confol()
+{
+    string $selc=`textField -q -tx cuvtextField`;
+    string $selcur[];
+    $selcur[0]=$selc;
+    string $main_ctrl_name=`textField -q -tx MaintextField`;
+    float $jnt_spans=`intSliderGrp -q -v FloIntSliderGrp`;
+    float $spans_down=$jnt_spans-1;
+    int $y;
+    for ($y=0;$y<=$spans_down;$y++)
+    {
+        connectAttr -f ($main_ctrl_name+".s") ($selcur[0]+"_single_ctrl_"+$y+"_grp.s");
+    }
+}
+global proc conHair()
+{
+    string $selObj[]=`ls -sl`;
+    if (!(`attributeExists("HairBase") $selObj[0]`))
+    {
+        addAttr -ln ("Hair") -k 1 -at "enum" -en "_________" $selObj[0];
+        setAttr -l true ($selObj[0]+".Hair");
+        addAttr -ln ("HairBase") -k 1 -at "enum" -en "Attributes" $selObj[0];
+        setAttr -l true ($selObj[0]+".HairBase");
+        addAttr -ln ("DyanmicOnOff") -at "bool" $selObj[0];
+        setAttr -e -k true ($selObj[0]+".DyanmicOnOff");
+        if(!`objExists($selObj[0]+"_setRannode")`)
+        {
+            string $setRangeHair = `createNode setRange -n ($selObj[0]+"_setRannode")`;
+            connectAttr -f ($selObj[0]+".DyanmicOnOff") ($setRangeHair+".valueX");
+            setAttr ($setRangeHair+".minX") 1;
+            setAttr ($setRangeHair+".maxX") 3;
+            setAttr ($setRangeHair+".oldMinX") 0;
+            setAttr ($setRangeHair+".oldMaxX") 1;
+        }
+        addAttr -ln ("StartCurveAttract") -at "double" -min 0 -max 1 -dv 0 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".StartCurveAttract");
+        addAttr -ln ("StartFrame") -at "long" -dv 90 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".StartFrame");
+        addAttr -ln ("HairDynamics") -k 1 -at "enum" -en "Attributes" $selObj[0];
+        setAttr -l true ($selObj[0]+".HairDynamics");
+        addAttr -ln ("Iterations") -at "long" -dv 4 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Iterations");
+        addAttr -ln ("Stiffness") -min 0 -max 1 -at "double" -dv 0.3 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Stiffness");
+        addAttr -ln ("Drag") -min 0 -max 10 -at "double" -dv 0.1 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Drag");
+        addAttr -ln ("Damp") -min 0 -max 100 -at "double" -dv 0.1 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Damp");
+        addAttr -ln ("Friction") -min 0 -max 10 -at "double" -dv 0 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Friction");
+        addAttr -ln ("Mass") -min 0 -max 10 -at "double" -dv 1 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Mass");
+        addAttr -ln ("Gravity") -min 0 -max 10 -at "double" -dv 0.98 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Gravity");
+        addAttr -ln ("motion_drag") -min 0 -max 10 -at "double" -dv 0 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".motion_drag");
+        addAttr -ln ("HairTurbulence") -k 1 -at "enum" -en "Attributes" $selObj[0];
+        setAttr -l true ($selObj[0]+".HairTurbulence");
+        addAttr -ln ("Intensity") -min 0 -max 10 -at "double" -dv 0 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Intensity");
+        addAttr -ln ("Frequency") -min 0 -max 10 -at "double" -dv 1 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Frequency");
+        addAttr -ln ("Speed") -min 0 -max 10 -at "double" -dv 1 $selObj[0];
+        setAttr -e -k true ($selObj[0]+".Speed");
+    }
+    string $tmpObj[]=`listRelatives -s $selObj[1]`;
+    $tmpObj_hairSystem = $tmpObj[0];
+    string $setRangeHair=($selObj[0]+"_setRannode");
+    if(!`objExists($selObj[0]+"_setRannode")`)
+    {
+        string $setRangeHair=`createNode setRange -n ($selObj[0]+"_setRannode")`;
+        connectAttr -f ($selObj[0]+".DyanmicOnOff") ($setRangeHair+".valueX");
+        setAttr ($setRangeHair+".minX") 1;
+        setAttr ($setRangeHair+".maxX") 3;
+        setAttr ($setRangeHair+".oldMinX") 0;
+        setAttr ($setRangeHair+".oldMaxX") 1;
+    }
+    connectAttr -f ($setRangeHair+".outValueX") ($tmpObj_hairSystem+".simulationMethod");
+    connectAttr -f ($selObj[0]+".StartCurveAttract") ($tmpObj_hairSystem+".startCurveAttract");
+    connectAttr -f ($selObj[0]+".StartFrame") ($tmpObj_hairSystem+".startFrame");
+    connectAttr -f ($selObj[0]+".Iterations") ($tmpObj_hairSystem+".iterations");
+    connectAttr -f ($selObj[0]+".Stiffness") ($tmpObj_hairSystem+".stiffness");
+    connectAttr -f ($selObj[0]+".Drag") ($tmpObj_hairSystem+".drag");
+    connectAttr -f ($selObj[0]+".Damp") ($tmpObj_hairSystem+".damp");
+    connectAttr -f ($selObj[0]+".Friction") ($tmpObj_hairSystem+".friction");
+    connectAttr -f ($selObj[0]+".Mass") ($tmpObj_hairSystem+".mass");
+    connectAttr -f ($selObj[0]+".Gravity") ($tmpObj_hairSystem+".gravity");
+    connectAttr -f ($selObj[0]+".Intensity") ($tmpObj_hairSystem+".turbulenceStrength");
+    connectAttr -f ($selObj[0]+".Frequency") ($tmpObj_hairSystem+".turbulenceFrequency");
+    connectAttr -f ($selObj[0]+".Speed") ($tmpObj_hairSystem+".turbulenceSpeed");
+    connectAttr -f ($selObj[0]+".motion_drag") ($tmpObj_hairSystem+".motionDrag");
+}
+global proc multconHaircv()
+{
+    string $slcv[]=`ls -sl -fl`;
+    string $objcv[]=`listRelatives -s $slcv[0]`;
+    if (objectType($objcv[0]) == "nurbsCurve")
+    {
+        string $slc;
+        for ($slc in $slcv)
+        {
+            string $selcur[];
+            $selcur[0] = $slc;
+            select -cl;
+            if(!objExists($slcv[0]+"_hiding_grp"))
+            {
+                group -em -n ($slcv[0]+"_hiding_grp");
+            }
+            string $cur_shape[]=`listRelatives -s $selcur[0]`;
+            // rebuildCurve -ch 1 -rpo 1 -rt 0 -end 1 -kr 0 -kcp 0 -kep 1 -kt 0 -s 4 -d 3 // -tol 0.01 $selcur[0];
+            createNode pointOnCurveInfo -n ($selcur[0]+"_potinfo");
+            connectAttr -f ($cur_shape[0]+".worldSpace[0]") ($selcur[0]+"_potinfo.inputCurve");
+            spaceLocator -p 0 0 0 -n ($selcur[0]+"loc");
+            connectAttr -f ($selcur[0]+"_potinfo.position") ($selcur[0]+"loc.translate");
+            float $jnt_spans=`intSliderGrp -q -v jntIntSliderGrp`;
+            float $spans_down=$jnt_spans-1;
+            int $i;
+            for($i=0;$i<$jnt_spans;$i++)
+            {
+                setAttr ($selcur[0]+"_potinfo.parameter") ($i/$spans_down);
+                jntname($selcur[0]+"_jnt"+$i);
+                jntInsert(($selcur[0]+"_jnt"+$i),($selcur[0]+"loc"));
+                InsertAttr("value",($selcur[0]+"_jnt"+$i),0,10);
+                if($i>0)
+                {
+                    int $j=$i-1;
+                    parent ($selcur[0]+"_jnt"+$i) ($selcur[0]+"_jnt"+$j);
+                    joint -e -oj xyz -secondaryAxisOrient yup -ch -zso ($selcur[0]+"_jnt"+$j);
+                }
+            }
+            makeIdentity -apply true -t 0 -r 0 -s 1 -n 0 -jointOrient ($selcur[0]+"_jnt"+$spans_down);
+            float $ctrlrd=`floatSliderGrp -q -v ctrlrd`;
+            circle -n ($selcur[0]+"_squash_ctrl_1") -c 0 0 0 -nr 0 1 0 -sw 360 -r 1 -d 3 -ut 0 -tol 0.01 -s 8 -ch 1;
+                rotate -r -os 0 0 90;
+                scale -r $ctrlrd $ctrlrd $ctrlrd;
+                makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 ($selcur[0]+"_squash_ctrl_1");
+                DeleteHistory;
+            ctrlInsert(($selcur[0]+"_squash_ctrl_1"),($selcur[0]+"_jnt0"));
+            curve -d 1 -p 0 1 0 -p 0.5 0.866025 0 -p 0.866025 0.5 0 -p 1 0 0 -p 0.866025 -0.5 0 -p 0.5 -0.866025 0 -p 0 -1 0 -p -0.5 -0.866025 0 -p -0.866025 -0.5 0 
+                    -p -1 0 0 -p -0.866025 0.5 0 -p -0.5 0.866025 0 -p 0 1 0 -p 0 0.866025 -0.5 -p 0 0.5 -0.866025 -p 0 0 -1 -p 0 -0.5 -0.866025 -p 0 -0.866025 -0.5 
+                    -p 0 -1 0 -p 0 -0.866025 0.5 -p 0 -0.5 0.866025 -p 0 0 1 -p 0 0.5 0.866025 -p 0 0.866025 0.5 -p 0 1 0 -p 0 0.866025 -0.5 -p 0 0.5 -0.866025 -p 0 0 -1 
+                    -p 0.5 0 -0.866025 -p 0.866025 0 -0.5 -p 1 0 0 -p 0.866025 0 0.5 -p 0.5 0 0.866025 -p 0 0 1 -p -0.5 0 0.866025 -p -0.866025 0 0.5 -p -1 0 0 -p -0.866025 0 -0.5 
+                    -p -0.5 0 -0.866025 -p 0 0 -1 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 
+                    -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 -k 32 -k 33 -k 34 -k 35 -k 36 -k 37 -k 38 -k 39
+                    -n ($selcur[0]+"_squash_ctrl_2");
+                scale -r $ctrlrd $ctrlrd $ctrlrd;
+                move -r -os -wd 0.1 0 0;
+                makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 ($selcur[0]+"_squash_ctrl_2");
+                DeleteHistory;
+                move 0 0 0 ($selcur[0]+"_squash_ctrl_2.scalePivot") ($selcur[0]+"_squash_ctrl_2.rotatePivot");
+            ctrlInsert(($selcur[0]+"_squash_ctrl_2"),($selcur[0]+"_jnt"+$spans_down));
+            InsertAttr("stretch", ($selcur[0]+"_squash_ctrl_2"),0,1);
+            InsertAttr("value", ($selcur[0]+"_squash_ctrl_2"),0,10);
+            float $ctrl_spans=`intSliderGrp -q -v ctrlIntSliderGrp`;
+            float $ctrl_sdown=$ctrl_spans-1;
+            int $si;
+            for ($si=0;$si<=$ctrl_sdown;$si++)
+            {
+                rename `duplicate -rr ($selcur[0]+"_squash_ctrl_1")` ($selcur[0]+"_sub_ctrl_"+$si);
+                parent -w ($selcur[0]+"_sub_ctrl_"+$si);
+                InsertAttr("value", ($selcur[0]+"_sub_ctrl_"+$si),0,10);
+                setAttr ($selcur[0]+"_potinfo.parameter") ($si/$ctrl_spans);
+                jntname($selcur[0]+"_sub_ctrl_jnt"+$si);
+                jntInsert(($selcur[0]+"_sub_ctrl_jnt"+$si),($selcur[0]+"loc"));
+                if ($si>0)
+                {
+                    int $j=$si-1;
+                    parent ($selcur[0]+"_sub_ctrl_jnt"+$si) ($selcur[0]+"_sub_ctrl_jnt"+$j);
+                    joint -e -oj xyz -secondaryAxisOrient yup -ch -zso ($selcur[0]+"_sub_ctrl_jnt"+$j);
+                }
+            }
+            parent -w ($selcur[0]+"_sub_ctrl_jnt1");
+            delete ($selcur[0]+"_sub_ctrl_0") ($selcur[0]+"_sub_ctrl_"+$ctrl_spans);
+            for($si=1;$si<$ctrl_spans;$si++)
+            {
+                ctrlInsert(($selcur[0]+"_sub_ctrl_"+$si),($selcur[0]+"_sub_ctrl_jnt"+$si));
+                setAttr ($selcur[0]+"_sub_ctrl_"+$si+".t") 0 0 0;
+                setAttr ($selcur[0]+"_sub_ctrl_"+$si+".r") 0 0 0;
+                parent ($selcur[0]+"_sub_ctrl_jnt"+$si) ($selcur[0]+"_sub_ctrl_"+$si);
+            }
+            InsertAttr("value", ($selcur[0]+"_squash_ctrl_1"),0,10);
+            parent ($selcur[0]+"_sub_ctrl_jnt"+$ctrl_spans) ($selcur[0]+"_squash_ctrl_2");
+            parent ($selcur[0]+"_sub_ctrl_jnt0") ($selcur[0]+"_squash_ctrl_1");
+            delete ($selcur[0]+"loc");
+            select -cl;
+            for($si=0;$si<=$ctrl_spans;$si++)
+            {
+                select -add ($selcur[0]+"_sub_ctrl_jnt"+$si);
+            }
+            string $sub_ctrl_jnt[]=`ls -fl`;
+            createNode multiplyDivide -n ($selcur[0]+"_multiNodeA");
+            createNode multiplyDivide -n ($selcur[0]+"_multiNodeB");
+            createNode blendColors -n ($selcur[0]+"_conNodeA");
+            connectAttr -f ($selcur[0]+"_squash_ctrl_2.stretch") ($selcur[0]+"_conNodeA.blender");
+            string $spine_curveInfo=`arclen -ch on ($selcur[0])`;
+            rename $spine_curveInfo ($selcur[0]+"_curveInfo");
+            float $spine_curvelen=`getAttr ($selcur[0]+"_curveInfo.arcLength")`;
+            setAttr ($selcur[0]+"_multiNodeB.input1X") $spine_curvelen;
+            connectAttr -f ($selcur[0]+"_multiNodeB.outputX") ($selcur[0]+"_multiNodeA.input2X");
+            connectAttr -f ($selcur[0]+"_curveInfo.arcLength") ($selcur[0]+"_multiNodeA.input1X");
+            setAttr ($selcur[0]+"_multiNodeA.operation") 2;
+            connectAttr -f ($selcur[0]+"_multiNodeA.outputX") ($selcur[0]+"_conNodeA.color1R");
+            setAttr ($selcur[0]+"_conNodeA.color2R") 1;
+            int $h;
+            for($h=1;$h<$jnt_spans;$h++)
+            {
+                float $g_tx=`getAttr ($selcur[0]+"_jnt"+$h+".tx")`;
+                createNode multiplyDivide -n ($selcur[0]+"_jnt"+$h+"_multiNode");
+                setAttr ($selcur[0]+"_jnt"+$h+"_multiNode.input1X") $g_tx;
+                connectAttr -f ($selcur[0]+"_conNodeA.outputR") ($selcur[0]+"_jnt"+$h+"_multiNode.input2X");
+                connectAttr -f ($selcur[0]+"_jnt"+$h+"_multiNode.outputX") ($selcur[0]+"_jnt"+$h+".tx");
+                createNode frameCache -n ($selcur[0]+"_jnt"+$h+"_frameNode");
+                createNode multiplyDivide -n ($selcur[0]+"_jnt"+$h+"_multiNodeA");
+                createNode multiplyDivide -n ($selcur[0]+"_jnt"+$h+"_multiNodeB");
+                createNode multiplyDivide -n ($selcur[0]+"_jnt"+$h+"_multiNodeC");
+                setAttr ($selcur[0]+"_jnt"+$h+"_multiNodeA.operation") 2;
+                setAttr ($selcur[0]+"_jnt"+$h+"_multiNodeB.operation") 3;
+                setAttr ($selcur[0]+"_jnt"+$h+"_multiNodeC.operation") 3;
+                setAttr ($selcur[0]+"_jnt"+$h+"_multiNodeB.input2X") 0.5;
+                connectAttr -f ($selcur[0]+"_conNodeA.outputR") ($selcur[0]+"_jnt"+$h+"_multiNodeB.input1X");
+                setAttr ($selcur[0]+"_jnt"+$h+"_multiNodeA.input1X") 1;
+                connectAttr -f ($selcur[0]+"_jnt"+$h+"_multiNodeB.outputX") ($selcur[0]+"_jnt"+$h+"_multiNodeA.input2X");
+                connectAttr -f ($selcur[0]+"_jnt"+$h+"_multiNodeA.outputX") ($selcur[0]+"_jnt"+$h+"_multiNodeC.input1X");
+                connectAttr -f ($selcur[0]+"_jnt"+$h+".value") ($selcur[0]+"_jnt"+$h+"_frameNode.stream");
+                connectAttr -f ($selcur[0]+"_jnt"+$h+"_frameNode.future[0]") ($selcur[0]+"_jnt"+$h+"_multiNodeC.input2X");
+                int $m=$h-1;
+                connectAttr -f ($selcur[0]+"_jnt"+$m+"_multiNodeC.outputX") ($selcur[0]+"_jnt"+$m+".sy");
+                connectAttr -f ($selcur[0]+"_jnt"+$m+"_multiNodeC.outputX") ($selcur[0]+"_jnt"+$m+".sz");
+            }
+            skinCluster -n ($selcur[0]+"_skinCluster") $sub_ctrl_jnt $selcur[0];
+        }
+        //添加hair
+        select -r $slcv;
+        string $attcmod=`textField -q -tx Mainmodel`;
+        if ($attcmod!="")
+        {
+            select -tgl $attcmod;
+        }
+        makeCurvesDynamic 2 {"1", "0", "1", "1", "0"};
+        float $ctrl_spans=`intSliderGrp -q -v ctrlIntSliderGrp`;
+        float $ctrl_sdown=$ctrl_spans-1;
+        float $jnt_spans=`intSliderGrp -q -v jntIntSliderGrp`;
+        float $spans_down=$jnt_spans-1;
+        string $systemshp[]=`ls -sl`;
+        string $sysname[]=`listRelatives -p $systemshp[0]`;
+        string $newsys_name=`rename $sysname[0] ($slcv[0]+"_hairsystem")`;
+        rename ($sysname[0]+"OutputCurves") ($slcv[0]+"_hairOutputCurves");
+        string $Opcuv_name[]=`listRelatives -c ($slcv[0]+"_hairOutputCurves")`;
+        string $newopcu_name[];
+        int $j;
+        for ($j=0;$j<size($Opcuv_name);$j++)
+        {
+            $newopcu_name[$j]=`rename $Opcuv_name[$j] ($slcv[$j]+"_OutputCurve")`;
+        }
+        int $k;
+        for ($k=0;$k<size($Opcuv_name);$k++)
+        {
+            string $cuvfollicle[]=`listRelatives -p $slcv[$k]`;
+            if (size($cuvfollicle)!=0)
+            {
+                //新加内容
+                setAttr ($slcv[$k]+".inheritsTransform") 0;
+                //
+                string $newfol_name=`rename $cuvfollicle[0] ($slcv[$k]+"_follicle")`;
+                string $cuvfolliclegrp[]=`listRelatives -p ($slcv[$k]+"_follicle")`;
+                setAttr ($newfol_name+"Shape.pointLock") 1;
+                rename $cuvfolliclegrp[0] ($slcv[0]+"_follicle_grp");
+                string $ikname[]=`ikHandle -sol ikSplineSolver -ccv false -pcv false -n ($slcv[$k]+"_ikHandle") -c ($slcv[$k]+"_OutputCurve") -sj ($slcv[$k]+"_jnt0") -ee ($slcv[$k]+"_jnt"+($jnt_spans-1))`;
+                rename $ikname[1] ($slcv[$k]+"_effector");
+                parent ($slcv[$k]+"_ikHandle") ($slcv[0]+"_hairOutputCurves");
+                setAttr ($slcv[$k]+"_ikHandle.dTwistControlEnable") 1;
+                setAttr ($slcv[$k]+"_ikHandle.dWorldUpType") 4;
+                setAttr ($slcv[$k]+"_ikHandle.dWorldUpAxis") 0;
+                setAttr ($slcv[$k]+"_ikHandle.dTwistControlEnable") 0;
+                clear($cuvfollicle);
+                //需要手动设置advanced twist
+            }
+            int $FKIKselection=`radioButton -q -sl FKIKriobutton`;
+            if ($FKIKselection==0)
+            {
+                addAttr -ln "follow" -at "enum" -en "lock:head:" ($slcv[$k]+"_squash_ctrl_2");
+                setAttr -k on ($slcv[$k]+"_squash_ctrl_2.follow");
+                group -em -n ($slcv[$k]+"_squash_ctrl_2_world");
+                parent ($slcv[$k]+"_squash_ctrl_2_world") ($slcv[$k]+"_squash_ctrl_2");
+                setAttr ($slcv[$k]+"_squash_ctrl_2_world.t") 0 0 0;
+                setAttr ($slcv[$k]+"_squash_ctrl_2_world.r") 0 0 0;
+                parent -w ($slcv[$k]+"_squash_ctrl_2_world");
+                int $g;
+                for ($g=$ctrl_sdown;$g>=1;$g--)
+                {
+                    $u=$g;
+                    parentConstraint -mo -weight 1 -n ($slcv[$k]+"_sub_ctrl_"+$u+"_grp_pacon") ($slcv[$k]+"_squash_ctrl_1") ($slcv[$k]+"_squash_ctrl_2") ($slcv[$k]+"_sub_ctrl_"+$u+"_grp");
+                    float $weita=$u/$ctrl_spans;
+                    setAttr ($slcv[$k]+"_sub_ctrl_"+$u+"_grp_pacon."+$slcv[$k]+"_squash_ctrl_1W0") (1-$weita);
+                    setAttr ($slcv[$k]+"_sub_ctrl_"+$u+"_grp_pacon."+$slcv[$k]+"_squash_ctrl_2W1") $weita;
+                    parent ($slcv[$k]+"_sub_ctrl_"+$u+"_Grp") ($slcv[$k]+"_squash_ctrl_1_Grp"); 
+                }
+            }
+            else
+            {
+                int $g;
+                for ($g=$ctrl_sdown;$g>1;$g--)
+                {
+                    int $u=$g-1;
+                    float $posf[]=`xform -q -rotatePivot -ws ($slcv[$k]+"_sub_ctrl_"+$u)`;
+                    move $posf[0] $posf[1] $posf[2] ($slcv[$k]+"_sub_ctrl_"+$g+"_grp.scalePivot") ($slcv[$k]+"_sub_ctrl_"+$g+"_grp.rotatePivot");
+                    orientConstraint -mo -weight 1 -n ($slcv[$k]+"_sub_ctrl_"+$g+"_grp_ori") ($slcv[$k]+"_sub_ctrl_"+$u) ($slcv[$k]+"_sub_ctrl_"+$g+"_grp");
+                    parent ($slcv[$k]+"_sub_ctrl_"+$g+"_Grp") ($slcv[$k]+"_sub_ctrl_"+$u+"_grp");
+                }
+                float $posf[]=`xform -q -rotatePivot -ws ($slcv[$k]+"_sub_ctrl_"+$ctrl_sdown)`;
+                move $posf[0] $posf[1] $posf[2] ($slcv[$k]+"_squash_ctrl_2_grp.scalePivot") ($slcv[$k]+"_squash_ctrl_2_grp.rotatePivot");
+                orientConstraint -mo -weight 1 -n ($slcv[$k]+"_squash_ctrl_2_grp_ori") ($slcv[$k]+"_sub_ctrl_"+$ctrl_sdown) ($slcv[$k]+"_squash_ctrl_2_grp");
+                parent ($slcv[$k]+"_squash_ctrl_2_Grp") ($slcv[$k]+"_sub_ctrl_"+$ctrl_sdown+"_grp");
+                float $posf[]=`xform -q -rotatePivot -ws ($slcv[$k]+"_squash_ctrl_1")`;
+                move $posf[0] $posf[1] $posf[2] ($slcv[$k]+"_sub_ctrl_1_grp.scalePivot") ($slcv[$k]+"_sub_ctrl_1_grp.rotatePivot");
+                orientConstraint -mo -weight 1 -n ($slcv[$k]+"_sub_ctrl_1_grp_ori") ($slcv[$k]+"_squash_ctrl_1") ($slcv[$k]+"_sub_ctrl_1_grp");
+                parent ($slcv[$k]+"_sub_ctrl_1_Grp") ($slcv[$k]+"_squash_ctrl_1_Grp");
+                parent ($slcv[$k]+"_jnt0") ($slcv[$k]+"_squash_ctrl_1_Grp");
+                parent ($slcv[$k]+"_squash_ctrl_1_Grp") ($slcv[$k]+"_follicle");
+            }
+        }
+        parent ($slcv[0]+"_hairsystem") ($slcv[0]+"_follicle_grp") ($slcv[0]+"_hairOutputCurves") ($slcv[0]+"_hiding_grp");
+        setAttr ($slcv[0]+"_hiding_grp.v") 0;
+    }
+    else
+    {
+        print("请选择曲线！\n");
+    }
+}
+global proc multconHaircvonlyjnt()
+{
+    string $slcv[]=`ls -sl -fl`;
+    string $objcv[]=`listRelatives -s $slcv[0]`;
+    if (objectType($objcv[0]) == "nurbsCurve")
+    {
+        string $slc;
+        for ($slc in $slcv)
+        {
+            string $selcur[];
+            $selcur[0] = $slc;
+            select -cl;
+            if(!objExists($slcv[0]+"_hiding_grp"))
+            {
+                group -em -n ($slcv[0]+"_hiding_grp");
+            }
+            string $cur_shape[]=`listRelatives -s $selcur[0]`;
+            // rebuildCurve -ch 1 -rpo 1 -rt 0 -end 1 -kr 0 -kcp 0 -kep 1 -kt 0 -s 4 -d 3 // -tol 0.01 $selcur[0];
+            createNode pointOnCurveInfo -n ($selcur[0]+"_potinfo");
+            connectAttr -f ($cur_shape[0]+".worldSpace[0]") ($selcur[0]+"_potinfo.inputCurve");
+            spaceLocator -p 0 0 0 -n ($selcur[0]+"loc");
+            connectAttr -f ($selcur[0]+"_potinfo.position") ($selcur[0]+"loc.translate");
+            float $jnt_spans=`intSliderGrp -q -v jntIntSliderGrp`;
+            float $spans_down=$jnt_spans-1;
+            int $i;
+            for($i=0;$i<$jnt_spans;$i++)
+            {
+                setAttr ($selcur[0]+"_potinfo.parameter") ($i/$spans_down);
+                jntname($selcur[0]+"_jnt"+$i);
+                jntInsert(($selcur[0]+"_jnt"+$i),($selcur[0]+"loc"));
+                InsertAttr("value",($selcur[0]+"_jnt"+$i),0,10);
+                if($i>0)
+                {
+                    int $j=$i-1;
+                    parent ($selcur[0]+"_jnt"+$i) ($selcur[0]+"_jnt"+$j);
+                    joint -e -oj xyz -secondaryAxisOrient yup -ch -zso ($selcur[0]+"_jnt"+$j);
+                }
+            }
+            makeIdentity -apply true -t 0 -r 0 -s 1 -n 0 -jointOrient ($selcur[0]+"_jnt"+$spans_down);
+            delete ($selcur[0]+"loc");
+        }
+        //添加hair
+        select -r $slcv;
+        string $attcmod=`textField -q -tx Mainmodel`;
+        if ($attcmod!="")
+        {
+            select -tgl $attcmod;
+        }
+        makeCurvesDynamic 2 {"1", "0", "1", "1", "0"};
+        float $jnt_spans=`intSliderGrp -q -v jntIntSliderGrp`;
+        float $spans_down=$jnt_spans-1;
+        string $systemshp[]=`ls -sl`;
+        string $sysname[]=`listRelatives -p $systemshp[0]`;
+        string $newsys_name=`rename $sysname[0] ($slcv[0]+"_hairsystem")`;
+        rename ($sysname[0]+"OutputCurves") ($slcv[0]+"_hairOutputCurves");
+        string $Opcuv_name[]=`listRelatives -c ($slcv[0]+"_hairOutputCurves")`;
+        string $newopcu_name[];
+        int $j;
+        for ($j=0;$j<size($Opcuv_name);$j++)
+        {
+            $newopcu_name[$j]=`rename $Opcuv_name[$j] ($slcv[$j]+"_OutputCurve")`;
+        }
+        int $k;
+        for ($k=0;$k<size($Opcuv_name);$k++)
+        {
+            string $cuvfollicle[]=`listRelatives -p $slcv[$k]`;
+            if (size($cuvfollicle)!=0)
+            {
+                //新加内容
+                setAttr ($slcv[$k]+".inheritsTransform") 1;
+                //新加完毕
+                string $newfol_name=`rename $cuvfollicle[0] ($slcv[$k]+"_follicle")`;
+                string $cuvfolliclegrp[]=`listRelatives -p ($slcv[$k]+"_follicle")`;
+                setAttr ($newfol_name+"Shape.pointLock") 1;
+                rename $cuvfolliclegrp[0] ($slcv[0]+"_follicle_grp");
+                string $ikname[]=`ikHandle -sol ikSplineSolver -ccv false -pcv false -n ($slcv[$k]+"_ikHandle") -c ($slcv[$k]+"_OutputCurve") -sj ($slcv[$k]+"_jnt0") -ee ($slcv[$k]+"_jnt"+($jnt_spans-1))`;
+                rename $ikname[1] ($slcv[$k]+"_effector");
+                parent ($slcv[$k]+"_ikHandle") ($slcv[0]+"_hairOutputCurves");
+                setAttr ($slcv[$k]+"_ikHandle.dTwistControlEnable") 1;
+                setAttr ($slcv[$k]+"_ikHandle.dWorldUpType") 4;
+                setAttr ($slcv[$k]+"_ikHandle.dWorldUpAxis") 0;
+                setAttr ($slcv[$k]+"_ikHandle.dTwistControlEnable") 0;
+                clear($cuvfollicle);
+            }
+            //需要手动设置advanced twist
+        }
+        parent ($slcv[0]+"_hairsystem") ($slcv[0]+"_follicle_grp") ($slcv[0]+"_hairOutputCurves") ($slcv[0]+"_hiding_grp");
+        setAttr ($slcv[0]+"_hiding_grp.v") 0;
+    }
+    else
+    {
+        print("请先选择曲线");
+    }
+}
+global proc multconHair()
+{
+    string $lssysa[]=`ls -sl -fl`;
+    if (size($lssysa)==2)
+    {
+        conHair;
+    }
+    else if (size($lssysa)>2)
+    {
+        int $i;
+        for ($i=1;$i<size($lssysa);$i++)
+        {
+            select -r $lssysa[0];
+            select -add $lssysa[$i];
+            conHair;
+        }
+    }
+}
+global proc mutlconCtrl()
+{
+    string $selc[]=`ls -sl -fl`;
+    string $main_ctrl_name=`textField -q -tx MaintextField`;
+    for ($sl in $selc)
+    {
+        connectAttr -f ($main_ctrl_name+".scaleX") ($sl+"_multiNodeB.input2X");
+    }
+}
+showWindow stretchWin;

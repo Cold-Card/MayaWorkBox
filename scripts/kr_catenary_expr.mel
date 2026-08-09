@@ -1,0 +1,72 @@
+// FUNCTIONS
+global proc float sinh(float $x) {
+    $e = 2.718281828459;
+    $ret = (pow($e, $x) - pow($e, -$x))/2;
+    return($ret);
+}
+global proc float cosh(float $x) {
+    $e = 2.718281828459;
+    $ret = (pow($e, $x) + pow($e, -$x))/2;
+    return($ret);
+}
+global proc float atanh(float $x) {
+    $ret = 0.5 * log((1+$x)/(1-$x));
+    return($ret);
+}
+
+
+global proc float xiaohongma_catenary_jiangsheng_auto_L(float $x, float $pt1x, float $pt1y, float $pt1z, float $pt2x, float $pt2y, float $pt2z, float $len) {
+    // VARIABLES
+    // $pt1x = jiangsheng_auto_L_0_posGrp.translateX;
+    // $pt1y = jiangsheng_auto_L_0_posGrp.translateY;
+    // $pt1z = jiangsheng_auto_L_0_posGrp.translateZ;
+
+    // $pt2x = jiangsheng_auto_L_6_posGrp.translateX;
+    // $pt2y = jiangsheng_auto_L_6_posGrp.translateY;
+    // $pt2z = jiangsheng_auto_L_6_posGrp.translateZ;
+
+    // $len = jiangsheng_auto_L_midCtrl_expr.length;
+
+    // BASE DATA
+    $dx = $pt2x - $pt1x;
+    $dy = $pt2y - $pt1y;
+    $dz = $pt2z - $pt1z;
+    
+    // CHECK DISTANCE
+    $distance = sqrt(pow($dx, 2) + pow($dy, 2) + pow($dz, 2));
+    $linear = $pt1y + ($x-$pt1x)*($dy/$dx);
+    if ($len < $distance){
+        return($linear);
+    }
+
+    // R
+    $r = sqrt(pow($len, 2)-pow($dy, 2))/$dx;
+
+    // ITERATION
+    $A0 = log(2*$r)+log(log(2*$r));
+    $A = $A0;
+    for($i=0; $i<10; $i++){
+        $A = $A - ((sinh($A) - ($r*$A))/(cosh($A)-$r));
+    }
+
+    // FINAL DATA
+    $xb = ($pt1x + $pt2x)/2;
+
+    $a = $dx/(2*$A);
+    $b = $xb - $a*atanh($dy/$len);
+    $c = $pt1y - $a*cosh(($pt1x-$b)/$a);
+
+    // CALCULATION
+    $catenary = $a*cosh(($x-$b)/$a) + $c;
+    return($catenary);
+}
+
+jiangsheng_auto_L_1_posGrp.translateY = xiaohongma_catenary_jiangsheng_auto_L(jiangsheng_auto_L_1_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateY,jiangsheng_auto_L_0_posGrp.translateZ,jiangsheng_auto_L_6_posGrp.translateX,jiangsheng_auto_L_6_posGrp.translateY,jiangsheng_auto_L_6_posGrp.translateZ,jiangsheng_auto_L_midCtrl_expr.length);
+
+jiangsheng_auto_L_2_posGrp.translateY = xiaohongma_catenary_jiangsheng_auto_L(jiangsheng_auto_L_2_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateY,jiangsheng_auto_L_0_posGrp.translateZ,jiangsheng_auto_L_6_posGrp.translateX,jiangsheng_auto_L_6_posGrp.translateY,jiangsheng_auto_L_6_posGrp.translateZ,jiangsheng_auto_L_midCtrl_expr.length);
+
+jiangsheng_auto_L_3_posGrp.translateY = xiaohongma_catenary_jiangsheng_auto_L(jiangsheng_auto_L_3_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateY,jiangsheng_auto_L_0_posGrp.translateZ,jiangsheng_auto_L_6_posGrp.translateX,jiangsheng_auto_L_6_posGrp.translateY,jiangsheng_auto_L_6_posGrp.translateZ,jiangsheng_auto_L_midCtrl_expr.length);
+
+jiangsheng_auto_L_4_posGrp.translateY = xiaohongma_catenary_jiangsheng_auto_L(jiangsheng_auto_L_4_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateY,jiangsheng_auto_L_0_posGrp.translateZ,jiangsheng_auto_L_6_posGrp.translateX,jiangsheng_auto_L_6_posGrp.translateY,jiangsheng_auto_L_6_posGrp.translateZ,jiangsheng_auto_L_midCtrl_expr.length);
+
+jiangsheng_auto_L_5_posGrp.translateY = xiaohongma_catenary_jiangsheng_auto_L(jiangsheng_auto_L_5_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateX,jiangsheng_auto_L_0_posGrp.translateY,jiangsheng_auto_L_0_posGrp.translateZ,jiangsheng_auto_L_6_posGrp.translateX,jiangsheng_auto_L_6_posGrp.translateY,jiangsheng_auto_L_6_posGrp.translateZ,jiangsheng_auto_L_midCtrl_expr.length);

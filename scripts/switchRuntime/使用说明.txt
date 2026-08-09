@@ -1,0 +1,12 @@
+安装
+将文件夹改为switchRuntime并拷贝到我的文档/maya/scripts下
+
+从脚本编辑器运行下方启动UI命令
+import switchRuntime
+switchRuntime.ui.show()
+
+
+需要打开maya就自动启动，将这两行代码加到userSetup.py内
+import switchRuntime
+switchRuntime.tools.open_auto_switch()
+switchRuntime.tools.open_key_frame_post()
