@@ -1,0 +1,1681 @@
+/********************************************
+
+=======>> 版本V2.5
+=======>> 制作人：久违的时光
+=======>> 电话/微信：15697077077
+=======>> QQ/邮箱：923373770
+=======>> 最后框架日期：20210210
+
+********************************************/
+
+//==============UI=================//
+
+global proc RiggingHelper_UI (){
+
+string $version="V2.5.0";
+string $date="20210210";
+
+global int $asInitialState,$asSetPreColors,$asMenuToolVis,$asColorIndex,$asViewport,$asOutliner;
+global float $asPreDiameter;
+global string $asScriptRoute;
+int $conWorkspace;
+
+$asScriptRoute="/home/wangruilong/maya/workBox/scripts/RiggingHelper/";
+string $files=$asScriptRoute+"ControllerFiles";
+string $ListShape[]=`getFileList -fld $files -fs "*.cs"`;
+
+if(!$asPreDiameter)
+	$asPreDiameter=1;
+if(!$asColorIndex)
+	$asColorIndex=1;
+	
+//asRunProgram "Program";
+source "/home/wangruilong/maya/workBox/scripts/RiggingHelper/Tools/Program.mel";
+if(!$asInitialState){
+	$asInitialState=1;
+	$asViewport=1;
+	print "||  绑定师助手主程序已完成运行。\n";
+}
+/*
+int $asControllerDocking=`optionVar -q asControllerDocking`;
+if (`exists dockControl`)
+	if (!`optionVar -ex asControllerDocking`)
+		$asControllerDocking=0;
+
+if (`exists workspaceControl`)
+	if (`workspaceControl -q -ex RiggingHelperWorkspace`){
+		if (`formLayout -q -ex asFrame`)
+			deleteUI -control asFrame;
+		setParent RiggingHelperWorkspace;
+		$conWorkspace=1;
+	}
+
+if (`exists dockControl`)
+	if (`dockControl -q -ex RiggingHelperDock`)
+		deleteUI -control RiggingHelperDock;
+		*/
+		
+string $help = "https://www.bilibili.com/video/BV1uv411v7MY?share_source=copy_web";
+
+if(`window -ex RiggingHelperWin`)
+	deleteUI  -window RiggingHelperWin;
+	
+string $iconsName = $asScriptRoute+"Icons/icos.png";
+if (!$conWorkspace)
+	window -title "绑定师助手" RiggingHelperWin;
+
+//==========标头栏===========//
+
+formLayout -p "RiggingHelperWin" -bgc 0.16 0.16 0.16 -nbg 0 asFrame;
+
+columnLayout -bgc 0.725 0.725 0.725 -adj 1 asHeader;
+
+string $asImage=$asScriptRoute+"Icons/asButton.png";
+
+iconTextButton -w 346 -h 28 -i $asImage -c "asWindowHideToggle 1" -dcc "asHelp sg_Scroll_RiggingHelperHelp" asHelpImage;
+	popupMenu ;
+		radioMenuItemCollection;
+		menuItem -l "显示全部" -rb on -c "asWindowHideToggle 3" asMenuItem_all;
+		menuItem -l "仅显示功能栏" -rb off -c "asWindowHideToggle 1" asMenuItem_up;
+		menuItem -l "仅显示控制器" -rb off -c "asWindowHideToggle 2" asMenuItem_dn;
+		menuItem -divider true -dividerLabel "";
+		menuItem -label "显示底部工具条" -checkBox off -c "gtLowToolBar" asLowToolBar;
+		menuItem -divider true -dividerLabel "";
+		menuItem -to 1 -i "iconSuper.png" -subMenu true -label "图标大小";
+			radioMenuItemCollection;
+			menuItem -l "小号图标-点击后刷新窗口" -rb off -c "gtIconSize 34" asMimIco_1;
+			menuItem -l "中号图标-点击后刷新窗口" -rb on -c "gtIconSize 48" asMimIco_2;
+			menuItem -l "大号图标-点击后刷新窗口" -rb off -c "gtIconSize 64" asMimIco_3;
+		setParent -menu ..;
+
+		if(`asMayaVersionAsFloat`>2016){
+			menuItem -divider true -dividerLabel "";
+			menuItem -i "enabled.png" -l "退出" -c "gtCloseWindow";
+		}
+setParent..;
+
+//==========区域一===========//
+paneLayout -cn "horizontal2" asPaneLayout;
+
+formLayout -vis 0 asFrame_a;
+formLayout asOption;
+
+formLayout -bgc 0.16 0.16 0.16 asMenu;
+
+iconTextButton -ebg 0 -bgc 0.2 0.2 0.2 -i `Icons "asMenu_1"` -c "asMenuUI 1" -ann "创建控制器" asMenu_1;
+iconTextButton -ebg 0 -bgc 0.2 0.2 0.2 -i `Icons "asMenu_2"` -c "asMenuUI 2" -ann "调整曲线" asMenu_2;
+iconTextButton -ebg 0 -bgc 0.2 0.2 0.2 -i `Icons "asMenu_3"` -c "asMenuUI 3" -ann "重命名" asMenu_3;
+iconTextButton -ebg 0 -bgc 0.2 0.2 0.2 -i `Icons "asMenu_4"` -c "asMenuUI 4" -ann "属性管理" asMenu_4;
+iconTextButton -ebg 0 -bgc 0.2 0.2 0.2 -i `Icons "asMenu_5"` -c "asMenuUI 5" -ann "多功能工具箱" asMenu_5;
+iconTextButton -ebg 0 -bgc 0.2 0.2 0.2 -i `Icons "asMenu_6"` -c "asMenuUI 6" -ann "关于插件" asMenu_6;
+iconTextButton -h 12 -w 34 -i `Icons "asButtonUP"` asMenu_7;
+iconTextButton -h 12 -w 34 -i `Icons "asButtonDN"` asMenu_8;
+
+setParent..;
+
+formLayout -e
+
+	-attachNone asMenu_1 "top" 
+	-attachForm asMenu_1 "left" 0
+	-attachPosition asMenu_1 "right" 0 15
+	-attachNone asMenu_1 "bottom" 
+
+	-attachNone asMenu_2 "top" 
+	-attachPosition asMenu_2 "left" 0 15
+	-attachPosition asMenu_2 "right" 0 30
+	-attachNone asMenu_2 "bottom" 
+
+	-attachNone asMenu_3 "top" 
+	-attachPosition asMenu_3 "left" 0 30
+	-attachPosition asMenu_3 "right" 0 45
+	-attachNone asMenu_3 "bottom" 
+
+	-attachNone asMenu_4 "top" 
+	-attachPosition asMenu_4 "left" 0 45
+	-attachPosition asMenu_4 "right" 0 60
+	-attachNone asMenu_4 "bottom" 
+
+	-attachNone asMenu_5 "top" 
+	-attachPosition asMenu_5 "left" 0 60
+	-attachPosition asMenu_5 "right" 0 75
+	-attachNone asMenu_5 "bottom" 
+
+	-attachNone asMenu_6 "top" 
+	-attachPosition asMenu_6 "left" 0 75
+	-attachPosition asMenu_6 "right" 0 90
+	-attachNone asMenu_6 "bottom" 
+
+	-attachForm asMenu_7 "top" 1
+	-attachPosition asMenu_7 "left" 0 90
+	-attachForm asMenu_7 "right" 0
+	-attachNone asMenu_7 "bottom" 
+
+	-attachControl asMenu_8 "top" 1 asMenu_7
+	-attachPosition asMenu_8 "left" 0 90
+	-attachForm asMenu_8 "right" 0
+	-attachNone asMenu_8 "bottom" 
+
+    asMenu;
+
+scrollLayout -cr 1 asFunction;
+
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+
+	columnLayout -adj 1 -vis 0 asColumnLayout_1;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "创建控制器连接" asFly_11;
+
+	columnLayout -adj 1 ;
+
+	string $visTextNewName_0="textFieldGrp -e -vis 0 asTextNewName ;";
+	string $visTextNewName_1="textFieldGrp -e -vis 1 asTextNewName ;";
+
+	string $visCon_RT_0="checkBoxGrp -e -vis 0 asCon_PTRS ;";
+	string $visCon_RT_1="checkBoxGrp -e -vis 1 asCon_PTRS ;";	
+
+	string $visLin_RT_0="checkBoxGrp -e -vis 0 asLin_ATRS ;";
+	string $visLin_RT_1="checkBoxGrp -e -vis 1 asLin_ATRS ;";	
+
+	string $visAxi_RT_0="checkBoxGrp -e -vis 0 asAxi_ATRS ;";
+	string $visAxi_RT_1="checkBoxGrp -e -vis 1 asAxi_ATRS ;";
+
+	radioButtonGrp -cw3 65 70 70 -numberOfRadioButtons 2 -on1 $visTextNewName_0 -on2 $visTextNewName_1 -label "控制名称：" -la2 "默认" "重命名" -sl 1 asConNameA;	
+	textFieldGrp -adj 1 -vis 0 -ed 1  asTextNewName ;
+	separator -h 5;
+	checkBoxGrp -cw3 65 70 70 -ncb 2 -l "创建模式：" -la2 "FK模式" "子级模式" -v1 1 -v2 0 asCreateMode;
+	separator -h 5;
+	radioButtonGrp -cw4 65 55 55 55 -numberOfRadioButtons 3  -label "控制类型：" -la3 "曲线" "曲面" "定位器" -sl 1 asConType;
+	separator -h 5;
+	radioButtonGrp -cw5 65 55 55 55 55 -numberOfRadioButtons 4  -label "绑定方式：" -la4 "父级" "约束" "连接" "Shapes" -sl 2 
+				  -on1 ($visCon_RT_0 + $visLin_RT_0 + $visAxi_RT_0)
+				  -on2 ($visCon_RT_1 + $visLin_RT_0 + $visAxi_RT_0)
+				  -on3 ($visCon_RT_0 + $visLin_RT_1 + $visAxi_RT_1)
+				  -on4 ($visCon_RT_0 + $visLin_RT_0 + $visAxi_RT_0)
+				  asConnection;	
+
+	separator -vis 0 -h 5 ;
+
+	string $vCon_P="checkBoxGrp -e -v1 0 asCon_PTRS ;";
+
+	string $vCon_TR="checkBoxGrp -e -v2 0 -v3 0 asCon_PTRS ;";
+
+	checkBoxGrp -vis 1 -cw5 65 55 55 55 55 -ncb 4 -l "约束类型：" -la4 "父子" "位置" "旋转" "缩放" -v1 1 -v2 0 -v3 0 -v4 0 
+				-on1 $vCon_TR 
+				-on2 $vCon_P 
+				-on3 $vCon_P 
+				asCon_PTRS;
+
+	string $vLin_A_0="checkBoxGrp -e -v1 0 asLin_ATRS ;";
+
+	string $vLin_TRS_0="checkBoxGrp -e -v2 0 -v3 0 -v4 0 asLin_ATRS ;";
+	string $vLin_TRS_1="checkBoxGrp -e -v2 1 -v3 1 -v4 1 asLin_ATRS ;";
+
+	checkBoxGrp -vis 0 -cw5 65 55 55 55 55 -ncb 4 -l "连接属性：" -la4 "全部" "位置" "旋转" "缩放" -v1 1 -v2 1 -v3 1 -v4 1
+				-on1 $vLin_TRS_1 -of1 $vLin_TRS_0
+				-of2 $vLin_A_0
+				-of3 $vLin_A_0
+				-of4 $vLin_A_0
+				asLin_ATRS;
+
+	string $vAxi_A_0="checkBoxGrp -e -v1 0 asAxi_ATRS ;";
+
+	string $vAxi_TRS_0="checkBoxGrp -e -v2 0 -v3 0 -v4 0 asAxi_ATRS ;";
+	string $vAxi_TRS_1="checkBoxGrp -e -v2 1 -v3 1 -v4 1 asAxi_ATRS ;";
+
+	checkBoxGrp -vis 0 -cw5 65 55 55 55 55 -ncb 4 -l "连接轴向：" -la4 "全部" "X" "Y" "Z" -v1 1 -v2 1 -v3 1 -v4 1
+				-on1 $vAxi_TRS_1 -of1 $vAxi_TRS_0
+				-of2 $vAxi_A_0
+				-of3 $vAxi_A_0
+				-of4 $vAxi_A_0
+				asAxi_ATRS;
+
+	separator -h 5;
+	rowLayout -adj 1 -nc 2 -cw2 1 28;
+		button -h 30 -l "创建控制器" -c sg_RunAddController ;
+		iconTextButton  -i `Icons "asHelp"` -c "asHelp sg_Fixed_CreateController";
+	setParent..;
+	setParent..;
+	setParent..;
+
+/////
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "创建次级控制器" asFly_12;
+
+	formLayout asSecondary;
+
+		textFieldButtonGrp -adj 2 -cw3 65 1 65 -l "目标模型：" -tx "" -bl "   载  入   " -bc sg_LoadTargetModel asTextTargetModel;
+
+		textFieldButtonGrp -adj 2 -cw3 65 1 65 -l "总控制器：" -tx "" -bl "   载  入   " -bc sg_LoadRootController asTextRootController;
+
+		textScrollList -h 125 -a "请载入控制对象！！！" -sc "sg_SearchAttr_In" asTextControlObject;
+		button -h 125 -l "   载  入   " -c "sg_LoadControlObject" asSecondaryBut;
+
+		separator -h 1 asSecondarySep;
+	rowLayout -adj 1 -nc 2 -cw2 1 10 asSecondaryButB;
+		button -h 30 -l "创建跟随毛囊次级" -c sg_CreateSecondaryControlBinding ;
+		iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Scroll_SecondaryController";
+	setParent..;
+	setParent..;
+
+	formLayout -e
+
+	-attachForm asTextTargetModel "top" 0
+	-attachForm asTextTargetModel "left" 0
+	-attachForm asTextTargetModel "right" 1
+	-attachNone asTextTargetModel "bottom" 	
+
+	-attachControl asTextRootController "top" 0 asTextTargetModel
+	-attachForm asTextRootController "left" 0
+	-attachForm asTextRootController "right" 1
+	-attachNone asTextRootController "bottom" 	
+
+	-attachControl asTextControlObject "top" 1 asTextRootController
+	-attachForm asTextControlObject "left" 5
+	-attachControl asTextControlObject "right" 2 asSecondaryBut
+	-attachNone asTextControlObject "bottom" 	
+
+	-attachControl asSecondaryBut "top" 1 asTextRootController
+	-attachNone asSecondaryBut "left" 
+	-attachForm asSecondaryBut "right" 6
+	-attachNone asSecondaryBut "bottom" 		
+
+	-attachControl asSecondarySep "top" 2 asSecondaryBut
+	-attachForm asSecondarySep "left" 0
+	-attachForm asSecondarySep "right" 0
+	-attachNone asSecondarySep "bottom"
+
+	-attachControl asSecondaryButB "top" 1 asSecondarySep
+	-attachForm asSecondaryButB "left" 0
+	-attachForm asSecondaryButB "right" 0
+	-attachForm asSecondaryButB "bottom" 3
+
+	asSecondary;
+
+	setParent..;
+//////////////////66666666666666666666666666666666666
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "创建颈椎控制器" asFly_13;
+		columnLayout -adj 1 ;
+
+			textFieldButtonGrp -adj 2 -cw3 65 1 65 -l "切换控制：" -tx "" -bl "   载  入   " -bc "sg_LoadCerController" asCerController;
+			intFieldGrp -adj 2 -cw2 65 1 -l "关节数量：" -nf 1 -v1 10 asCerNumber ;
+			textFieldGrp -adj 2 -cw2 65 1 -ed 1 -l "控制名称：" -tx "name" asCerName;
+			separator -h 5;
+			rowLayout -adj 1 -nc 2 -cw2 1 28;	
+				button -h 30 -l "选择颈椎曲线创建" -c sg_CervicalVertebra ;
+				iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Scroll_CervicalVertebra";
+			setParent..;
+		setParent..;
+	setParent..;
+//////////////////66666666666666666666666666666666666
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "创建IKFK控制器" asFly_14;
+		columnLayout -adj 1 ;
+
+	string $asCreateBut_0="button -e -vis 0 asTwistBut;";
+	string $asCreateBut_1="button -e -vis 1 asTwistBut;";
+
+		textFieldButtonGrp -adj 2 -cw3 65 1 65 -l "起始关节：" -tx "" -bl "   载  入   " -bc sg_LoadStartJoint asStartJoint;
+		textFieldButtonGrp -adj 2 -cw3 65 1 65 -l "尾部关节：" -tx "" -bl "   载  入   " -bc sg_LoadEndingJoint asEndingJoint;
+		textFieldButtonGrp -adj 2 -cw3 65 1 65 -l "切换控制：" -tx "" -bl "   载  入   " -bc sg_LoadController asIKFKController;
+		textFieldGrp -adj 2 -cw2 65 1 -ed 1 -l "控制名称：" -tx "name" asIKFKConName;
+		checkBoxGrp -cw4 65 75 75 80 -l "功能选项："  -ncb 3 -la3 "IK拉伸" "软修改" "无缝切换" -v1 0 -v2 0 -v3 0 -ann "使用说明：\nIK拉伸勾选就可以创建。\n软修改需要添加属性值创建。\n无缝切换同时支持引入文件模式。"
+					-of2 $asCreateBut_0 -on2 $asCreateBut_1	asFunctionOnoff;	
+
+		button -vis 0 -l "关节添加或删除“Twist”属性" -c sg_InsertTwistAttrIKFK asTwistBut;
+
+		separator -h 5;
+		rowLayout -adj 1 -nc 2 -cw2 1 28;	
+			button -h 30 -l "创建IKFK控制器" -c sg_CreateIKFK ;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_CreateIKFK";
+		setParent..;
+		setParent..;
+	setParent..;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "绳子飘带绑定工具" asFly_15;
+		columnLayout -adj 1 ;
+
+		textFieldGrp -adj 2 -cw2 65 1 -l "创建名称："  -tx "name" asEstablishNames ;
+
+		intFieldGrp -adj 2 -cw2 65 1 -l "关节数量：" -nf 1 -v1 26 asJointNumber ;
+
+		intFieldGrp  -adj 2 -cw2 65 1 -l "旋转控制：" -nf 1 -v1 6 -vis 1 asControllerAmount ;
+
+		separator -h 5;
+	rowLayout -adj 1 -nc 2 -cw2 1 28;
+		button -h 30 -l "选择一条曲线创建" -c sg_RopeRigTool ;
+		iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_CurvesCreatingJoints";
+	setParent..;
+		setParent..;	
+	setParent..;	
+/////
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "特殊控制器创建" asFly_16;
+		columnLayout -adj 1 ;
+			rowLayout -adj 1 -nc 2 -cw2 1 28;
+				button -h 30 -l "曲线CV点创建控制器" -c sg_CurveControllerTool ;
+				iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_CurveCreationController";
+			setParent..;
+		if(`asMayaVersionAsFloat`>2016){
+			rowLayout -adj 1 -nc 2 -cw2 1 28;
+				button -h 30 -l "创建世界空间次级" -c sg_CreateSecondaryControlBinding_world ;
+				iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_WorldSpaceSecondary";
+			setParent..;
+		}
+			rowLayout -adj 1 -nc 2 -cw2 1 28;
+				button -h 30 -l "添加枢轴定位器" -c sg_AddMovePivot ;
+				iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_AddMovePivot";
+			setParent..;
+			rowLayout -adj 1 -nc 2 -cw2 1 28;
+				button -h 30 -l "创建毛囊控制器" -c sg_AddFollicleCon ;
+				iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_AddFollicleCon";
+			setParent..;
+		setParent..;
+	setParent..;	
+	text -h 100 -l "";
+	setParent..;
+
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+
+	columnLayout -adj 1 -vis 0 asColumnLayout_2;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "复制控制器" asFly_21;
+		columnLayout -adj 1;
+			text -bgc 0.216 0.216 0.216 -h 25 -l "" asTextCopyNurbs;
+			text -h 3 -l "" ;
+			formLayout  asCopyNurbsFLT;
+				button -l "复制形态" -c "sg_LoadCopyNurbs" asCopyNurbs;
+				button -l "粘贴形态" -c "sg_PasteNurbs" asPasteNurbs;
+			setParent..;
+		setParent..;
+	formLayout -e
+
+	-attachNone asCopyNurbs "top"
+	-attachForm asCopyNurbs "left" 0
+	-attachPosition asCopyNurbs "right" 1 50
+	-attachNone asCopyNurbs "bottom" 	
+
+	-attachNone asPasteNurbs "top"
+	-attachControl asPasteNurbs "left" 1 asCopyNurbs
+	-attachForm asPasteNurbs "right" 0
+	-attachNone asPasteNurbs "bottom" 	
+
+	asCopyNurbsFLT;		
+
+	setParent..;
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "缩放控制器" asFly_22;
+		columnLayout -adj 1;
+
+	string $visSXYZ_0="checkBoxGrp -e -vis 0 asSXYZ ;" ;
+	string $visSXYZ_1="checkBoxGrp -e -vis 1 asSXYZ ;" ; 
+
+	string $visSXYZColor_0="rowLayout -e -vis 0 asSXYZColor ;" ;
+	string $visSXYZColor_1="rowLayout -e -vis 1 asSXYZColor ;" ; 
+
+		rowLayout -adj 1 -nc 2 ;
+			floatSliderGrp -adj 3 -cw3 64 55 1 -l "缩放比例："  -min 0.001 -max 2 -f 1 -v 0.1 -fmn 0.001 -fmx 5 -pre 3 asProportion;
+			checkBox -l "单轴缩放" -onc ($visSXYZ_1 + $visSXYZColor_1) -ofc ($visSXYZ_0 + $visSXYZColor_0) -v 0 asUniaxialScaling;
+		setParent..;
+
+	checkBoxGrp -h 18 -vis 0 -cw4 65 60 60 60 -ncb 3 -l "缩放轴向：" -la3 "SX" "SY" "SZ" -v1 0 -v2 0 -v3 0 asSXYZ;
+		rowLayout -h 3 -vis 0 -nc 4 -cw4 65 60 60 60 asSXYZColor;
+			text -l "";
+			iconTextButton -w 13 -bgc 1 0 0;
+			iconTextButton -w 13 -bgc 0 1 0;
+			iconTextButton -w 13 -bgc 0 0 1;
+		setParent..;	
+
+	text -h 5 -l "";
+	formLayout  asZoomFLT;
+		button -l "放   大" -c "sg_ScaleController 1" asZoomButton_A;
+		button -l "缩   小" -c "sg_ScaleController 0" asZoomButton_B;
+	setParent..;
+
+	formLayout -e
+
+	-attachNone asZoomButton_A "top"
+	-attachForm asZoomButton_A "left" 0
+	-attachPosition asZoomButton_A "right" 1 50
+	-attachNone asZoomButton_A "bottom" 	
+
+	-attachNone asZoomButton_B "top"
+	-attachControl asZoomButton_B "left" 1 asZoomButton_A
+	-attachForm asZoomButton_B "right" 0
+	-attachNone asZoomButton_B "bottom" 	
+
+	asZoomFLT;
+
+	setParent..;
+	setParent..;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "旋转控制器" asFly_23;
+	columnLayout -adj 1;
+		rowLayout -adj 2 -nc 2 -cw2 220 50 ;
+		columnLayout -adj 1;
+		checkBoxGrp -h 18 -vis 1 -cw4 63 50 50 50 -ncb 3 -l "旋转轴向：" -la3 "RX" "RY" "RZ" -v1 0 -v2 0 -v3 0 asRXYZ;
+
+		rowLayout -h 3 -nc 4 -cw4 63 50 50 50 ;
+			text -l "";
+			iconTextButton -w 13 -bgc 1 0 0;
+	  		iconTextButton -w 13 -bgc 0 1 0;
+			iconTextButton -w 13 -bgc 0 0 1;
+		setParent..;
+		setParent..;	
+		button -l "默认值" -c "checkBoxGrp -e -v1 0 -v2 0 -v3 0 asRXYZ;floatSliderGrp -e -v 90 asAngle";
+		setParent..;
+
+	text -h 2 -l "";
+	floatSliderGrp -adj 3 -cw3 65 55 1 -l "旋转角度：" -f 1 -min 0 -max 360 -step 0.001 -v 90 asAngle ;
+	popupMenu;
+		menuItem -l "15" -c "floatSliderGrp -e -v 15 asAngle;";
+		menuItem -l "45" -c "floatSliderGrp -e -v 45 asAngle;";
+		menuItem -l "90" -c "floatSliderGrp -e -v 90 asAngle;";
+		menuItem -l "-45" -c "floatSliderGrp -e -v -45 asAngle;";
+		menuItem -l "-15" -c "floatSliderGrp -e -v -15 asAngle;";
+
+	text -h 5 -l "";
+	formLayout  asRotateFLT;
+		button -l "正向旋转" -c "sg_RotateController 1" asRotateButton_A;
+		button -l "反向旋转" -c "sg_RotateController 0" asRotateButton_B;
+	setParent..;
+
+	formLayout -e
+
+	-attachNone asRotateButton_A "top"
+	-attachForm asRotateButton_A "left" 0
+	-attachPosition asRotateButton_A "right" 1 50
+	-attachNone asRotateButton_A "bottom" 	
+
+	-attachNone asRotateButton_B "top"
+	-attachControl asRotateButton_B "left" 1 asRotateButton_A
+	-attachForm asRotateButton_B "right" 0
+	-attachNone asRotateButton_B "bottom" 	
+
+	asRotateFLT;
+
+	setParent..;
+	setParent..;
+
+if(`asMayaVersionAsFloat`>2016){
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "控制器线宽" asFly_24;
+		floatSliderGrp -cw3 65 55 140 -l "调整线宽：" -field 1 -min -1 -max 10 -pre 3 -v -1 -dc "sg_lineWidth #1" -cc "sg_lineWidth #1" asLineWidth;
+		scriptJob -p asLineWidth -e SelectionChanged sg_SelectionChangedLineWidth ;
+	setParent..;
+}
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "其他附属工具" asFly_25;
+
+	columnLayout -adj 1;
+		rowLayout -adj 1 -nc 2 -cw2 1 28;
+			button -h 30 -l "合并Shapes" -c sg_ShapesMerge asAly_1;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_MergeShapes";
+		setParent..;
+		rowLayout -adj 1 -nc 2 -cw2 1 28;
+			button -h 30 -l "控制器节点隐藏" -c sg_ControllerNodeClear asAly_2;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_NodeHiding";
+		setParent..;
+		rowLayout -adj 1 -nc 3 -cw3 1 28 28;
+			string $asMirrorRun="";
+				   $asMirrorRun+="string $MirrorC=`button -q -c asMirrorBut`;\n";
+				   $asMirrorRun+="if($MirrorC==\"sg_MirrorController 1\")\n";
+				   $asMirrorRun+="	button -e -l \"镜像控制器-世界镜像\" -c \"sg_MirrorController 2\" asMirrorBut;\n";
+				   $asMirrorRun+="if($MirrorC==\"sg_MirrorController 2\")\n";
+				   $asMirrorRun+="	button -e -l \"镜像控制器-坐标镜像\" -c \"sg_MirrorController 1\" asMirrorBut;\n";		
+				   $asMirrorRun+="asIconButtonRevise asMirrorButIcon;\n";			   
+
+			button -h 30 -l "镜像控制器-坐标镜像" -c "sg_MirrorController 1" asMirrorBut;
+			iconTextButton -i `Icons "asSetUp"` -c $asMirrorRun asMirrorButIcon;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_MirrorController";
+		setParent..;
+	setParent..;
+	setParent..;
+	text -h 100 -l "";
+	setParent..;
+
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+
+	columnLayout -adj 1 -vis 0 asColumnLayout_3;
+	
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "辅助工具" asFly_31;
+		columnLayout -adj 1 ;
+			rowLayout -nc 2 -cw2 189 96;
+			radioButtonGrp -cw4 40 48 48 48 -nrb 3 -label "类型：" -la3 "全部" "关节" "模型" -sl 1 asSelectToolA;
+			radioButtonGrp -cw2 48 48 -nrb 2 -la2 "曲线" "定位器" -shareCollection asSelectToolA asSelectToolB;
+			setParent..;
+			button -h 30 -l "快速选择子对象" -c "sg_Select";
+			separator -h 5;
+			button -h 30 -l "数字编号移到后缀" -c "sg_RenameSuffixNumber";
+			separator -h 5;
+			button -h 30 -l "检查重名并删除未知节点" -c "sg_deleteUknownNodes;sg_detectionOfTheSameNameMain;";
+
+		setParent..;
+	setParent..;
+
+	string $ro = "sg_RenameObjs_";
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "重新命名" asFly_32;
+		columnLayout -adj 1 ;
+			textFieldButtonGrp -adj 2 -cw3 55 1 1 -l "加前缀：" -tx "" -bl "   添  加   " -bc "sg_RenameObjs_Rename 1" ($ro + "Fld_Txt_1");
+			textFieldButtonGrp -adj 2 -cw3 55 1 1 -l "重命名：" -tx "" -bl "   更  换   " -bc "sg_RenameObjs_Rename 2" ($ro + "Fld_Txt_2");
+			textFieldButtonGrp -adj 2 -cw3 55 1 1 -l "加后缀：" -tx "" -bl "   添  加   " -bc "sg_RenameObjs_Rename 3" ($ro + "Fld_Txt_3");
+		setParent..;
+	setParent..;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "替换名称 （也可以替换名称中间的字符）" asFly_33;
+		columnLayout -adj 1 ;
+			textFieldGrp  -adj 2 -cw2 55 1  -l "原名称：" -tx "" ($ro + "Fld_Txt_4");
+			textFieldGrp  -adj 2 -cw2 55 1  -l "新名称：" -tx "" ($ro + "Fld_Txt_5");
+			separator -h 5;
+			button -h 30 -l "替  换" -c "sg_RenameObjs_Rename 4";
+		setParent..;	
+	setParent..;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "附加编号" asFly_34;
+		columnLayout -adj 1 ;
+			intFieldGrp  -adj 2 -cw2 55 1  -l "起始数：" -v1 0 ($ro + "IntFld_1");
+			intFieldGrp  -adj 2 -cw2 55 1  -l "递增数：" -v1 1 ($ro + "IntFld_2");
+			intFieldGrp  -adj 2 -cw2 55 1  -l "单位值：" -v1 1 ($ro + "IntFld_3");
+			separator -h 5;
+			button -h 30 -l "开始编号" -c "sg_RenameObjs_Rename 5";
+		setParent..;		
+	setParent..;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "快速命名" asFly_35;
+		formLayout asRenameSuffixFLT;
+
+			button -l "_UP" -c "asRenameSuffix \"_UP\"" asRenameSuffix_1;
+			button -l "_DN" -c "asRenameSuffix \"_DN\"" asRenameSuffix_2;
+			button -l "_L" -c "asRenameSuffix \"_L\"" asRenameSuffix_3;
+			button -l "_R" -c "asRenameSuffix \"_R\"" asRenameSuffix_4;
+			button -l "_M" -c "asRenameSuffix \"_M\"" asRenameSuffix_5;
+			button -l "_con" -c "asRenameSuffix \"_con\"" asRenameSuffix_6;
+			button -l "_jot" -c "asRenameSuffix \"_jot\"" asRenameSuffix_7;
+			button -l "_loc" -c "asRenameSuffix \"_loc\"" asRenameSuffix_8;
+			button -l "_grp" -c "asRenameSuffix \"_grp\"" asRenameSuffix_9;
+			button -l "_geo" -c "asRenameSuffix \"_geo\"" asRenameSuffix_10;
+
+		setParent..;
+
+ 	formLayout -e
+
+	-attachNone asRenameSuffix_1 "top" 
+	-attachForm asRenameSuffix_1 "left" 1
+	-attachPosition asRenameSuffix_1 "right" 1 20
+	-attachNone asRenameSuffix_1 "bottom" 
+
+	-attachNone asRenameSuffix_2 "top" 
+	-attachPosition asRenameSuffix_2 "left" 1 20
+	-attachPosition asRenameSuffix_2 "right" 1  40
+	-attachNone asRenameSuffix_2 "bottom" 
+
+	-attachNone asRenameSuffix_3 "top" 
+	-attachPosition asRenameSuffix_3 "left" 1 40
+	-attachPosition asRenameSuffix_3 "right" 1  60
+	-attachNone asRenameSuffix_3 "bottom" 
+
+	-attachNone asRenameSuffix_4 "top" 
+	-attachPosition asRenameSuffix_4 "left" 1 60
+	-attachPosition asRenameSuffix_4 "right" 1  80
+	-attachNone asRenameSuffix_4 "bottom" 
+
+	-attachNone asRenameSuffix_5 "top" 
+	-attachPosition asRenameSuffix_5 "left" 1 80
+	-attachForm asRenameSuffix_5 "right" 1
+	-attachNone asRenameSuffix_5 "bottom" 
+
+	-attachControl asRenameSuffix_6 "top" 2 asRenameSuffix_1
+	-attachForm asRenameSuffix_6 "left" 1
+	-attachPosition asRenameSuffix_6 "right" 1 20
+	-attachNone asRenameSuffix_6 "bottom" 
+
+	-attachControl asRenameSuffix_7 "top" 2 asRenameSuffix_1
+	-attachPosition asRenameSuffix_7 "left" 1 20
+	-attachPosition asRenameSuffix_7 "right" 1  40
+	-attachNone asRenameSuffix_7 "bottom" 
+
+	-attachControl asRenameSuffix_8 "top" 2 asRenameSuffix_1
+	-attachPosition asRenameSuffix_8 "left" 1 40
+	-attachPosition asRenameSuffix_8 "right" 1  60
+	-attachNone asRenameSuffix_8 "bottom" 
+
+	-attachControl asRenameSuffix_9 "top" 2 asRenameSuffix_1
+	-attachPosition asRenameSuffix_9 "left" 1 60
+	-attachPosition asRenameSuffix_9 "right" 1  80
+	-attachNone asRenameSuffix_9 "bottom"
+
+	-attachControl asRenameSuffix_10 "top" 2 asRenameSuffix_1 
+	-attachPosition asRenameSuffix_10 "left" 1 80
+	-attachForm asRenameSuffix_10 "right" 1
+	-attachNone asRenameSuffix_10 "bottom"
+
+	asRenameSuffixFLT;
+
+	setParent..;
+	text -h 100 -l "";
+	setParent..;
+
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+
+	columnLayout -adj 1 -vis 0 asColumnLayout_4;
+	
+	string $visMinimum_0="textFieldGrp -e -vis 0 asMinimum;";
+	string $visMinimum_1="textFieldGrp -e -vis 1 asMinimum;";
+
+	string $visMaximum_0="textFieldGrp -e -vis 0 asMaximum;";
+	string $visMaximum_1="textFieldGrp -e -vis 1 asMaximum;";  
+
+	string $visDefault_0="textFieldGrp -e -vis 0 asDefault;";
+	string $visDefault_1="textFieldGrp -e -vis 1 asDefault;";	 
+
+	string $visEnumname_0="textFieldGrp -e -vis 0 asEnumname;";
+	string $visEnumname_1="textFieldGrp -e -vis 1 asEnumname;";
+
+	string $radioA_0="textFieldGrp -e -vis 0 asEnumname;";
+	string $radioB_0="textFieldGrp -e -vis 1 asEnumname;";
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "批量添加属性" asFly_41;
+	formLayout asFl_Attrname;
+	textFieldGrp -adj 2 -cw2 65 1 -l "属性名称：" -tx "" asAttrname;
+	iconTextButton -h 26 -i "hotkeyFieldClear.png" -ann "清除" -c "textFieldGrp -e -tx \"\" asAttrname;" asDeleteAttrname;
+	setParent..;
+
+	formLayout -e
+
+	-attachNone asAttrname "top" 
+	-attachForm asAttrname "left" 0
+	-attachForm asAttrname "right" 0
+	-attachNone asAttrname "bottom" 
+
+	-attachNone asDeleteAttrname "top" 
+	-attachNone asDeleteAttrname "left" 
+	-attachForm asDeleteAttrname "right" 6
+	-attachNone asDeleteAttrname "bottom" 	
+
+	asFl_Attrname;
+
+	radioButtonGrp -h 25 -cw4 65 60 60 60   -l "创建属性：" -nrb 3 -la3 "可见" "隐藏" "不可设置关键帧" -select 1 asMakeAttribute;
+
+	frameLayout -cll 0 -cl 0 -l "属性类型" ;
+		columnLayout -adj 1;
+		text -h 5 -l "";
+		radioButtonGrp -cw4 45 85 85 50 -l "" -nrb 3 -la3 "整数" "浮点" "枚举" -select 2 
+					-on1 ($visMinimum_1 + $visMaximum_1 + $visDefault_1 + $visEnumname_0)
+					-on2 ($visMinimum_1 + $visMaximum_1 + $visDefault_1 + $visEnumname_0)
+					-on3 ($visMinimum_0 + $visMaximum_0 + $visDefault_0 + $visEnumname_1) asAttributetype;
+
+		radioButtonGrp -cw4 45 85 85 50 -l "" -nrb 3 -la3 "布尔" "向量" "字符" -shareCollection asAttributetype
+					-on1 ($visMinimum_0 + $visMaximum_0 + $visDefault_0 + $visEnumname_0)
+					-on2 ($visMinimum_0 + $visMaximum_0 + $visDefault_0 + $visEnumname_0)
+					-on3 ($visMinimum_0 + $visMaximum_0 + $visDefault_0 + $visEnumname_0) asAttributetype2;
+		setParent..;
+	setParent..;
+
+	frameLayout -cll 0 -cl 0 -l "属性范围" ;
+		columnLayout -adj 1;
+			text -h 2 -l "";
+			textFieldGrp -adj 2 -cw2 65 1 -l "最小值："  -vis 1 asMinimum;
+			textFieldGrp -adj 2 -cw2 65 1 -l "最大值："  -vis 1 asMaximum;
+			textFieldGrp -adj 2 -cw2 65 1 -l "默认值："  -vis 1 asDefault;
+			textFieldGrp -adj 2 -cw2 65 1 -l "枚举名称：" -tx "Green:Blue:" -vis 0 asEnumname;
+			separator -h 5;
+			rowLayout -adj 1 -nc 2 -cw2 1 28;
+				button -h 30 -l "添加属性" -c sg_AddAttribute;
+				iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_BatchAddAttr";
+		setParent..;
+		setParent..;
+	setParent..;	
+	setParent..;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "批量连接属性" asFly_42;
+
+		paneLayout -st 4 -cn "vertical2" asAttr_pan;
+
+			formLayout asFl_ou;
+				textScrollList -h 124 -ams 1 -sc "sg_SearchAttr_Ou" asTextOutputObj;
+					popupMenu;
+						menuItem -i "selectNonOverlappingUV.png" -l "全选" -c "sg_SelectAll_Ou";
+						menuItem -i "smallTrash.png" -l "清除选定项目" -c "sg_DeleteSelection_Ou";
+						menuItem -i "hotkeyFieldClear.png" -l "清空输出列表" -c "textScrollList -e -ra asTextOutputObj;textScrollList -e -ra asTextOutputAttr;";
+
+				button -h 10 -l ""  -c "sg_ZoomBox 0" asOu_up;
+				button -h 30 -l "加载输出对象"  -c "sg_LoadOutput;sg_SearchAttr_Ou;" asLoadOutputObj;
+				button -h 10 -l ""  -c "sg_ZoomBox 1" asOu_dn;
+				textField -tx "" -tcc "sg_SearchAttr_Ou" asSearch_Ou;
+				iconTextButton -h 24 -i "hotkeyFieldClear.png" -ann "清除搜索框" -c "textField -e -tx \"\" asSearch_Ou;" asSearch_Ou_del;
+
+				textScrollList -h 124 -ams 0 asTextOutputAttr;
+				optionMenuGrp -adj 2 -cw2 45 1 -l "筛选：" -cc "sg_SearchAttr_Ou" asBoxOutput_on;
+					menuItem -label "全部";
+					menuItem -label "可见";
+					menuItem -label "添加";
+					menuItem -label "元素";
+	setParent..;
+	formLayout -e
+
+	-attachNone asTextOutputObj "top"
+	-attachForm asTextOutputObj "left" 0
+	-attachForm asTextOutputObj "right" 0
+	-attachNone asTextOutputObj "bottom" 
+
+	-attachControl asOu_up "top" 0 asTextOutputObj
+	-attachForm asOu_up "left" 0
+	-attachForm asOu_up "right" 0 
+	-attachNone asOu_up "bottom" 	
+	
+	-attachControl asLoadOutputObj "top" 0 asOu_up
+	-attachForm asLoadOutputObj "left" 0
+	-attachForm asLoadOutputObj "right" 0
+	-attachNone asLoadOutputObj "bottom" 	
+
+	-attachControl asOu_dn "top" 0 asLoadOutputObj
+	-attachForm asOu_dn "left" 0 
+	-attachForm asOu_dn "right" 0
+	-attachNone asOu_dn "bottom" 
+
+	-attachControl asSearch_Ou "top" 0 asOu_dn
+	-attachForm asSearch_Ou "left" 0 
+	-attachForm asSearch_Ou "right" 0 
+	-attachNone asSearch_Ou "bottom" 
+
+	-attachControl asSearch_Ou_del "top" 0 asOu_dn
+	-attachNone asSearch_Ou_del "left"
+	-attachForm asSearch_Ou_del "right" 0
+	-attachNone asSearch_Ou_del "bottom" 
+
+	-attachControl asTextOutputAttr "top" 0 asSearch_Ou
+	-attachForm asTextOutputAttr "left" 0
+	-attachForm asTextOutputAttr "right" 0
+	-attachNone asTextOutputAttr "bottom" 	
+
+	-attachControl asBoxOutput_on "top" 8 asTextOutputAttr
+	-attachForm asBoxOutput_on "left" 0
+	-attachForm asBoxOutput_on "right" 0
+	-attachNone asBoxOutput_on "bottom" 	
+
+	asFl_ou;
+
+	formLayout asFl_in;
+	textScrollList -h 124 -ams 1 -sc "sg_SearchAttr_In" asTextInputObj;
+	popupMenu;
+		menuItem -i "selectNonOverlappingUV.png" -l "全选" -c "sg_SelectAll_In";
+		menuItem -i "smallTrash.png" -l "清除选定项目" -c "sg_DeleteSelection_In";
+		menuItem -i "hotkeyFieldClear.png" -l "清空输入列表" -c "textScrollList -e -ra asTextInputObj;textScrollList -e -ra asTextInputAttr;";
+
+	button -h 10 -l ""  -c "sg_ZoomBox 0" asIn_up;
+	button -h 30 -l "加载输入对象" -c "sg_LoadInput;sg_SearchAttr_In;" asLoadInputObj;
+	button -h 10 -l ""  -c "sg_ZoomBox 1" asIn_dn;
+	textField -tx "" -tcc "sg_SearchAttr_In" asSearch_In;
+	iconTextButton -h 24 -i "hotkeyFieldClear.png" -ann "清除搜索框" -c "textField -e -tx \"\" asSearch_In;" asSearch_In_del;
+
+	textScrollList -h 124 -ams 1 asTextInputAttr;
+	optionMenuGrp -adj 2 -cw2 45 1 -l "筛选：" -cc "sg_SearchAttr_In" asBoxInput_on;
+		menuItem -label "全部";
+		menuItem -label "可见";
+		menuItem -label "添加";
+		menuItem -label "元素";
+	setParent..;
+
+	formLayout -e
+
+	-attachNone asTextInputObj "top"
+	-attachForm asTextInputObj "left" 0
+	-attachForm asTextInputObj "right" 0
+	-attachNone asTextInputObj "bottom" 
+
+	-attachControl asIn_up "top" 0 asTextInputObj
+	-attachForm asIn_up "left" 0
+	-attachForm asIn_up "right" 0
+	-attachNone asIn_up "bottom" 	
+
+	-attachControl asLoadInputObj "top" 0 asIn_up
+	-attachForm asLoadInputObj "left" 0
+	-attachForm asLoadInputObj "right" 0
+	-attachNone asLoadInputObj "bottom" 		
+
+	-attachControl asIn_dn "top" 0 asLoadInputObj
+	-attachForm asIn_dn "left" 0
+	-attachForm asIn_dn "right" 0 
+	-attachNone asIn_dn "bottom" 
+
+	-attachControl asSearch_In "top" 0 asIn_dn
+	-attachForm asSearch_In "left" 0
+	-attachForm asSearch_In "right" 0 
+	-attachNone asSearch_In "bottom" 
+
+	-attachControl asSearch_In_del "top" 0 asIn_dn
+	-attachNone asSearch_In_del "left"
+	-attachForm asSearch_In_del "right" 0
+	-attachNone asSearch_In_del "bottom" 
+
+	-attachControl asTextInputAttr "top" 0 asSearch_In
+	-attachForm asTextInputAttr "left" 0
+	-attachForm asTextInputAttr "right" 0
+	-attachNone asTextInputAttr "bottom" 
+
+	-attachControl asBoxInput_on "top" 8 asTextInputAttr
+	-attachForm asBoxInput_on "left" 0
+	-attachForm asBoxInput_on "right" 0
+	-attachNone asBoxInput_on "bottom" 
+
+	asFl_in;
+
+	setParent..;
+	rowLayout -adj 1 -nc 2 -cw2 1 28;
+		button -h 30 -l "连接属性" -c sg_CreateAttributeConnection;	
+		iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_BatchConnectAttr";
+	setParent..;
+	setParent..;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "批量转移连接" asFly_43;
+		paneLayout -st 4 -cn "vertical2" asReplace_pan;
+
+			formLayout asFl_or;
+				textScrollList -h 124 -ams 1 -sc "sg_SearchAttr_Ou" asOriginalObj;
+					popupMenu;
+						menuItem -i "smallTrash.png" -l "清除选定项目" -c "sg_DeleteSelection_Original";
+						menuItem -i "hotkeyFieldClear.png" -l "清空原始对象" -c "textScrollList -e -ra asOriginalObj;";
+				button -h 30 -l "加载原始对象"  -c "sg_LoadOriginalObj" asLoadOriginalObj;
+
+	setParent..;
+	formLayout -e
+
+	-attachNone asOriginalObj "top"
+	-attachForm asOriginalObj "left" 0
+	-attachForm asOriginalObj "right" 0
+	-attachNone asOriginalObj "bottom" 
+
+	-attachControl asLoadOriginalObj "top" 0 asOriginalObj
+	-attachForm asLoadOriginalObj "left" 0
+	-attachForm asLoadOriginalObj "right" 0
+	-attachNone asLoadOriginalObj "bottom" 	
+
+	asFl_or;
+
+		formLayout asFl_re;
+			textScrollList -h 124 -ams 1 -sc "sg_SearchAttr_In" asReplaceObj;
+				popupMenu;
+				menuItem -i "smallTrash.png" -l "清除选定项目" -c "sg_DeleteSelection_Replace";
+				menuItem -i "hotkeyFieldClear.png" -l "清空转移对象" -c "textScrollList -e -ra asReplaceObj;";
+
+			button -h 30 -l "加载转移对象" -c "sg_LoadReplaceObj" asLoadReplaceObj;
+
+	setParent..;
+	formLayout -e
+
+	-attachNone asReplaceObj "top"
+	-attachForm asReplaceObj "left" 0
+	-attachForm asReplaceObj "right" 0
+	-attachNone asReplaceObj "bottom" 
+
+	-attachControl asLoadReplaceObj "top" 0 asReplaceObj
+	-attachForm asLoadReplaceObj "left" 0
+	-attachForm asLoadReplaceObj "right" 0
+	-attachNone asLoadReplaceObj "bottom" 		
+
+	asFl_re;
+
+	setParent..;
+	columnLayout -adj 1;
+
+		string $visReplaceAttrName_0="textFieldButtonGrp -e -vis 0 asReplaceAttrName ;";
+		string $visReplaceAttrName_1="textFieldButtonGrp -e -vis 1 asReplaceAttrName ;";
+
+		radioButtonGrp -cw5 65 55 55 55 55 -numberOfRadioButtons 4 -label "转移选项：" -la4 "全部" "输出" "输入" "指定" -sl 1 
+						-on1 $visReplaceAttrName_0 -on2 $visReplaceAttrName_0 -on3 $visReplaceAttrName_0 -on4 $visReplaceAttrName_1 
+						asReplaceOption;	
+		textFieldButtonGrp -adj 2 -vis 0 -cw3 65 1 65 -l "载入属性：" -tx "" -bl "   载  入   " -bc "sg_LoadAttr" asReplaceAttrName ;
+
+		rowLayout -adj 1 -nc 2 -cw2 1 28;
+			button -h 30 -l "转移属性连接" -c "sg_RunTransferProperties";	
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Scroll_BatchAttrTransfer";
+		setParent..;
+	setParent..;
+	setParent..;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "属性位移" asFly_44;
+		columnLayout -adj 1;
+		rowLayout -adj 1 -nc 2 -cw2 1 28;
+			columnLayout -adj 1;
+				button -h 30 -l "上移选择属性" -c "sg_MoveUpDnAttrsProc 1" ;
+				button -h 30 -l "下移选择属性" -c "sg_MoveUpDnAttrsProc 0" ;
+			setParent..;
+				iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_MoveAttr";
+		setParent..;
+		setParent..;
+	setParent..;
+	text -h 100 -l "";
+	setParent..;
+
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+
+	columnLayout -adj 1 -vis 0 asColumnLayout_5;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "快捷小功能" asFly_51;
+
+	shelfLayout -h 66 -cwh 53 58 ;
+		iconTextButton -style "iconAndTextVertical" -i "kinJoint.png" -l "创建关节" -c "sg_EstablishJoint";
+		iconTextButton -style "iconAndTextVertical" -i "locator.png" -l "创建定位" -c "sg_EstablishLocator";
+		iconTextButton -style "iconAndTextVertical" -i "kinConnect.png" -l "抵消位移" -c "sg_OffsetGroup";
+		iconTextButton -style "iconAndTextVertical" -i "kinDisconnect.png" -l "隐藏关节" -c "sg_JointsVisibility 0" asVisJoint;
+		iconTextButton -style "iconAndTextVertical" -i "parent.png" -l "父子关系" -c "sg_Parent";
+		iconTextButton -style "iconAndTextVertical" -i "showManip.png" -ann "双击隐藏" -l "显示轴心" -c "sg_FitDisplayJointAxis 1" -dcc "sg_FitDisplayJointAxis 0";
+	setParent..;
+		separator ;
+		floatSliderGrp -cw3 65 45 140 -l "关节大小：" -field 1 -min 0.01 -max 10.0 -pre 2 -v `jointDisplayScale -q` -dc "jointDisplayScale #1" -cc "jointDisplayScale #1";
+		//floatSliderGrp -cw3 65 45 140 -l "调整线宽：" -field 1 -min 0.01 -max 10.0 -pre 2 -v 1 -dc "updateLineWidth #1" -cc "updateLineWidth #1";
+	setParent..;
+
+	frameLayout -bgc 0.365 0.365 0.365 -mh 5 -cll 1 -cl 1 -cc gtFLT -ec gtFLT -l "其他工具" asFly_52;
+	columnLayout -adj 1;
+
+		rowLayout -adj 1 -nc 3 -cw3 1 28 28 ;
+			button -h 30 -l "快速平滑权重" -c "sg_SmoothingWeight";
+			iconTextButton -i `Icons "asSetUp"` -c "ColumnLayoutVis asSmoothingweight;asIconButtonRevise asSmoothingweightIcon;" asSmoothingweightIcon;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_Smoothingweight";
+		setParent..;
+
+		columnLayout -adj 1 -vis 0 asSmoothingweight;
+			intFieldGrp -adj 2 -cw2 65 1 -l "平滑次数：" -v1 3  asSmoothingSize;
+			separator -h 5 ;
+		setParent..;
+
+		rowLayout -adj 1 -nc 3 -cw3 1 28 28 ;
+			button -h 30 -l "批量添加空组" -c "sg_CreateEmptyGroup" ;
+			iconTextButton -i `Icons "asSetUp"` -c "ColumnLayoutVis asAddEmptyGroup;asIconButtonRevise asAddEmptyGroupIcon;" asAddEmptyGroupIcon;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_BatchAddGrous";
+		setParent..;
+
+		columnLayout -adj 1 -vis 0 asAddEmptyGroup;
+			intFieldGrp -adj 2 -cw2 65 1 -l "空组数量：" -v1 1  asGroupSize;
+			textFieldGrp -adj 2 -cw2 65 1 -l "后缀名称：" -tx "_grp" asGroupSuffix;
+				popupMenu;
+	    			menuItem -l "grp" -c "textFieldGrp -e -tx \"grp\" asGroupSuffix;";
+	    			menuItem -l "_grp" -c "textFieldGrp -e -tx \"_grp\" asGroupSuffix;";
+	   				menuItem -l "Grp" -c "textFieldGrp -e -tx \"Grp\" asGroupSuffix;";
+	    			menuItem -l "_Grp" -c "textFieldGrp -e -tx \"_Grp\" asGroupSuffix;";
+			string $trs_on="checkBoxGrp -e -v2 1 -v3 1 -v4 1 asEliminateMode;";
+			string $trs_of="checkBoxGrp -e -v2 0 -v3 0 -v4 0 asEliminateMode;";
+			string $all_of="checkBoxGrp -e -v1 0 asEliminateMode;";
+
+			checkBoxGrp -vis 1 -cw5 65 50 50 50 50 -ncb 4 -l "冻结变换：" -la4 "全部" "位置" "旋转" "缩放" -v1 0 -v2 0 -v3 0 -v4 0
+						-on1 $trs_on -of1 $trs_of
+						-of2 $all_of -of3 $all_of -of4 $all_of asEliminateMode;
+			separator -h 5 ;
+		setParent..;
+
+		rowLayout -adj 1 -nc 3 -cw3 1 28 28 ;
+			button -h 30 -l "快速创建关节链" -c "sg_SamplingJoint" ;
+			iconTextButton -i `Icons "asSetUp"` -c "ColumnLayoutVis asSamplingJoint;asIconButtonRevise asSamplingJointIcon;" asSamplingJointIcon;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_SamplingJoint";
+		setParent..;
+
+		columnLayout -adj 1 -vis 0 asSamplingJoint;
+			intFieldGrp -adj 2 -cw2 65 1 -l "关节数量：" -v1 10  asJointSize;
+			textFieldGrp -adj 2 -cw2 65 1 -l "关节名称：" -tx "joint" asSuffixName;
+			floatSliderGrp -adj 3 -cw3 65 45 1 -l "重心偏移：" -f 1 -min -1 -max 1 -step 0.01 -v 0 asSkewing ;
+			radioButtonGrp -cw3 65 100 100 -nrb 2 -l "创建模式：" -la2 "曲线创建模式" "插入关节模式" -sl 1 asPattern;
+			separator -h 5 ;
+		setParent..;
+
+		rowLayout -adj 1 -nc 3 -cw3 1 28 28 ;
+			button -h 30 -l "模型切头工具（正）" -ann "请选择模型切线！！！" -c "sg_CuttingTool 0" asCuttingTool;
+			iconTextButton -i `Icons "asSetUp"` -c "sg_CuttingTool_switch;asIconButtonRevise asCuttingToolIcon;" asCuttingToolIcon;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Scroll_CuttingTool";
+		setParent..;
+
+		rowLayout -adj 1 -nc 2 -cw2 1 28 ;
+			button -h 30 -l "快速复制蒙皮" -ann "先选择复制模型，后选择被复制模型！！！" -c "sg_CopySkinWeights" ;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_GtoveSkinWeights";
+		setParent..;
+
+	if(`asMayaVersionAsFloat`>2016){
+		rowLayout -adj 1 -nc 2 -cw2 1 28 ;
+			button -h 30 -l "单关节权重计算" -c "source \"/home/wangruilong/maya/workBox/scripts/RiggingHelper/Tools/WeightCalculation.mel\";" ;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_SingleJointWeightCalculation";
+		setParent..;
+		rowLayout -adj 1 -nc 2 -cw2 1 28 ;
+			button -h 30 -l "环关节权重计算" -c "source \"/home/wangruilong/maya/workBox/scripts/RiggingHelper/Tools/CalculationOfEyeringWeight.mel\";" ;
+			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_Help";
+		setParent..;
+	}
+
+	setParent..;
+	setParent..;
+	setParent..;
+
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222	
+	columnLayout -adj 1 -vis 0 asColumnLayout_6;
+
+	columnLayout -adj 1;
+
+	columnLayout -bgc 1 1 1 -adj 1;
+	iconTextButton -i `Icons "asLogo"` ;
+	setParent..;
+	button -l "访问 RiggingHelper BiliBili 网站" -c "showHelp -a \"https://space.bilibili.com/671170332\"";
+
+	text -l "\n交流QQ群：121273755\n";
+	text -l ("版本："+$version+"\n最后修改日期："+$date+"\n");
+
+	button -l "更新日志" -c "source \"/home/wangruilong/maya/workBox/scripts/RiggingHelper/Tools/UpdateLog.mel\";" ;
+	separator -h 5;
+
+	formLayout  asWinSwitching;
+	/*
+	button -c "asControllerDockingWindow 0;" -l "窗口模式" asWin;
+	button -c "asControllerDockingWindow 1;" -l "停靠模式" asDock;
+
+	if(`asMayaVersionAsFloat`>2016)
+		button -c "RiggingHelper_Workspace;" -l "工作区" asWor;
+
+	setParent..;
+
+if(`asMayaVersionAsFloat`>2016){
+	formLayout -e
+
+	-attachNone asWin "top"
+	-attachForm asWin "left" 0
+	-attachPosition asWin "right" 0 33
+	-attachNone asWin "bottom" 	
+
+	-attachNone asDock "top"
+	-attachControl asDock "left" 5 asWin
+	-attachPosition asDock "right" 0 67
+	-attachNone asDock "bottom" 	
+
+	-attachNone asWor "top"
+	-attachControl asWor "left" 5 asDock
+	-attachForm asWor "right" 0
+	-attachNone asWor "bottom" 	
+
+	asWinSwitching;
+}
+
+else {
+	formLayout -e
+
+	-attachNone asWin "top"
+	-attachForm asWin "left" 0
+	-attachPosition asWin "right" 0 50
+	-attachNone asWin "bottom" 	
+
+	-attachNone asDock "top"
+	-attachControl asDock "left" 5 asWin
+	-attachForm asDock "right" 0
+	-attachNone asDock "bottom" 	
+
+	asWinSwitching;
+}	
+*/
+	setParent..;
+	setParent..;
+	text -h 100 -l "";
+	setParent..;
+	setParent..;
+	setParent..;
+	setParent..;
+
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+///////////////////////////////////////////////////////222222222222222222222222222222222
+
+//==========参考图标===========//
+
+formLayout -vis 0 asFrame_b;
+
+columnLayout -adj 1 asReferimege;
+
+	string $PreIcon=`optionVar -q asPreIcon`;
+		if (!`optionVar -ex asPreIcon`)
+			$PreIcon="C00";
+
+	string $PreImage = $files+"/"+$PreIcon+".bmp";
+	iconTextButton -w 64 -h 64 -iol $PreIcon -i $PreImage -c ("sg_SelectObj "+$PreIcon) -dcc ("sg_CreateController_Position "+$PreIcon) -mw 0 -mh 0 asIcoImege_but;
+
+setParent..;
+
+//==========参考区域===========//
+
+columnLayout -adj 1 asRefer;
+	separator -h 1 ;
+	string  $floatV="";
+			$floatV+="float $Diameter=`floatSliderGrp -q -v asPreRadius`;";
+			$floatV+="$asPreDiameter=$Diameter";
+
+	floatSliderGrp -adj 3 -cw2 65 1 -f 1 -min 0.01 -max 100 -step 0.01 -v $asPreDiameter -cc $floatV asPreRadius ;
+	popupMenu;
+		menuItem -l "0.25" -c "floatSliderGrp -e -v 0.25 asPreRadius;";
+		menuItem -l "0.5" -c "floatSliderGrp -e -v 0.5 asPreRadius;";
+		menuItem -l "0.75" -c "floatSliderGrp -e -v 0.75 asPreRadius;";
+		menuItem -l "1" -c "floatSliderGrp -e -v 1 asPreRadius;";
+		menuItem -l "5" -c "floatSliderGrp -e -v 5 asPreRadius;";
+		menuItem -l "10" -c "floatSliderGrp -e -v 10 asPreRadius;";
+		menuItem -l "20" -c "floatSliderGrp -e -v 20 asPreRadius;";
+
+	float $colorRGB[]=`gtGetColors`;
+	colorSliderGrp -vis 0 -adj 2 -cw2 65 1 -rgb $colorRGB[0] $colorRGB[1] $colorRGB[2] -cc "sg_CustomColorChange 1" asColor_Slider;
+	string $ColorIndex="";
+		   $ColorIndex+="int $value=`colorIndexSliderGrp -q -value asColor_Index`;";
+		   $ColorIndex+="$asColorIndex=$value;";
+		   $ColorIndex+="sg_SetColorBut;";
+	colorIndexSliderGrp -vis 0 -adj 2 -cw2 65 1 -min 1 -max 32 -value $asColorIndex -cc $ColorIndex asColor_Index ;
+	separator -h 1 ;
+	setParent..;
+
+	string $ColorSetting="";
+		   $ColorSetting+="int $vis_1=`checkBoxGrp -q -v1 asColorSetting`;";
+		   $ColorSetting+="int $vis_2=`checkBoxGrp -q -v2 asColorSetting`;";
+		   $ColorSetting+="$asViewport=$vis_1;$asOutliner=$vis_2;";
+
+checkBoxGrp  -vis 1 -cw3 0 75 75  -ncb 2 -l "" -la2 "视图颜色" "大纲颜色" -v1 $asViewport -v2 $asOutliner -cc $ColorSetting asColorSetting;
+
+iconTextButton -vis 1 -ebg 0 -bgc 0.2 0.2 0.2 -c "asColorSliderIndex 1" -ann "创建控制器" asColorSetting_A;
+asColorSliderIndex $asSetPreColors;
+iconTextButton -vis 1 -ebg 0 -bgc 0.2 0.2 0.2 -i `Icons "asMenu"` -c "asMenuToolVis 1" -ann "创建控制器" asColorSetting_B;
+
+//==========颜色块区域===========//
+
+palettePort -h 28 -dim 16 2 -rgbValue 0 0 0 0 -td 1 -cc "sg_CustomColorChange 2" -ce sg_SaveColor asColor_Port;
+	popupMenu ;
+		string $asPortPopupMenu="";
+			   $asPortPopupMenu+="asColorSliderIndex 0;";
+			   $asPortPopupMenu+="float $rgb[]=`palettePort -q -rgb asColor_Port`;";
+			   $asPortPopupMenu+="colorSliderGrp -e -rgb $rgb[0] $rgb[1] $rgb[2] asColor_Slider;";
+			   $asPortPopupMenu+="gtMemoryColor;";
+		menuItem -i "addClip.png" -l "添加为预设" -c $asPortPopupMenu;
+
+string $saveRGB;
+for ($index = 1; $index <= 31; $index++) {
+	$saveRGB="SeveColor"+$index;
+	if(`optionVar -ex $saveRGB`){
+		float $saveColor[] = `optionVar -q $saveRGB`;
+		palettePort -edit -rgbValue $index $saveColor[0] $saveColor[1] $saveColor[2] asColor_Port;
+	}
+	else{
+		float $saveColor[] = `asColor $index`;
+		palettePort -edit -rgbValue $index $saveColor[0] $saveColor[1] $saveColor[2] asColor_Port;
+	}
+}
+
+//==========功能图标===========//
+	formLayout -bgc 0.16 0.16 0.16 -vis $asMenuToolVis asMenuTool;
+	
+		iconTextButton -i `Icons "asColorL"` -c "sg_GradientColor -1" -ann "渐变色左调整" asMenuTool_1;
+		iconTextButton -i `Icons "asColorR"` -c "sg_GradientColor 1" -ann "渐变色右调整" asMenuTool_2;
+		iconTextButton -i `Icons "asCopyColor"` -c "sg_CopyColor" -ann "拷贝颜色" asMenuTool_3;
+		iconTextButton -i `Icons "asPasteColor"` -c "sg_PasteColor" -ann "粘贴颜色" asMenuTool_4;
+		iconTextButton -i `Icons "asResetColor"` -c "sg_ResetColor" -ann "重置颜色" asMenuTool_5;
+		iconTextButton -i `Icons "asRestoreColorBoard"` -c "sg_RestoreColorBoard" -ann "还原默认色板" asMenuTool_6;
+
+	setParent..;
+
+	formLayout -e 
+	-attachNone asMenuTool_1 "top" 
+	-attachForm asMenuTool_1 "left" 0
+	-attachPosition asMenuTool_1 "right" 0 10
+	-attachNone asMenuTool_1 "bottom" 
+
+	-attachNone asMenuTool_2 "top" 
+	-attachPosition asMenuTool_2 "left" 0 10
+	-attachPosition asMenuTool_2 "right" 0 20
+	-attachNone asMenuTool_2 "bottom" 
+
+	-attachNone asMenuTool_3 "top" 
+	-attachPosition asMenuTool_3 "left" 0 20
+	-attachPosition asMenuTool_3 "right" 0 40
+	-attachNone asMenuTool_3 "bottom" 
+
+	-attachNone asMenuTool_4 "top" 
+	-attachPosition asMenuTool_4 "left" 0 40
+	-attachPosition asMenuTool_4 "right" 0 60
+	-attachNone asMenuTool_4 "bottom" 
+	
+	-attachNone asMenuTool_5 "top" 
+	-attachPosition asMenuTool_5 "left" 0 60
+	-attachPosition asMenuTool_5 "right" 0 80
+	-attachNone asMenuTool_5 "bottom" 
+	
+	-attachNone asMenuTool_6 "top" 
+	-attachPosition asMenuTool_6 "left" 0 80
+	-attachForm asMenuTool_6 "right" 0 
+	-attachNone asMenuTool_6 "bottom" 
+
+	asMenuTool;
+//==========控制器图标区域===========//
+
+int $asCwh=`optionVar -q asCwh`;
+	if (!`optionVar -ex asCwh`)
+		$asCwh=48;
+
+if($asCwh==34)menuItem -e -rb on asMimIco_1;
+if($asCwh==48)menuItem -e -rb on asMimIco_2;
+if($asCwh==64)menuItem -e -rb on asMimIco_3;
+
+shelfLayout -cwh $asCwh $asCwh asIco_but;
+
+	for($tmp in $ListShape){
+		string $baseName = basenameEx($tmp);
+		string $image = $files+"/"+$baseName+".bmp";
+		string $cc ="sg_SelectObj "+$baseName+";";
+		string $dc ="sg_CreateController_Position "+$baseName ;
+		string $con_name=`sg_IconTextButton $baseName $image`;
+		string $ico_butt=`iconTextButton -c $cc -dcc $dc -mw 1 -mh 1 -iol $baseName `;
+			popupMenu;
+				menuItem -i "addClip.png" -l "添加为预设" -c $con_name ;
+		if(`file -q -ex $image`)
+			iconTextButton -e -i $image $ico_butt;
+	}
+
+setParent..;
+setParent..;
+setParent..;
+
+int $asLowToolVis=`optionVar -q asLowToolVis `;
+	if (!`optionVar -ex asLowToolVis`)
+		$asLowToolVis=0;
+if($asLowToolVis==1)
+	menuItem -e -checkBox on asLowToolBar;
+if($asLowToolVis==0)
+	menuItem -e -checkBox off asLowToolBar;
+
+//==========底端工具栏===========//
+
+formLayout -vis $asLowToolVis asLowTool;
+
+button -h 30 -l "恢复控制器初始位置" -c "sg_ControllerInitialPosition 1" asRecoveryCon;
+button -h 30 -l "定义控制器" -c "sg_ControllerInitialPosition 0" asDefinitionCon;
+
+setParent..;
+
+//==========UI布局===========//
+
+ formLayout -e
+
+ -attachForm asHeader "top" 0
+ -attachForm asHeader "left" 0
+ -attachNone asHeader "bottom" 
+ -attachForm asHeader "right" 0
+
+ -attachControl asPaneLayout "top" 0 asHeader
+ -attachForm asPaneLayout "left" 0
+ -attachControl asPaneLayout "bottom" 0 asLowTool
+ -attachForm asPaneLayout "right" 0
+
+ -attachNone asLowTool "top" 
+ -attachForm asLowTool "left" 0
+ -attachForm asLowTool "bottom" 0
+ -attachForm asLowTool "right" 0
+
+ asFrame;
+
+ formLayout -e
+
+ -attachForm asMenu "top" 0 
+ -attachForm asMenu "left" 0
+ -attachNone asMenu "bottom" 
+ -attachForm asMenu "right" 0
+
+ -attachControl asFunction "top" 0 asMenu
+ -attachForm asFunction "left" 0
+ -attachForm asFunction "bottom" 0 
+ -attachForm asFunction "right" 0
+
+ asOption;
+
+ formLayout -e
+
+ -attachForm asRecoveryCon "top" 0
+ -attachForm asRecoveryCon "left" 0
+ -attachForm asRecoveryCon "bottom" 0 
+ -attachPosition asRecoveryCon "right" 1 50
+
+ -attachForm asDefinitionCon "top" 0
+ -attachControl asDefinitionCon "left" 1 asRecoveryCon
+ -attachForm asDefinitionCon "bottom" 0 
+ -attachForm asDefinitionCon "right" 0
+
+ asLowTool;
+/////////////////////////////////////////////////////////////////
+
+ formLayout -e
+
+ -attachForm asOption "top" 0
+ -attachForm asOption "left" 0
+ -attachForm asOption "bottom" 0
+ -attachForm asOption "right" 0
+
+ asFrame_a;
+
+ formLayout -e
+
+	-attachNone asReferimege "top" 
+	-attachForm asReferimege "left" 0
+	-attachNone asReferimege "bottom"
+	-attachNone asReferimege "right" 
+
+	-attachNone asRefer "top" 
+	-attachControl asRefer "left" 0 asReferimege
+	-attachNone asRefer "bottom"
+	-attachForm asRefer "right" 0
+
+	-attachForm asColorSetting "top" 45
+	-attachControl asColorSetting "left" 0 asReferimege
+	-attachNone asColorSetting "bottom"
+	-attachNone asColorSetting "right" 
+
+	-attachForm asColorSetting_A "top" 47
+	-attachControl asColorSetting_A "left" 0 asColorSetting
+	-attachNone asColorSetting_A "bottom"
+	-attachNone asColorSetting_A "right" 
+
+	-attachForm asColorSetting_B "top" 47
+	-attachControl asColorSetting_B "left" 5 asColorSetting_A
+	-attachNone asColorSetting_B "bottom"
+	-attachNone asColorSetting_B "right" 
+
+	-attachControl asColor_Port "top" 0 asReferimege
+	-attachForm asColor_Port "left" 3
+	-attachNone asColor_Port "bottom"
+	-attachForm asColor_Port "right" 3
+
+	-attachControl asMenuTool "top" 1 asColor_Port
+	-attachForm asMenuTool "left" 3
+	-attachNone asMenuTool "bottom"
+	-attachForm asMenuTool "right" 3
+
+	-attachControl asIco_but "top" 0 asMenuTool
+	-attachForm asIco_but "left" 0
+	-attachForm asIco_but "bottom" 0
+	-attachForm asIco_but "right" 0
+
+	asFrame_b;
+/*
+if (!$conWorkspace){
+	if($asControllerDocking){
+		dockControl -l "绑定师助手" -a "right" -con RiggingHelperWin -aa "left" -aa "right" RiggingHelperDock ;
+	}
+	else{
+		showWindow "RiggingHelperWin" ;
+	}
+}*/
+showWindow "RiggingHelperWin" ;
+
+int $asWindowVis=`optionVar -q asWindowVis`;
+	if (!`optionVar -ex asWindowVis`)
+		$asWindowVis=3;
+asWindowHideToggle $asWindowVis;
+
+int $asMenuVis=`optionVar -q asMenuVis`;
+	if (!`optionVar -ex asMenuVis`)
+		$asMenuVis=1;
+asMenuUI $asMenuVis;
+
+asMenuToolVis $asMenuToolVis;
+
+string $framLayouts[]=`lsUI -type frameLayout`;
+for ($i=0;$i<size($framLayouts);$i++){
+	if (`gmatch $framLayouts[$i] "asFly_*"`)
+		if (`optionVar -ex $framLayouts[$i]`)
+			frameLayout -e -cl `optionVar -q $framLayouts[$i]` $framLayouts[$i];
+}
+
+scriptJob -p asFrame -e SelectionChanged sg_InitializationSelection ;
+
+print "||=========>>欢迎使用绑定师助手<<=========||\n";
+}
+/*
+//==========窗口模式切换===========//
+global proc asControllerDockingWindow (int $dock){
+int $asControllerDocking=`optionVar -q asControllerDocking`;
+optionVar -iv asControllerDocking $dock;
+cvRemoveAsWorkspaceControl;
+if (`dockControl -q -ex RiggingHelperDock`)
+	deleteUI -control RiggingHelperDock;
+RiggingHelper_UI;
+}
+
+global proc RiggingHelper_Workspace (){
+
+global string $asScriptRoute;
+
+if (`runTimeCommand -ex ControllerEditingTool`) 
+	runTimeCommand -e -annotation "Run RiggingHelper_UI as WorkSpace controller" -category "User"
+		-command ("if (!`exists RiggingHelper_UI`) evalEcho (\"source \\\""+$asScriptRoute+"RiggingHelper.mel\\\"\");RiggingHelper_UI;")
+		ControllerEditingTool;
+else
+	runTimeCommand -annotation "Run RiggingHelper_UI as WorkSpace controller" -category "User"
+		-command ("if (!`exists RiggingHelper_UI`) evalEcho (\"source \\\""+$asScriptRoute+"RiggingHelper.mel\\\"\");RiggingHelper_UI;")
+		ControllerEditingTool;
+
+if (`workspaceControl -ex RiggingHelperWorkspace`)
+	{
+	print ("已经是工作区窗口，请点击其他模式脱离工作区窗口！\n");
+	return;
+	}
+if (`exists dockControl`)
+	if (`dockControl -q -ex RiggingHelperDock`)
+		deleteUI -control RiggingHelperDock;
+if (`window -q -ex RiggingHelperWin`)
+	deleteUI RiggingHelperWin;
+
+workspaceControl -iw 320 -retain 0 -tabToControl AttributeEditor 0 -label "绑定师助手" -uiScript ControllerEditingTool RiggingHelperWorkspace;
+
+}
+*/
+global proc asMenuUI (int $but){
+
+	for($e = 1 ; $e <= 6 ; $e++){
+		columnLayout -e -vis 0 ("asColumnLayout_"+$e);
+		iconTextButton -e -ebg 0 ("asMenu_"+$e);
+	}
+
+	columnLayout -e -vis 1 ("asColumnLayout_"+$but);
+	iconTextButton -e -ebg 1 ("asMenu_"+$but);
+
+	iconTextButton -e -c ("gtFLTALL asFly_"+$but+" 1;") asMenu_7;
+	iconTextButton -e -c ("gtFLTALL asFly_"+$but+" 0;") asMenu_8;
+
+	optionVar -iv asMenuVis $but;
+
+}
+
+global proc asColorSliderIndex (int $vis){
+
+	global int $asSetPreColors;
+	$asSetPreColors=$vis;
+
+	if($vis==1){
+		colorSliderGrp -e -vis 0 asColor_Slider ;
+		colorIndexSliderGrp -e -vis 1 asColor_Index ;
+		iconTextButton -e -i `Icons "asColorIND"` -c "asColorSliderIndex 0" -ann "创建控制器" asColorSetting_A;
+	}
+	if($vis==0){
+		colorSliderGrp -e -vis 1 asColor_Slider ;
+		colorIndexSliderGrp -e -vis 0 asColor_Index ;
+		iconTextButton -e -i `Icons "asColorRGB"` -c "asColorSliderIndex 1" -ann "创建控制器" asColorSetting_A;
+	}
+}
+
+global proc asMenuToolVis (int $vis){
+	
+	global int $asMenuToolVis;
+	$asMenuToolVis=$vis;
+	if($vis==1){
+		formLayout -e -vis 1 asMenuTool;
+		iconTextButton -e -c "asMenuToolVis 0" asColorSetting_B;
+	}
+	if($vis==0){
+		formLayout -e -vis 0 asMenuTool;
+		iconTextButton -e -c "asMenuToolVis 1" asColorSetting_B;
+	}
+
+}
+
+global proc asIconButtonRevise (string $name){
+
+string $Ico=`iconTextButton -q -i $name`;
+if($Ico==`Icons "asSetUp"`)
+	iconTextButton -e -i `Icons "asSetDn"` $name;
+if($Ico==`Icons "asSetDn"`)
+	iconTextButton -e -i `Icons "asSetUp"` $name;
+}
+
+global proc string Icons (string $ico){
+	global string $asScriptRoute;
+	string $Icos=$asScriptRoute+"Icons/"+$ico+".png";
+	return $Icos;
+}
+
+global proc asRunProgram (string $Program){
+	global string $asScriptRoute;
+	string $ToolFiles=$asScriptRoute+"Tools";
+	string $form = ($ToolFiles+"/"+$Program+".mel");
+	//source "$form";
+}
+
+global proc float [] asColor (int $index)
+{
+	float $colorComponentArray[] = `colorIndex -query $index`;
+	return $colorComponentArray;
+}
+
+global proc cvRemoveAsWorkspaceControl (){
+if (!`exists workspaceControl`)
+	return;
+if (`workspaceControl -ex RiggingHelperWorkspace`)
+	workspaceControl -e -close RiggingHelperWorkspace;
+if (`workspaceControlState -exists RiggingHelperWorkspace`)
+	workspaceControlState -remove RiggingHelperWorkspace;
+}
+
+global proc gtCloseWindow (){
+if (`workspaceControl -q -ex RiggingHelperWorkspace`)
+	cvRemoveAsWorkspaceControl;
+if (`dockControl -q -ex RiggingHelperDock`)
+	deleteUI -control RiggingHelperDock;
+if(`window -ex RiggingHelperWin`)
+	deleteUI  -window RiggingHelperWin;
+}
+
+global proc gtFLT (){
+string $framLayouts[]=`lsUI -type frameLayout`;
+for ($i=0;$i<size($framLayouts);$i++)
+	if (`gmatch $framLayouts[$i] "asFly_*"`)
+		optionVar -iv $framLayouts[$i] `frameLayout -q -cl $framLayouts[$i]`;
+}
+
+global proc gtFLTALL (string $type,int $switch){
+string $framLayouts[]=`lsUI -type frameLayout`;
+for ($i=0;$i<size($framLayouts);$i++)
+	if (`gmatch $framLayouts[$i] ($type+"*")`)
+		frameLayout -e -cl $switch $framLayouts[$i];
+gtFLT;
+}
+
+global proc asWindowHideToggle (int $but){
+
+if($but==1){
+	formLayout -e -vis 1 asFrame_a ;
+	formLayout -e -vis 0 asFrame_b ;
+	iconTextButton -e -c "asWindowHideToggle 2" asHelpImage;
+	menuItem -e -rb on asMenuItem_up;
+	optionVar -iv asWindowVis 1;
+}
+if($but==2){
+	formLayout -e -vis 0 asFrame_a ;
+	formLayout -e -vis 1 asFrame_b ;
+	iconTextButton -e -c "asWindowHideToggle 3" asHelpImage;
+	menuItem -e -rb on asMenuItem_dn;
+	optionVar -iv asWindowVis 2;
+}
+if($but==3){
+	formLayout -e -vis 1 asFrame_a ;
+	formLayout -e -vis 1 asFrame_b ;
+	iconTextButton -e -c "asWindowHideToggle 1" asHelpImage;
+	menuItem -e -rb on asMenuItem_all;
+	optionVar -iv asWindowVis 3;
+}
+}
+
+global proc gtIconSize (int $cwh){
+	int $asCwh=`optionVar -q asCwh`;
+	optionVar -iv asCwh $cwh;
+}
+
+global proc float [] gtGetColors (){
+float $apColorR=`optionVar -q apColorR`;
+	if (!`optionVar -ex apColorR`)
+		$apColorR=0.388;
+
+float $apColorG=`optionVar -q apColorG`;
+	if (!`optionVar -ex apColorG`)
+		$apColorR=0.863;
+
+float $apColorB=`optionVar -q apColorB`;
+	if (!`optionVar -ex apColorB`)
+		$apColorR=1;
+
+float $apColorRGB[]={$apColorR,$apColorG,$apColorB};
+return $apColorRGB;
+}
+
+global proc gtLowToolBar (){
+
+int $vis=`formLayout -q -vis asLowTool`;
+
+if($vis==0){
+	formLayout -e -vis 1 asLowTool;
+	optionVar -iv asLowToolVis 1;
+}
+if($vis==1){
+	formLayout -e -vis 0 asLowTool;
+	optionVar -iv asLowToolVis 0;
+}
+}
+
+global proc ColumnLayoutVis (string $name){
+int $vis=`columnLayout -q -vis $name`;
+if($vis==0)columnLayout -e -vis 1 $name;
+if($vis==1)columnLayout -e -vis 0 $name;
+}
+
+global proc string sg_IconTextButton (string $baseName,string $image){
+	string  $Button="";
+			$Button+="iconTextButton -e -iol "+$baseName+" -i \""+$image+"\" -c \"sg_SelectObj "+$baseName+"\" -dcc \"sg_CreateController_Position "+$baseName+"\" asIcoImege_but;";
+			$Button+="optionVar -sv asPreIcon "+$baseName+";";
+	return  $Button;
+}
+
+RiggingHelper_UI;
+

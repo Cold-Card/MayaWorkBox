@@ -1,0 +1,720 @@
+//////权重计算工具
+//////制作：久违的时光
+//////电话或微信：15697077077
+//////QQ或邮箱：923373770
+//////最后修改日期  2020/11/22
+
+global proc gt_Weight_Calculation_Tool_Win (){
+
+if(`window -ex gt_Weight_Calculation_Tool_Win`)  
+	deleteUI -window gt_Weight_Calculation_Tool_Win ;
+
+window -title "单关节权重计算工具" -cc "gt_Close_Command" gt_Weight_Calculation_Tool_Win;
+menuBarLayout;
+menu -l "编辑";
+	menuItem -i "rebuild.png" -l "重置" -c gt_Refresh ;
+	menuItem -i "smallTrash.png" -l "删除临时文件" -c gt_Delete_temp ;
+	menuItem -d 1;
+	menuItem -i "enabled.png" -l "退出" -c "gt_Close_Command;window -e -vis 0 gt_Weight_Calculation_Tool_Win ;";
+	setParent..;
+menu -l "关于";
+	menuItem -i "help.png" -l "帮助" -c "showHelp -a \"https://www.bilibili.com/video/BV1qt4y1a7N2\"";
+	menuItem -l "版本V2.1" -c "";
+	menuItem -l "联系方式" -c "confirmDialog -t \"联系方式\" -message \"制作：久违的时光     更新请加QQ群：121273755    \" -cancelButton \"确定\" ;";
+	setParent..;
+
+frameLayout -cll 0 -cl 0 -l "单关节权重计算";
+
+string $apModel=`optionVar -q asModel`;
+	if (!`objExists $apModel`)
+        $apModel="";
+string $apRTJot=`optionVar -q asRTJot`;
+	if (!`objExists $apRTJot`)
+		$apRTJot="";
+int $asBut_vis=`optionVar -q asBut_vis`;
+	if (!`optionVar -ex asBut_vis`)
+		$asBut_vis=0;	
+
+string $but_c,$but_l;
+
+if($asBut_vis==0){
+	$but_c="gt_Transfer_Weight 0";
+	$but_l="分配权重";
+}
+if($asBut_vis==1){
+	$but_c="gt_Transfer_Weight 1";
+	$but_l="回传权重";
+}
+
+formLayout asForm ;
+textField -h 35 -tx $apModel asTextModelName ;
+button -h 35 -c gt_Loading_Model -l "加载模型"  asBut_e;
+
+textField -h 35 -tx $apRTJot asTextRootJoints ;
+button -h 35 -c gt_Loading_Root_Joints -l "加载根关节"  asBut_f;
+
+textScrollList -ams 0 -sc "gt_Prominent"  asTextJoints;
+		popupMenu ;
+			menuItem -i "selectNonOverlappingUV.png" -l "全选" -en 0 -c "gt_Select_All;gt_Prominent;" asSelectAll;
+    		menuItem -i "smallTrash.png" -l "移除选项" -c "gt_Delete_ScrollList 0";
+    		menuItem -i "hotkeyFieldClear.png" -l "移除全部" -c "gt_Delete_ScrollList 1";
+button -h 35 -c gt_Loading_Joints -l "加载子关节"  asBut_c;
+
+button  -c "gt_Expanding_Options" -l "选择线\n延循环边扩展"  asBut_d;
+
+intFieldGrp -adj 2 -cw2 28 1 -l "内：" -v1 15 asAlw_n ;
+intFieldGrp -adj 2 -cw2 28 1 -l "外：" -v1 15 asAlw_w ;
+
+button -h 45 -c "gt_Create_Link" -l "手动关联点" asRelation ;
+
+intSliderGrp -cw3 65 45 140 -l "扩展次数：" -f 1 -min 0 -max 100 -v 25 asSeconds;
+
+floatSliderGrp -cw3 65 45 140 -l "关节大小：" -field 1 -min 0.01 -max 10.0 -pre 2 -v `jointDisplayScale -q` -dc "jointDisplayScale #1" -cc "jointDisplayScale #1" asJotSize;
+
+radioButtonGrp  -cw4 65 45 45 45 -numberOfRadioButtons 3  -label "编辑方向：" -labelArray3 "右侧" "左侧" "两侧" -sl 3 asDirection ;
+
+checkBox -l "查看模式" -onc "gt_View_Switch 1" -ofc "gt_View_Switch 0" -v 0 asViewMode ;
+checkBox -l "重置模式" -onc "gt_Clear_Mode 1" -ofc "gt_Clear_Mode 0" -v 0 asResetMode ;
+checkBox -l "自动关联" -onc "gt_Automatic_but 1" -ofc "gt_Automatic_but 0" -v 0 asAutomatic ;
+
+button -h 35 -c "gt_Edit_Weight" -l "编辑权重"  asBut_g;
+button -h 35 -c $but_c -l $but_l asBut_a;
+
+progressBar -h 15 -maxValue 100 -m 0 asProgress_a;
+progressBar -h 15 -maxValue 100 -m 0 asProgress_b;
+
+setParent..;
+setParent..;
+
+ formLayout -edit
+
+ -attachForm asTextModelName "top" 5
+ -attachForm asTextModelName "left" 5
+ -attachNone asTextModelName "bottom"
+ -attachPosition asTextModelName "right" 0 50
+
+ -attachControl asTextJoints "top" 5 asBut_e
+ -attachForm asTextJoints "left" 5
+ -attachControl asTextJoints "bottom" 5 asBut_c
+ -attachPosition asTextJoints "right" 0 57
+
+ -attachNone asBut_c "top"
+ -attachForm asBut_c "left" 5
+ -attachControl asBut_c "bottom" 5 asSeconds
+ -attachForm asBut_c "right" 5
+
+ -attachForm asTextRootJoints "top" 5
+ -attachControl asTextRootJoints "left" 5 asTextModelName
+ -attachNone asTextRootJoints "bottom"
+ -attachForm asTextRootJoints "right" 5
+
+ -attachControl asBut_d "top" 5 asBut_f
+ -attachPosition asBut_d "left" 2 57
+ -attachPosition asBut_d "bottom" 0 35
+ -attachForm asBut_d "right" 5
+ 
+ -attachControl asRelation "top" 0 asAlw_n
+ -attachPosition asRelation "left" 2 57
+ -attachControl asRelation "bottom" 5 asBut_c
+ -attachForm asRelation "right" 5
+ 
+ -attachControl asBut_e "top" 2 asTextModelName
+ -attachForm asBut_e "left" 5
+ -attachNone asBut_e "bottom"
+ -attachControl asBut_e "right" 5 asTextRootJoints
+
+ -attachControl asBut_f "top" 2 asTextModelName
+ -attachControl asBut_f "left" 5 asBut_e
+ -attachNone asBut_f "bottom"
+ -attachForm asBut_f "right" 5
+
+ -attachNone asSeconds "top" 
+ -attachForm asSeconds "left" 5
+ -attachControl asSeconds "bottom" 0 asJotSize
+ -attachForm asSeconds "right" 5
+
+ -attachNone asJotSize "top" 
+ -attachForm asJotSize "left" 5
+ -attachControl asJotSize "bottom" 0 asDirection
+ -attachForm asJotSize "right" 5
+ 
+ -attachNone asDirection "top" 
+ -attachForm asDirection "left" 5
+ -attachControl asDirection "bottom" 5 asBut_g
+ -attachNone asDirection "right" 
+
+ -attachControl asViewMode "top" 2 asJotSize
+ -attachControl asViewMode "left" 5 asDirection
+ -attachNone asViewMode "bottom" 
+ -attachNone asViewMode "right" 
+
+ -attachNone asBut_g "top" 
+ -attachForm asBut_g "left" 5
+ -attachControl asBut_g "bottom" 5 asProgress_a
+ -attachPosition asBut_g "right" 0 50
+ 
+ -attachNone asBut_a "top" 
+ -attachControl asBut_a "left" 5 asBut_g
+ -attachControl asBut_a "bottom" 5 asProgress_a
+ -attachForm asBut_a "right" 5
+ 
+ -attachControl asResetMode "top" 2 asJotSize
+ -attachControl asResetMode "left" 5 asViewMode
+ -attachNone asResetMode "bottom"
+ -attachForm asResetMode "right" 5 
+
+ -attachControl asAutomatic "top" 0 asAlw_n
+ -attachControl asAutomatic "left" 6 asTextJoints
+ -attachNone asAutomatic "bottom"
+ -attachNone asAutomatic "right"
+
+ -attachControl asAlw_n "top" 0 asBut_d
+ -attachControl asAlw_n "left" 0 asTextJoints
+ -attachNone asAlw_n "bottom"
+ -attachPosition asAlw_n "right" 0 78
+
+ -attachControl asAlw_w "top" 0 asBut_d
+ -attachPosition asAlw_w "left" 0 78
+ -attachNone asAlw_w "bottom"
+ -attachForm asAlw_w "right" 0
+
+ -attachNone asProgress_a "top" 
+ -attachForm asProgress_a "left" 5
+ -attachControl asProgress_a "bottom" 0 asProgress_b
+ -attachForm asProgress_a "right" 5
+
+ -attachNone asProgress_b "top" 
+ -attachForm asProgress_b "left" 5
+ -attachForm asProgress_b "bottom" 2
+ -attachForm asProgress_b "right" 5
+
+  asForm;
+
+if (`objExists $apRTJot`){
+    if(`optionVar -ex apADJot`){
+	    string $apADJot[]=`optionVar -q apADJot`;
+	    for($i=1;$i<size($apADJot);$i++){
+		    textScrollList -e -a $apADJot[$i] asTextJoints;
+	    }
+	}
+}
+
+showWindow gt_Weight_Calculation_Tool_Win;
+
+print "||=========>>欢迎使用绑定师助手<<=========||\n";
+
+}
+
+gt_Weight_Calculation_Tool_Win;
+window -e -wh 400 500 -s 1 gt_Weight_Calculation_Tool_Win;
+/*
+global proc gt_Model_variable (string $Model){
+    optionVar -sv asModel $Model;
+}
+
+global proc gt_joint_root_variable (string $RTJot){
+    optionVar -sv asRTJot $RTJot;
+}
+
+global proc gt_joint_child_variable (string $ADJot[]){
+	optionVar -rm apADJot;
+	for($j=0;$j<size($ADJot);$j++){
+		optionVar -sva apADJot $ADJot[$j];
+    }
+}
+*/
+////////////////点选按钮
+global proc gt_View_Switch (int $onf){
+	if($onf==1){
+		checkBox -e -v 0 asResetMode;
+		menuItem -e -en 1 asSelectAll;
+		textScrollList -e -ams 1 asTextJoints;
+	}
+	if($onf==0){
+		gt_Close_Command;
+		menuItem -e -en 0 asSelectAll;
+		textScrollList -e -ams 0 asTextJoints;
+	}
+}
+
+////////////////点选按钮
+global proc gt_Clear_Mode (int $onf){
+	if($onf==1){
+		checkBox -e -v 0 asViewMode ; 
+		menuItem -e -en 1 asSelectAll;
+		textScrollList -e -ams 1 asTextJoints ; 
+	}
+	if($onf==0){
+		gt_Close_Command;
+		menuItem -e -en 0 asSelectAll;
+		textScrollList -e -ams 0 asTextJoints;
+	}
+}
+
+global proc gt_Default_Setting (){
+		checkBox -e -v 0 asResetMode;
+		checkBox -e -v 0 asViewMode ;
+		menuItem -e -en 0 asSelectAll;
+		textScrollList -e -ams 0 asTextJoints;
+}
+
+////////////////按钮
+global proc gt_Automatic_but (int $onf){
+	if($onf==1){
+        button -e -c "gt_Automatic_solution" -l "自动关联点" asRelation ;
+	}
+	if($onf==0){
+        button -e -c "gt_Create_Link" -l "手动关联点" asRelation ;
+	}
+}
+
+////////////////按钮
+global proc gt_Assign_Weight_but (int $onf){
+	if($onf==0){
+        button -e -c "gt_Transfer_Weight 0" -l "分配权重"  asBut_a;
+        optionVar -iv asBut_vis 0;
+	}
+
+	if($onf==1){
+        button -e -c "gt_Transfer_Weight 1" -l "回传权重"  asBut_a;
+        optionVar -iv asBut_vis 1;
+	}
+
+}
+
+////////////////全选
+global proc gt_Select_All (){
+
+int $E=`checkBox -q -v asResetMode`;
+
+	string $jot[]=`textScrollList -q -ai asTextJoints`;
+	for($i=1;$i<size($jot)+1;$i++){
+		int $ni=`textScrollList -e -sii $i asTextJoints`;
+	}
+	if($E==1){
+		gt_Reset_vtx $jot;
+		select -cl;
+	}
+}
+
+////////////////重置
+global proc gt_Refresh (){
+	gt_Close_Command;
+	textField -e -tx "" asTextModelName; 
+	textField -e -tx "" asTextRootJoints ;
+	textScrollList -e -ra asTextJoints ; 
+	optionVar -rm asModel;
+	optionVar -rm asRTJot;
+	optionVar -rm apADJot;
+	gt_Assign_Weight_but 0 ;
+	gt_Default_Setting ;
+}
+
+////////////////删除列表
+global proc gt_Delete_ScrollList (int $all){
+	string $sa;
+	if($all==0)$sa="-si";
+	if($all==1)$sa="-ai";
+	string $apADJot[]=`textScrollList -q $sa asTextJoints`;	
+	for($j=0;$j<size($apADJot);$j++){
+	    catchQuiet (`setAttr ($apADJot[$j]+".radius") 1`);
+	    catchQuiet (`setAttr ($apADJot[$j]+".overrideColor") 0`);
+	    catchQuiet (`setAttr ($apADJot[$j]+".overrideEnabled") 0`);
+	    catchQuiet (`textScrollList -e -ri $apADJot[$j] asTextJoints`);
+    }
+    optionVar -rm apADJot;
+}
+
+////////////////删除缓存
+global proc gt_Delete_temp (){
+
+if(`optionVar -ex apTemp_Grp`){
+	string $tmep_grp=`optionVar -q apTemp_Grp`;
+	if(`objExists $tmep_grp`)
+		delete $tmep_grp;
+	else error "临时文件已清除！！！";
+}
+else error "未生成临时文件！！！";
+
+}
+
+/////////////////加载模型
+
+global proc gt_Loading_Model (){
+    string $sel[]=`ls -sl`;
+
+    int $size=size($sel);
+    if($size==0)error "没有选择任何模型！！！";
+
+    textField -e -tx ($sel[0]) asTextModelName;
+    optionVar -sv asModel $sel[0];
+}
+
+//////////加载根关节
+
+global proc gt_Loading_Root_Joints (){
+
+	string $apModel=`optionVar -q asModel`;
+
+string $tempString[]=`listHistory $apModel`;
+string $skinCluster;
+for ($y=0;$y<size($tempString);$y++)
+	if (`objectType $tempString[$y]`=="skinCluster"){
+		$skinCluster=$tempString[$y];
+		optionVar -sv asSkinCluster $skinCluster;
+	}
+
+	string $sel[]=`ls -sl -typ "joint"`;
+	int $size=size($sel);
+	if($size==0)
+		error "没有选择任何关节！！！";
+
+	if (!`objExists $skinCluster`)
+		error "选定模型未添加蒙皮！！！";
+
+	textField -e -tx $sel[0] asTextRootJoints;
+	optionVar -sv asRTJot $sel[0];
+
+if(!`objExists ($sel[0]+"_temp_jot")`){
+
+string $grp=$apModel+"_temp_grp";
+
+if(!`objExists $grp`){
+	group -em -n $grp;
+	optionVar -sv apTemp_Grp $grp;
+}	
+	select -cl;
+	float $pos[]=`xform -q -ws -t $sel[0]`;
+	string $temp_jot=`joint -p $pos[0] $pos[1] $pos[2] -n ($sel[0]+"_temp_jot")`;
+	parent $temp_jot $grp;
+	//string $temp_grp=`group -n $grp`;
+	optionVar -sv asTemp_Joint $temp_jot;
+	catchQuiet (`skinCluster -e -ug -lw 0 -wt 0 -ai $temp_jot $skinCluster`);
+}
+}
+
+////////////////加载关节
+global proc gt_Loading_Joints (){
+    string $sel[]=`ls -sl -typ "joint"`;
+    int $size=size($sel);
+    if($size==0)error "没有选择任何关节！！！";
+    textScrollList -e -ra asTextJoints;
+    for($i=0;$i<size($sel);$i++){
+    	textScrollList -e -a $sel[$i] asTextJoints;
+    }
+	optionVar -rm apADJot;
+	for($j=0;$j<size($sel);$j++){
+		optionVar -sva apADJot $sel[$j];
+    }
+} 
+
+///////////////////扩展选择按钮
+global proc gt_Expanding_Options (){
+	int $s=`intSliderGrp -q -v asSeconds`;
+	for($j=0;$j<$s;$j++){
+	    PolySelectTraverse 5;
+	}
+}
+
+////////////////选择栏关节
+global proc gt_Prominent (){
+
+	string $apADJot[]=`textScrollList -q -ai asTextJoints`;
+
+	string $joint[]=`textScrollList -q -si asTextJoints`;
+
+	int $V=`checkBox -q -v asViewMode`;
+	int $E=`checkBox -q -v asResetMode`;
+
+	for($j=0;$j<size($apADJot);$j++){
+	    catchQuiet (`setAttr ($apADJot[$j]+".radius") 1`);
+	    catchQuiet (`setAttr ($apADJot[$j]+".overrideColor") 0`);
+	    catchQuiet (`setAttr ($apADJot[$j]+".overrideEnabled") 0`);
+    }
+	for($i=0;$i<size($joint);$i++){
+	    catchQuiet (`setAttr ($joint[$i]+".radius") 1.5`);
+	    catchQuiet (`setAttr ($joint[$i]+".overrideEnabled") 1`);
+	    catchQuiet (`setAttr ($joint[$i]+".overrideColor") 14`);
+	if($V==0){
+		select -r $joint[$i];
+	}
+	}
+	SelectEdgeMask;
+	SelectTool;
+if($V==1){
+	select -cl;
+	for($e=0;$e<size($joint);$e++){
+	gt_Select_Association_vtx $joint[$e];
+	}
+}
+if($E==1){
+	gt_Reset_vtx $joint;
+}
+}
+
+///////////////关闭窗口
+global proc gt_Close_Command (){
+
+string $apADJot[]=`textScrollList -q -ai asTextJoints`;	
+	for($j=0;$j<size($apADJot);$j++){
+	    catchQuiet (`setAttr ($apADJot[$j]+".radius") 1`);
+	    catchQuiet (`setAttr ($apADJot[$j]+".overrideColor") 0`);
+	    catchQuiet (`setAttr ($apADJot[$j]+".overrideEnabled") 0`);
+    }
+}
+
+///////////////关联点
+global proc gt_Create_Link (){
+	ConvertSelectionToVertices;
+	string $sel_all[]=`ls -sl -fl`;
+
+	string $sel[]=`gt_Select_vtx $sel_all`;
+	string $jot_n[]=`textScrollList -q -si asTextJoints`;
+	string $jot_name=$jot_n[0]+"_selvtx";
+	optionVar -sv $jot_name "";
+	for($i=0;$i<size($sel);$i++){
+		optionVar -sva $jot_name $sel[$i];
+	}
+}
+
+///////////////重置模式
+global proc gt_Reset_vtx (string $jot_n[]){
+	for($i=0;$i<size($jot_n);$i++){
+		string $jot_name=$jot_n[$i]+"_selvtx";
+		optionVar -sv $jot_name "";
+	}
+}
+
+///////////选择关联点
+global proc gt_Select_Association_vtx (string $jot_sel){
+string $jot_name=$jot_sel+"_selvtx";
+int $V=`checkBox -q -v asViewMode`;
+int $E=`checkBox -q -v asResetMode`;
+if($V==0&&$E==0)select -cl;
+	if(`optionVar -ex $jot_name`){
+		string $jot_vtx_all[]=`optionVar -q $jot_name`;
+		int $max=(size($jot_vtx_all))-1;
+		progressBar -e -bp -ii true -max $max asProgress_b;
+		for($j=1;$j<size($jot_vtx_all);$j++){
+			progressBar -e -s 1 asProgress_b;
+			select -add $jot_vtx_all[$j];
+		}
+		progressBar -e -ep asProgress_b;
+	}
+	else error "关节没有任何关联点！！！";
+}
+
+//////编辑权重
+global proc gt_Edit_Weight (){
+string $apModel=`optionVar -q asModel`;
+select -r $apModel;
+ArtPaintSkinWeightsToolOptions ;
+}
+
+////////////////左右点筛选
+global proc string [] gt_Select_vtx (string $vtx[]){
+	string $apModel=`optionVar -q asModel`;
+	float $posM[]=`xform -q -ws -t $apModel`;
+	int $Direction=`radioButtonGrp -q -sl asDirection`;
+	if($Direction!=3){
+		select -cl;
+		for($i=0;$i<size($vtx);$i++){
+			float $pos[]=`xform -q -ws -t ($vtx[$i])`;
+				if($Direction==1){
+					if($pos[0] <= $posM[0]+0.0001){
+						select -add $vtx[$i];
+					}
+			}
+				if($Direction==2){
+					if($pos[0] >= $posM[0]-0.0001){
+						select -add $vtx[$i];
+					}
+			}
+		}
+	}
+	string $vtx_new[]=`ls -sl -fl`;
+	return $vtx_new;
+}
+
+//skinPercent
+//skinCluster -swi
+//polySelect
+//SmoothBindSkin;
+/////////////////传递权重
+global proc gt_Transfer_Weight (int $Tee){
+
+SelectTool;
+gt_Default_Setting;
+string $apModel=`optionVar -q asModel`;
+string $apRTJot=`optionVar -q asRTJot`;
+string $tmep_jot=`optionVar -q asTemp_Joint`;
+string $apADJot[]=`textScrollList -q -ai asTextJoints`;
+string $apModel_sp[]=`listRelatives -s $apModel`;
+string $skinCluster=`optionVar -q asSkinCluster `;
+
+setAttr ($apRTJot+".liw") 1;
+
+int $speed=size($apADJot);
+
+		for($k in $apADJot){
+			setAttr ($k+".liw") 1;
+		}
+
+if($Tee==0){
+	progressBar -e -m 1 -bp -ii true -max $speed asProgress_a;
+	progressBar -e -m 1 asProgress_b;
+	
+		for($i=0;$i<$speed;$i++){
+			progressBar -e -s 1 asProgress_a;
+			setAttr ($apADJot[$i]+".liw") 0;
+			gt_Select_Association_vtx $apADJot[$i];
+			skinPercent -tmw $tmep_jot -tmw $apADJot[$i] $skinCluster;
+			setAttr ($apADJot[$i]+".liw") 1;
+		}
+		for($k in $apADJot){
+			setAttr ($k+".liw") 0;
+		}
+	setAttr ($apRTJot+".liw") 0;
+	progressBar -e -ep asProgress_a;
+	progressBar -e -m 0 asProgress_a;
+	progressBar -e -m 0 asProgress_b;		
+	gt_Assign_Weight_but 1;	
+ 	print "||=========>>已完成分配<<=========||\n";
+}
+
+if($Tee==1){
+	for($k in $apADJot){
+		setAttr ($k+".liw") 0;
+	}
+    select -cl;
+    select -r $apModel;
+    ArtPaintSkinWeightsTool; 
+    artAttrSkinPaintCtx -e -sao absolute -influence $tmep_jot artAttrSkinContext;
+    artSkinInflListChanging $tmep_jot 1;
+    artSkinInflListChanged artAttrSkinPaintCtx;
+    artFloodSurfaces;
+    SelectTool ;
+    gt_Assign_Weight_but 0;
+    print "||=========>>已完成回传<<=========||\n";
+}	
+
+}
+
+//////////////////////////////////////////////////////全自动解算
+//////////////////////////////////////////////////////////
+
+global proc int gt_int_split (string $vtx_all){
+	string $vtx_f[];
+	int $s=`tokenize $vtx_all "[ ]" $vtx_f`;
+	int $int=$vtx_f[1];
+	return $int;
+}
+
+global proc string gt_vtx_compose (string $obj,int $vtx){
+string $obj_vtx=$obj+".vtx["+$vtx+"]";
+return $obj_vtx;
+}
+
+global proc string gt_e_compose (string $obj,int $e){
+string $obj_e=$obj+".e["+$e+"]";
+return $obj_e;
+}
+
+global proc string [] gt_Extend_Selection (){
+
+    string $ee[]=`ls -sl -fl`;
+    int $vtx=`gt_int_split $ee[0]`;
+    string $apModel=`optionVar -q asModel`;
+
+    int $n = `intFieldGrp -q -v1 asAlw_n `;
+    int $w = `intFieldGrp -q -v1 asAlw_w `;
+
+    int $vts_s[]=`polySelect -elb $vtx $apModel`;
+    int $ss;
+    for($i=0;$i<size($vts_s);$i++){
+        if($vts_s[$i]==$vtx)
+            $ss=$i;
+    }
+    select -cl;
+    for($j=0;$j<$n;$j++){
+        int $a=$ss+$j+1;
+        if($a>0&&$a<size($vts_s))
+            select -add `gt_e_compose $apModel $vts_s[$a]`;
+    }
+    for($u=0;$u<$w;$u++){
+        int $e=$ss-$u-1;
+        if($e>0&&$e<size($vts_s))
+            select -add `gt_e_compose $apModel $vts_s[$e]`;
+    }
+    select -add `gt_e_compose $apModel $vts_s[$ss]`;
+    string $obj_e[]=`ls -sl -fl`;
+    return $obj_e;
+}
+
+global proc gt_Automatic_solution (){
+
+string $apModel=`optionVar -q asModel`;
+string $apModel_sp[]=`listRelatives -s $apModel`;
+string $apADJot[]=`textScrollList -q -ai asTextJoints`;
+int $extend=`intSliderGrp -q -v asSeconds`;
+
+float $pos_a[]=`xform -q -ws -t $apADJot[0]`;
+float $pos_b[]=`xform -q -ws -t $apADJot[1]`;
+string $node=`createNode closestPointOnMesh`;
+connectAttr -f ($apModel_sp[0]+".outMesh") ($node+".inMesh") ;
+
+setAttr -typ float3 ($node+".inPosition") $pos_a[0] $pos_a[1] $pos_a[2];
+int $st_vtx=`getAttr ($node+".closestVertexIndex")`;
+
+setAttr -typ float3 ($node+".inPosition") $pos_b[0] $pos_b[1] $pos_b[2];
+int $en_vtx=`getAttr ($node+".closestVertexIndex")`;
+
+int $hol[]=`polySelect -sep $st_vtx $en_vtx $apModel`;
+int $cir[]=`polySelect -el $hol[0] $apModel`;
+string $cir_c[]=`ls -sl -fl`;
+
+progressBar -e -m 1 -bp -ii true -max (size($apADJot)) asProgress_a;
+progressBar -e -m 1 asProgress_b;
+for($i=0;$i<size($apADJot);$i++){
+    progressBar -e -s 1 asProgress_a;
+    float $pos_s[]=`xform -q -ws -t $apADJot[$i]`;
+    setAttr -typ float3 ($node+".inPosition") $pos_s[0] $pos_s[1] $pos_s[2];
+    int $st_vtx=`getAttr ($node+".closestVertexIndex")`;
+    string $sel=`gt_vtx_compose $apModel $st_vtx`;
+    select -r $sel;
+    ConvertSelectionToEdges;
+    select -d $cir_c ;
+
+    gt_Extend_Selection ;
+
+    ConvertSelectionToVertices;
+
+    string $vtx_all[]=`ls -sl -fl`;
+    string $vtx[]=`gt_Select_vtx $vtx_all`;
+    string $jot_name=$apADJot[$i]+"_selvtx";
+    optionVar -sv $jot_name "";
+
+    progressBar -e -bp -ii true -min -1 -max (size($vtx)) asProgress_b;
+    for($j=0;$j<size($vtx);$j++){
+	    progressBar -e -s 1 asProgress_b;
+		optionVar -sva $jot_name $vtx[$j];
+	}
+	progressBar -e -ep asProgress_b;
+}
+progressBar -e -ep asProgress_a;
+progressBar -e -m 0 asProgress_a;
+progressBar -e -m 0 asProgress_b;
+delete $node;
+}
+
+
+
+
+
+
+
+
+
+
+
+

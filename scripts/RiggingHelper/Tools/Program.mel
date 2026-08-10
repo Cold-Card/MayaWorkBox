@@ -1,0 +1,3988 @@
+/********************************************
+
+=======>> 版本V2.5
+=======>> 制作人：久违的时光
+=======>> 电话/微信：15697077077
+=======>> QQ/邮箱：923373770
+=======>> 最后框架日期：20210210
+
+********************************************/
+
+//==============帮助=================//
+
+global proc asHelp (string $region){
+
+if (`window -q -ex sgHelpImageWin`)
+	deleteUI sgHelpImageWin;
+window -t "绑定师助手帮助图片" sgHelpImageWin;
+
+global string $asScriptRoute;
+string $image=$asScriptRoute+"Help/"+$region+".jpg";
+string $parent,$helpUrl;
+formLayout -w 640 -h 800 asHelpFormLayoutA;
+	if(`gmatch $region "*Scroll*"`){
+		scrollLayout asHelpImage;
+			formLayout asHelpFormLayoutB;
+				image -i $image ;
+			setParent..;
+		setParent..;
+		$parent="asHelpFormLayoutB";
+		window -e -wh 656 800 sgHelpImageWin;
+	}
+	else {
+		image -i $image asHelpImage;
+		$parent="asHelpFormLayoutA";
+		window -e -wh 640 800 sgHelpImageWin;
+	}
+
+formLayout -e
+	-af asHelpImage "right" 0
+	-af asHelpImage "left" 0
+	-af asHelpImage "top" 0
+	-af asHelpImage "bottom" 0
+	asHelpFormLayoutA;
+
+if($region=="sg_Scroll_RiggingHelperHelp")
+	$helpUrl="https://www.bilibili.com/video/BV1R54y1r7FU/";
+if($region=="sg_Fixed_CreateIKFK")
+	$helpUrl="https://www.bilibili.com/video/BV15T4y1T7VL/";
+if($region=="sg_Fixed_BatchConnectAttr")
+	$helpUrl="https://www.bilibili.com/video/BV1nK4y1j75V";
+if($region=="sg_Scroll_BatchAttrTransfer")
+	$helpUrl="https://www.bilibili.com/video/BV1bv4y1f7BG";
+if($region=="sg_Fixed_SingleJointWeightCalculation")
+	$helpUrl="https://www.bilibili.com/video/BV1qt4y1a7N2";
+
+if($region=="sg_Fixed_Help")
+	$helpUrl="https://www.bilibili.com/video/BV1R54y1r7FU/";
+
+if($helpUrl!=""){
+	if($region=="sg_Scroll_RiggingHelperHelp"||$region=="sg_Fixed_SingleJointWeightCalculation"){
+		string $IocHelp=$asScriptRoute+"Icons/asRiggingHelpUrl.png";
+		iconTextButton -p $parent -i $IocHelp -c ("showHelp -a \""+$helpUrl+"\"") asHelpIcons;
+		formLayout -e
+			-af asHelpIcons "top" 100
+			-af asHelpIcons "left" 215
+			$parent;
+	}
+	else {
+		string $IocHelp=$asScriptRoute+"Icons/asHelpUrl.png";
+		iconTextButton -p $parent -i $IocHelp -c ("showHelp -a \""+$helpUrl+"\"") asHelpIcons;
+		formLayout -e
+			-af asHelpIcons "top" 22
+			-af asHelpIcons "left" 500
+			$parent;
+	}	
+}
+setParent..;
+showWindow;
+}
+
+//==========控制器初始位置===========//
+global proc sg_ControllerInitialPosition (int $but){
+if($but==0){
+if(!`objExists "Controllers_Set"`)
+	sets -name "Controllers_Set";
+else
+	sets -add "Controllers_Set";
+}
+else if($but==1){
+string $obj[]=`ls -sl`;
+select -add Controllers_Set;
+string $con[]=`ls -sl -typ "transform"`;
+for($i=0;$i<size($con);$i++){
+	catchQuiet (`setAttr ($con[$i]+".tx") 0`);
+	catchQuiet (`setAttr ($con[$i]+".ty") 0`);
+	catchQuiet (`setAttr ($con[$i]+".tz") 0`);
+	catchQuiet (`setAttr ($con[$i]+".rx") 0`);
+	catchQuiet (`setAttr ($con[$i]+".ry") 0`);
+	catchQuiet (`setAttr ($con[$i]+".rz") 0`);
+	catchQuiet (`setAttr ($con[$i]+".sx") 1`);
+	catchQuiet (`setAttr ($con[$i]+".sy") 1`);
+	catchQuiet (`setAttr ($con[$i]+".sz") 1`);
+}
+if($obj[0]!="")
+	select $obj;
+else
+	select -cl;
+}
+}
+
+//==========预设形态===========//
+global proc string sg_PreShape (){
+	string $shape=`optionVar -q asPreIcon`;
+		if (!`optionVar -ex asPreIcon`)
+			$shape="C00";
+	return $shape;
+}
+
+//==========选择替换形态===========//
+global proc sg_SelectObj (string $shape_cs) {
+
+global string $curves[];
+	string $objs[]=`ls -sl`;
+	if(size($objs)){
+		$curves={};
+		appendStringArray $curves $objs (size($objs));
+	}
+
+for($i=0;$i<size($curves);$i++){
+	if(`objExists $curves[$i]`){
+	string $curve_sp[]=`listRelatives -typ "nurbsCurve" -s $curves[$i] `;
+		if($curve_sp[0]!=""){
+		string $type=`objectType $curve_sp[0]`;
+			if($type=="nurbsCurve"){
+				string $nake[]=`listConnections -type "makeNurbCircle" $curve_sp[0]`;
+				if(size($nake)>0)
+					delete $nake;
+				asNurbsCircleShpape $curves[$i] $shape_cs;
+				asPresuppositionScale $curves[$i];
+		 	}
+	 	}
+	}
+}
+}
+
+//==========替换形态===========//
+global proc asNurbsCircleShpape (string $selectObj, string $shape) {
+
+	global string $asScriptRoute;
+	string $files=$asScriptRoute+"ControllerFiles";
+	string $sel_sp[]=`listRelatives -typ "nurbsCurve" -s $selectObj`;
+	for($obj in $sel_sp){
+		select -r $obj;
+		string $form = ("source \""+$files+"/"+$shape+".cs\"");
+		eval $form ;
+	}
+}
+
+//==========线宽调整===========//
+global proc sg_lineWidth (float $size){
+
+global string $curves[];
+	string $objs[]=`ls -sl`;
+	if(size($objs)){
+		$curves={};
+		appendStringArray $curves $objs (size($objs));
+	}
+
+for ($obj in $curves){
+	if(`objExists $obj`){
+		string $obj_sp[]=`listRelatives -type "nurbsCurve" -s $obj`;
+		for($sp in $obj_sp)
+			setAttr ($sp+".lineWidth") $size;
+	}
+}
+}
+
+global proc sg_SelectionChangedLineWidth (){
+
+string $curve[]=`ls -sl`;
+
+if(`objExists $curve[0]`){
+	string $curve_sp[]=`listRelatives -s -typ "nurbsCurve" $curve[0]`;
+	if(size($curve_sp)>0){
+		float $v=`getAttr ($curve_sp[0]+".lineWidth")`;
+		floatSliderGrp -e -v $v asLineWidth;
+	}
+}
+else{
+	floatSliderGrp -e -v -1 asLineWidth;
+}
+}
+
+global proc sg_InitializationSelection (){
+	string $obj[]=`ls -sl`;
+	global string $curves[];
+	if(`size($obj)`){
+	    sg_EditObjAxis $curves 0;
+		$curves={};
+	}
+}
+
+global proc sg_EditObjAxis  (string $objs[], int $onOff){
+	for($i=0;$i<size($objs);$i++){
+	    if(`objExists ($objs[$i]+".displayLocalAxis")`)
+		    setAttr ($objs[$i]+".displayLocalAxis") $onOff;
+	}
+}
+
+//==========双击创建控制器===========//
+global proc sg_CreateController_Position (string $shape_cs){
+
+global string $curves[];
+
+string $vertexs[]=`ls -sl -fl`;
+if($vertexs[0]==""){
+	string $obj[]=`circle -ch 0 `;
+	appendStringArray $curves $obj 1;
+	asSetPreColors $obj[0];
+	asNurbsCircleShpape $obj[0] $shape_cs;
+	asPresuppositionScale $obj[0];
+}
+
+else {
+	string $ObjTyp=`objectType $vertexs[0]`;
+	if($ObjTyp=="transform"||$ObjTyp=="joint"){
+
+		for($i=0;$i<size($vertexs);$i++){
+			select -cl;
+			string $obj[]=`circle -ch 0 `;
+			string $grp=`group -n ($obj[0]+"_grp")`;
+			delete `parentConstraint $vertexs[$i] $grp`;
+			appendStringArray $curves $obj 1;
+			asSetPreColors $obj[0];
+			asNurbsCircleShpape $obj[0] $shape_cs;
+			asPresuppositionScale $obj[0];
+
+		}
+	}
+
+	else if($ObjTyp=="mesh"||$ObjTyp=="nurbsCurve"){
+	ConvertSelectionToVertices;
+	string $mesh[]=`ls -sl -fl`;
+
+	for($i=0;$i<size($mesh);$i++){
+		select -cl;
+		float $pos[]=`xform -q -ws -t $mesh[$i]`;
+		string $obj[]=`circle -ch 0 `;
+		string $grp=`group -n ($obj[0]+"_grp")`;
+		move -ws $pos[0] $pos[1] $pos[2] $grp;
+		appendStringArray $curves $obj 1;
+		asSetPreColors $obj[0];
+		asNurbsCircleShpape $obj[0] $shape_cs;
+		asPresuppositionScale $obj[0];
+	}
+	}
+}
+}
+
+//==========预设大小===========//
+global proc asPresuppositionScale (string $con){
+
+	string $con_sp[]=`listRelatives -typ "nurbsCurve" -s $con`;
+	float $s=`floatSliderGrp -q -v asPreRadius`;
+	select -cl;
+	for($j in $con_sp){
+		select -add ($j+".cv[:]");
+	}
+	scale -r $s $s $s;
+	select -cl;
+}
+
+//==========旋转曲线===========//
+global proc sg_RotateController (int $but){
+
+global string $curves[];
+	string $objs[]=`ls -sl`;
+	if(size($objs)){
+		$curves={};
+		appendStringArray $curves $objs (size($objs));
+		sg_EditObjAxis $curves 1;
+	}
+
+float $s=`floatSliderGrp -q -v asAngle`;
+float $n;
+int $Uniaxial=`checkBox -q -v asUniaxialScaling`;
+int $asRX=`checkBoxGrp -q -v1 asRXYZ`;
+int $asRY=`checkBoxGrp -q -v2 asRXYZ`;
+int $asRZ=`checkBoxGrp -q -v3 asRXYZ`;
+
+if($but==1)
+	$n=$s*1;
+if($but==0)
+	$n=$s*-1;
+
+for($obj in $curves){
+	if(`objExists $obj`){
+	if($asRX==1)
+		asRotateController $obj 0 $n;
+	if($asRY==1)
+		asRotateController $obj 1 $n;
+	if($asRZ==1)
+		asRotateController $obj 2 $n;
+	}
+}
+}
+
+global proc asRotateController (string $con,int $xyz,float $Angle){
+
+string $con_sp[]=`listRelatives -typ "nurbsCurve" -s $con`;
+
+float $rx,$ry,$rz;
+if($xyz==0)$rx=$Angle;else $rx=0;
+if($xyz==1)$ry=$Angle;else $ry=0;
+if($xyz==2)$rz=$Angle;else $rz=0;
+select -cl;
+for($j in $con_sp){
+	select -add ($j+".cv[:]");
+}
+rotate -r $rx $ry $rz;
+select -cl;
+}
+
+//==========缩放曲线===========//
+
+global proc sg_ScaleController (int $but){
+
+global string $curves[];
+	string $objs[]=`ls -sl`;
+	if(size($objs)){
+		$curves={};
+		appendStringArray $curves $objs (size($objs));
+		sg_EditObjAxis $curves 1;
+	}
+
+float $s=`floatSliderGrp -q -v asProportion`;
+float $n;
+int $Uniaxial=`checkBox -q -v asUniaxialScaling`;
+int $asSX=`checkBoxGrp -q -v1 asSXYZ`;
+int $asSY=`checkBoxGrp -q -v2 asSXYZ`;
+int $asSZ=`checkBoxGrp -q -v3 asSXYZ`;
+
+if($but==1)
+	$n=1+$s;
+if($but==0)
+	$n=1-($s/(1+$s));
+
+for($obj in $curves){
+	if(`objExists $obj`){
+		if($Uniaxial==0)
+			asScaleController $obj 3 $n;
+		else if($Uniaxial==1){
+			if($asSX==1)
+				asScaleController $obj 0 $n;
+			if($asSY==1)
+				asScaleController $obj 1 $n;
+			if($asSZ==1)
+				asScaleController $obj 2 $n;
+		}
+	}
+}
+}
+
+global proc asScaleController (string $con,int $xyz,float $size){
+
+string $con_sp[]=`listRelatives -typ "nurbsCurve" -s $con`;
+
+float $sx,$sy,$sz;
+if($xyz==0||$xyz==3)$sx=$size;else $sx=1;
+if($xyz==1||$xyz==3)$sy=$size;else $sy=1;
+if($xyz==2||$xyz==3)$sz=$size;else $sz=1;
+
+select -cl;
+for($j in $con_sp){
+	select -add ($j+".cv[:]");
+}
+scale -r $sx $sy $sz;
+select -cl;
+}
+
+//==========颜色模块===========//
+
+global proc sg_CustomColorChange (int $but){
+
+global string $curves[];
+global int $GraColor;
+
+	string $objs[]=`ls -sl`;
+	if(size($objs)){
+		$curves={};
+		appendStringArray $curves $objs (size($objs));
+	}
+
+	$GraColor=0;
+	float $r,$g,$b;
+	if($but==1){
+		float $rgb[]=`colorSliderGrp -q -rgb asColor_Slider`;
+		$r=$rgb[0];
+		$g=$rgb[1];
+		$b=$rgb[2];
+	}
+	if($but==2){
+		float $rgb[]=`palettePort -q -rgbValue asColor_Port`;
+		$r=$rgb[0];
+		$g=$rgb[1];
+		$b=$rgb[2];
+	}
+
+	int $Viewport=`checkBoxGrp -q -v1 asColorSetting`;
+	int $Outliner=`checkBoxGrp -q -v2 asColorSetting`;
+
+	for($i=0;$i<size($curves);$i++){
+		if(`objExists $curves[$i]`){
+		if($Viewport==1){
+			string $nodeType = `nodeType $curves[$i]`;
+			if($nodeType == "joint"){
+				catchQuiet (`setAttr ($curves[$i]+".ove") 1`);
+				catchQuiet (`setAttr ($curves[$i]+".ovrgbf") 1`);
+				catchQuiet (`setAttr ($curves[$i]+".ovrgb") -type "float3" $r $g $b `);
+			}
+			else{
+				string $curveshape[] =`listRelatives -s $curves[$i]`;
+				for($j=0;$j<size($curveshape);$j++){
+					catchQuiet (`setAttr ($curveshape[$j]+".ove") 1`);
+					catchQuiet (`setAttr ($curveshape[$j]+".ovrgbf") 1`);
+					catchQuiet (`setAttr ($curveshape[$j]+".ovrgb") -type "float3" $r $g $b `);
+				}
+			}
+		}
+		if($Outliner==1){
+			setAttr ($curves[$i]+".useOutlinerColor") 1;
+			setAttr ($curves[$i]+".outlinerColor") $r $g $b ;
+		}
+		}
+	}
+	gtMemoryColor ;
+	select -cl;
+}
+
+global proc sg_GradientColor (int $but){
+
+global string $curves[];
+global int $GraColor;
+
+	string $objs[]=`ls -sl`;
+	if(size($objs)){
+		$curves={};
+		appendStringArray $curves $objs (size($objs));
+	}
+
+	int $Viewport=`checkBoxGrp -q -v1 asColorSetting`;
+	int $Outliner=`checkBoxGrp -q -v2 asColorSetting`;
+	int $scc=`palettePort -q -scc asColor_Port`;
+
+	$GraColor=$GraColor+$but;
+
+for($i=0;$i<size($curves);$i++){
+	if(`objExists $curves[$i]`){
+		int $co=($scc+$i+$GraColor)%24;
+		if($co<0)
+			$co=$co*-1;
+		float $Color[] = `asColor $co`;
+
+		if($Viewport==1){
+			string $nodeType = `nodeType $curves[$i]`;
+			if($nodeType == "joint"){
+				catchQuiet (`setAttr ($curves[$i]+".ove") 1`);
+				catchQuiet (`setAttr ($curves[$i]+".ovrgbf") 1`);
+				catchQuiet (`setAttr ($curves[$i]+".ovrgb") -type "float3" $Color[0] $Color[1] $Color[2] `);
+			}
+			else{
+				string $curveshape[] =`listRelatives -s $curves[$i]`;
+				for($j=0;$j<size($curveshape);$j++){
+					catchQuiet (`setAttr ($curveshape[$j]+".ove") 1`);
+					catchQuiet (`setAttr ($curveshape[$j]+".ovrgbf") 1`);
+					catchQuiet (`setAttr ($curveshape[$j]+".ovrgb") -type "float3" $Color[0] $Color[1] $Color[2] `);
+				}
+			}
+		}
+		if($Outliner==1){
+			setAttr ($curves[$i]+".useOutlinerColor") 1;
+			setAttr ($curves[$i]+".outlinerColor") $Color[0] $Color[1] $Color[2] ;
+		}
+		}
+}
+	gtMemoryColor ;
+	select -cl;
+}
+
+global proc gtMemoryColor (){
+	float $color[]=`colorSliderGrp -q -rgb asColor_Slider`;
+	optionVar -fv apColorR $color[0];
+	optionVar -fv apColorG $color[1];
+	optionVar -fv apColorB $color[2];
+}
+
+global proc sg_SetColorBut (){
+
+global string $curves[];
+	string $objs[]=`ls -sl`;
+	if(size($objs)){
+		$curves={};
+		appendStringArray $curves $objs (size($objs));
+	}
+
+int $color= `colorIndexSliderGrp -q -value asColor_Index`;
+int $Viewport=`checkBoxGrp -q -v1 asColorSetting`;
+for($i=0;$i<size($curves);$i++){
+	if(`objExists $curves[$i]`){
+		if($Viewport==1){
+			sg_SetColor $curves[$i] ($color-1);
+		}
+	}
+}
+}
+
+global proc sg_SetColor (string $obj,int $color){
+
+int $Viewport=`checkBoxGrp -q -v1 asColorSetting`;
+int $Outliner=`checkBoxGrp -q -v2 asColorSetting`;
+
+if($Viewport==1){
+	string $nodeType = `nodeType $obj`;
+	if($nodeType == "joint"){
+		catchQuiet (`setAttr ($obj+".ove") 1`);
+		catchQuiet (`setAttr ($obj+".ovrgbf") 0`);
+		catchQuiet (`setAttr ($obj+".overrideColor") $color`);
+	}
+	else{
+		string $objshape[] =`listRelatives -s $obj`;
+		for($j=0;$j<size($objshape);$j++){
+			catchQuiet (`setAttr ($objshape[$j]+".ove") 1`);
+			catchQuiet (`setAttr ($objshape[$j]+".ovrgbf") 0`);	
+			catchQuiet (`setAttr ($objshape[$j]+".overrideColor") $color`);
+		}
+	}
+}
+if($Outliner==1){
+	float $rgb[]=`colorIndex -query $color`;
+	setAttr ($obj+".useOutlinerColor") 1;
+	setAttr ($obj+".outlinerColor") $rgb[0] $rgb[1] $rgb[2] ;
+}
+select -cl;
+}
+
+global proc sg_ResetColor (){
+
+global string $curves[];
+	string $objs[]=`ls -sl`;
+	if(size($objs)){
+		$curves={};
+		appendStringArray $curves $objs (size($objs));
+	}
+
+int $Viewport=`checkBoxGrp -q -v1 asColorSetting`;
+int $Outliner=`checkBoxGrp -q -v2 asColorSetting`;
+
+for($i=0;$i<size($curves);$i++){
+	if(`objExists $curves[$i]`){
+		if($Viewport==1){
+			string $nodeType = `nodeType $curves[$i]`;
+			if($nodeType == "joint"){
+				catchQuiet (`setAttr ($curves[$i]+".overrideColor") 0`);
+				catchQuiet (`setAttr ($curves[$i]+".overrideEnabled") 0`);
+				catchQuiet (`color -rgb 0 0 0 $curves[$i]`);
+				catchQuiet (`setAttr ($curves[$i]+".uoc") 0`);
+			}
+			else{
+				string $curveshape[] =`listRelatives -s $curves[$i]`;
+				for($j=0;$j<size($curveshape);$j++){
+					catchQuiet (`setAttr ($curveshape[$j]+".overrideColor") 0`);
+					catchQuiet (`setAttr ($curveshape[$j]+".ovrgb") -type "float3" 0 0 0`);
+					catchQuiet (`setAttr ($curveshape[$j]+".overrideEnabled") 0`);
+					catchQuiet (`color -rgb 0 0 0 $curveshape[$j]`);
+					catchQuiet (`setAttr ($curveshape[$j]+".uoc") 0`);
+				}
+			}
+		}
+		if($Outliner==1){
+			setAttr ($curves[$i]+".outlinerColor") 0 0 0;
+			setAttr ($curves[$i]+".useOutlinerColor") 0;
+		}
+	}
+}
+	select -cl;
+}
+
+global proc sg_SaveColor (){
+	float $rgb[]=`palettePort -q -rgbValue asColor_Port`;
+	int $sc=`palettePort -q -scc asColor_Port`;
+	string $saveRGB="SeveColor"+$sc;
+	optionVar -rm $saveRGB;
+	for($i in $rgb)
+		optionVar -fva $saveRGB $i;
+	sg_CustomColorChange 2;
+}
+
+global proc sg_RestoreColorBoard (){
+	for ($index = 1; $index <= 31; $index++) {
+		string $saveRGB="SeveColor"+$index;
+		optionVar -rm $saveRGB;
+		float $saveColor[] = `asColor $index`;
+		palettePort -edit -r -rgbValue $index $saveColor[0] $saveColor[1] $saveColor[2] asColor_Port;
+	}
+}
+
+//==========拷贝粘贴颜色===========//
+
+global proc sg_CopyColor (){
+
+global int $asOve,$asOvrgbf,$asOvrColor,$asUoc,$asUse;
+global float $asUocR,$asUocG,$asUocB,$asOvrR,$asOvrG,$asOvrB,$asUseR,$asUseG,$asUseB;
+
+int $Viewport=`checkBoxGrp -q -v1 asColorSetting`;
+int $Outliner=`checkBoxGrp -q -v2 asColorSetting`;
+
+string $curves[] =`ls -sl`;
+if(size($curves)==1){
+string $curve_sp[]=`listRelatives -s $curves[0]`;
+if($Viewport==1){
+	$asOve=`getAttr ($curve_sp[0]+".ove")`;
+	$asOvrgbf=`getAttr ($curve_sp[0]+".ovrgbf")`;
+	$asOvrColor=`getAttr ($curve_sp[0]+".overrideColor")`;
+	float $asOvrRGB[]=`getAttr ($curve_sp[0]+".ovrgb")`;
+	$asOvrR=$asOvrRGB[0];$asOvrG=$asOvrRGB[1];$asOvrB=$asOvrRGB[2];
+
+	$asUoc=`getAttr ($curve_sp[0]+".uoc")`;
+	float $asUocRGB[]=`getAttr ($curve_sp[0]+".wfcc")`;
+	$asUocR=$asUocRGB[0];$asUocG=$asUocRGB[1];$asUocB=$asUocRGB[2];
+}
+if($Outliner==1){
+	$asUse=`getAttr ($curves[0]+".useOutlinerColor")`;	
+	float $asUseRGB[]=`getAttr ($curves[0]+".outlinerColor")`;
+	$asUseR=$asUseRGB[0];$asUseG=$asUseRGB[1];$asUseB=$asUseRGB[2];
+}
+}
+}
+
+global proc sg_PasteColor (){
+
+global int $asOve,$asOvrgbf,$asOvrColor,$asUoc,$asUse;
+global float $asUocR,$asUocG,$asUocB,$asOvrR,$asOvrG,$asOvrB,$asUseR,$asUseG,$asUseB;
+
+int $Viewport=`checkBoxGrp -q -v1 asColorSetting`;
+int $Outliner=`checkBoxGrp -q -v2 asColorSetting`;
+
+string $objs[] =`ls -sl`;
+
+for ($obj in $objs){
+	if($Viewport==1){
+		string $nodeType = `nodeType $obj`;
+		if($nodeType == "joint"){
+				setAttr ($obj+".ove") $asOve;
+				setAttr ($obj+".ovrgbf") $asOvrgbf;
+				setAttr ($obj+".overrideColor") $asOvrColor;
+				setAttr ($obj+".ovrgb") -type "float3" $asOvrR $asOvrG $asOvrB;
+				setAttr ($obj+".uoc") $asUoc;
+				setAttr ($obj+".wfcc") -type "float3" $asUocR $asUocG $asUocB;	
+		}
+		else{
+			string $objs_sp[]=`listRelatives -s $obj`;
+			for ($obj_sp in $objs_sp){
+				setAttr ($obj_sp+".ove") $asOve;
+				setAttr ($obj_sp+".ovrgbf") $asOvrgbf;
+				setAttr ($obj_sp+".overrideColor") $asOvrColor;
+				setAttr ($obj_sp+".ovrgb") -type "float3" $asOvrR $asOvrG $asOvrB;
+				setAttr ($obj_sp+".uoc") $asUoc;
+				setAttr ($obj_sp+".wfcc") -type "float3" $asUocR $asUocG $asUocB;
+			}
+		}
+	}
+	if($Outliner==1){
+		setAttr ($obj+".useOutlinerColor") $asUse;	
+		setAttr ($obj+".outlinerColor") -type "float3" $asUseR $asUseG $asUseB;
+	}
+}
+}
+
+//==========获取颜色===========//
+global proc asSetPreColors (string $obj){
+
+	global int $asSetPreColors;
+
+	select -r $obj;
+	if($asSetPreColors==0)
+		sg_CustomColorChange 1;
+	if($asSetPreColors==1)
+		sg_SetColorBut;
+}
+
+//==========复制控制器==========//
+global proc sg_LoadCopyNurbs (){
+string $con[]=`ls -sl`;
+text -e -l $con[0] asTextCopyNurbs;
+}
+/////////////////////////
+
+global proc sg_PasteNurbs (){
+
+string $con[]=`ls -sl`;
+string $curve=`text -q -l asTextCopyNurbs`;
+int $s;
+if($curve==""){
+	$curve=$con[0];
+	$s=1;
+}
+else $s=0;
+
+string $curve_sp[]=`listRelatives -typ "nurbsCurve" -s $curve`;
+
+for($i=$s;$i<size($con);$i++){
+	if($con[$i]!=$curve){
+	string $con_sp[]=`listRelatives -typ "nurbsCurve" -s $con[$i]`;
+	if(size($con_sp))
+		delete $con_sp;
+	for($shape in $curve_sp){
+
+		int $ove=`getAttr ($shape+".ove")`;
+		int $ovrgbf=`getAttr ($shape+".ovrgbf")`;
+		int $color=`getAttr ($shape+".overrideColor")`;
+		float $rgb[]=`getAttr ($shape+".ovrgb")`;
+
+		string $temps[]=`duplicateCurve -ch 0 $shape`;
+		string $temps_sp[]=`listRelatives -s $temps[0]`;
+
+		if($ove==1){
+			setAttr ($temps_sp[0]+".ove") $ove;
+			setAttr ($temps_sp[0]+".ovrgbf") $ovrgbf;
+			setAttr ($temps_sp[0]+".overrideColor") $color;
+			setAttr ($temps_sp[0]+".ovrgb") -type "float3" $rgb[0] $rgb[1] $rgb[2];
+		}		
+		string $num = `match "[0-9]+" $temps_sp[0]`;
+		//delete `parentConstraint -weight 1 $con[$i] $temps[0]`;
+		parent -s -add $temps_sp[0] $con[$i];
+		rename $temps_sp[0] ($con[$i]+"Shape"+$num);
+		delete $temps[0];
+	}
+	}
+}
+select -r $con;
+}
+
+//==========合并shpase===========//
+global proc sg_ShapesMerge (){
+string $sel[] = ` ls -sl ` ;
+string $obj=$sel[(size($sel)-1)];
+   DeleteHistory  $obj;
+   makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 -pn 1 $obj;
+for($i=0;$i<(size($sel)-1);$i++){
+   DeleteHistory  $sel[$i];
+   makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 -pn 1 $sel[$i];
+   string $lsRelShps[] = ` listRelatives -shapes $sel[$i] `;
+   parent -s -add $lsRelShps[0] $obj;
+   delete $sel[$i];
+}}
+
+//==========位移抵消===========//
+global proc string [] sg_OffsetGroup (){
+string $bns[]=`ls -sl -fl`;
+string $grp_in[];
+for($i=0;$i<size($bns);$i++){
+	string $bns_sp[]=`listRelatives -p $bns[$i]`;
+	string $grp=`group -em -n ($bns[$i]+"_offset")`;
+	delete `parentConstraint $bns[$i] $grp`;
+	if($bns_sp[0]!="")	parent $grp $bns_sp[0];
+	parent $bns[$i] $grp;
+	makeIdentity -apply true -t 0 -r 1 -s 1 -n 0 -pn 1 $bns[$i];
+	string $addgrp[]={$grp};
+	appendStringArray($grp_in, $addgrp, 1);
+	}
+return $grp_in;
+}
+
+//==========控制器输出节点清除===========//
+global proc sg_ControllerNodeClear (){
+
+string $sel[]=`ls -sl`; 
+ 
+if(`asMayaVersionAsFloat`>2016){
+	string $node_out[]=`channelBox -q -out "mainChannelBox"`;
+	string $node_in[]=`channelBox -q -in "mainChannelBox"`;
+
+	for($i=0;$i<size($node_out);$i++){ 
+		setAttr ($node_out[$i]+".ihi") 0;
+	}
+	for($s=0;$s<size($node_in);$s++){ 
+		setAttr ($node_in[$s]+".ihi") 0;
+	}
+}
+
+for($j=0;$j<size($sel);$j++){
+	string $node_ls[]=`listConnections -scn 1 $sel[$j]`;
+		for($b=0;$b<size($node_ls);$b++){
+			string $node_ls_b[]=`listConnections -scn 1 $node_ls[$b]`;
+				for($c=0;$c<size($node_ls_b);$c++){
+					setAttr ($node_ls_b[$c]+".ihi") 0;
+				}
+			setAttr ($node_ls[$b]+".ihi") 0;
+		}
+	string $sel_sp[]=`listRelatives -s $sel[$j]`;
+	for($e=0;$e<size($sel_sp);$e++){  
+		setAttr ($sel_sp[$e]+".ihi") 0;
+	}
+}
+select -r $sel;
+}
+
+//==========镜像控制器===========//
+global proc sg_MirrorController (int $but){
+
+string $sel[]=`ls -sl`;
+string $sel_p;
+if(size($sel)>1){
+	text -e -l "" asTextCopyNurbs;
+	sg_PasteNurbs;
+	$sel_p=$sel[1];
+}
+else $sel_p=$sel[0];
+
+if($but==1){
+string $sel_sp[]=`listRelatives -s $sel_p`;
+SelectVertexMask;
+for($j=0;$j<size($sel_sp);$j++){
+	select -add ($sel_sp[$j]+".cv[:]");
+	}
+	catchQuiet (`scale -r -ws -1 1 1`);
+}
+
+if($but==2){
+	select -r ($sel[0]+".cv[:]");
+	string $sel_org_cv[]=`ls -sl -fl`;
+	select -r ($sel_p+".cv[:]");
+	string $sel_p_cv[]=`ls -sl -fl`;
+	for($j=0;$j<size($sel_org_cv);$j++){
+		float $pos[]=`xform -q -ws -t ($sel_org_cv[$j])`;
+		move -ws ($pos[0]*-1) $pos[1] $pos[2] $sel_p_cv[$j];
+   }
+}
+	SelectToggleMode;
+	select -r $sel;
+}
+
+//==========添加控制器===========//
+global proc sg_RunAddController (){
+
+string $sels[]=`ls -sl`;
+
+int $Children=`checkBoxGrp -q -v2 asCreateMode`;
+
+if($Children==0){
+	sg_AddController $sels;
+}
+
+if($Children==1){
+	for ($sel in $sels){
+		string $jots[]={$sel};
+		string $objad[]=`listRelatives -ad $sel`;
+		string $objs[]=`asReversalString $objad`;
+		appendStringArray $jots $objs (size($objs)-1);
+		sg_AddController $jots;
+	}
+}
+}
+
+global proc string [] asReversalString (string $obj[]){
+select -cl;
+for($i=(size($obj)-1);$i>=0;$i--){
+	select -add $obj[$i];
+}
+string $objs[]=`ls -sl`;
+return $objs;
+}
+//////////
+global proc sg_AddController (string $obj[]){
+
+global string $curves[];
+
+string $cvs[],$newname;
+
+string $shape=`sg_PreShape`;
+
+string $name=`textFieldGrp -q -tx asTextNewName`;
+
+int $type=`radioButtonGrp -q -sl asConType`;
+int $Connection=`radioButtonGrp -q -sl asConnection`;
+int $new=`radioButtonGrp -q -sl asConNameA`;	
+int $Parent=`checkBoxGrp -q -v1 asCreateMode`;
+
+int $Con_P=`checkBoxGrp -q -v1 asCon_PTRS`;
+int $Con_T=`checkBoxGrp -q -v2 asCon_PTRS`;
+int $Con_R=`checkBoxGrp -q -v3 asCon_PTRS`;
+int $Con_S=`checkBoxGrp -q -v4 asCon_PTRS`;
+
+int $Lin_A=`checkBoxGrp -q -v1 asLin_ATRS`;
+int $Lin_T=`checkBoxGrp -q -v2 asLin_ATRS`;
+int $Lin_R=`checkBoxGrp -q -v3 asLin_ATRS`;
+int $Lin_S=`checkBoxGrp -q -v4 asLin_ATRS`;
+
+int $Axi_A=`checkBoxGrp -q -v1 asAxi_ATRS`;
+int $Axi_X=`checkBoxGrp -q -v2 asAxi_ATRS`;
+int $Axi_Y=`checkBoxGrp -q -v3 asAxi_ATRS`;
+int $Axi_Z=`checkBoxGrp -q -v4 asAxi_ATRS`;
+
+for($i=0;$i<size($obj);$i++){
+
+if($new==1)
+	$newname=($obj[$i]+"_con");
+else $newname=$name+"_"+$i;
+
+string $adds[]={$newname};
+appendStringArray $cvs $adds 1;
+channelBoxCommand -unlock;
+
+CBunlockAttr ($obj[$i]+".tx") ;
+CBunlockAttr ($obj[$i]+".ty") ;
+CBunlockAttr ($obj[$i]+".tz") ;
+CBunlockAttr ($obj[$i]+".rx") ;
+CBunlockAttr ($obj[$i]+".ry") ;
+CBunlockAttr ($obj[$i]+".rz") ;
+CBunlockAttr ($obj[$i]+".sx") ;
+CBunlockAttr ($obj[$i]+".sy") ;
+CBunlockAttr ($obj[$i]+".sz") ;
+
+if($type==1){
+	circle -r 1 -ch 0 -n $newname ;
+	asSetPreColors $newname;
+	asNurbsCircleShpape $newname $shape;
+	asPresuppositionScale $newname;
+}
+else if($type==2){
+	sphere -r 1 -ch 0 -n $newname ;
+}
+else if($type==3){
+	spaceLocator -p 0 0 0 -n $newname;
+	asSetPreColors $newname;
+}
+
+group -em -n ($newname+"_grp");
+parent $newname ($newname+"_grp");
+setAttr -typ float3 ($newname+".t") 0 0 0;
+setAttr -typ float3 ($newname+".r") 0 0 0;
+setAttr -typ float3 ($newname+".s") 1 1 1;
+
+delete `parentConstraint $obj[$i] ($newname+"_grp")` ;
+
+if($Connection==1){
+parent $obj[$i] $newname;
+}
+
+else if($Connection==2){
+  if($Con_P==1)parentConstraint -mo $newname $obj[$i] ;
+  if($Con_T==1)pointConstraint -mo $newname $obj[$i] ;
+  if($Con_R==1)orientConstraint -mo $newname $obj[$i] ;
+  if($Con_S==1)scaleConstraint -mo $newname $obj[$i] ;
+}
+
+else if($Connection==3){
+select -r $obj[$i];
+sg_OffsetGroup;
+if($Lin_A==1&&$Axi_A==1){
+connectAttr -f ($newname+".t") ($obj[$i]+".t");
+connectAttr -f ($newname+".r") ($obj[$i]+".r");
+connectAttr -f ($newname+".s") ($obj[$i]+".s");
+}
+if($Lin_A==0||$Axi_A==0){
+if($Lin_T==1&&$Axi_A==1){
+  connectAttr -f ($newname+".t") ($obj[$i]+".t");	
+}
+if($Lin_T==1&&$Axi_A==0){
+  if($Axi_X==1)connectAttr -f ($newname+".tx") ($obj[$i]+".tx");	
+  if($Axi_Y==1)connectAttr -f ($newname+".ty") ($obj[$i]+".ty");
+  if($Axi_Z==1)connectAttr -f ($newname+".tz") ($obj[$i]+".tz");
+}
+if($Lin_R==1&&$Axi_A==1){
+  connectAttr -f ($newname+".r") ($obj[$i]+".r");
+}
+if($Lin_R==1&&$Axi_A==0){  
+  if($Axi_X==1)connectAttr -f ($newname+".rx") ($obj[$i]+".rx");
+  if($Axi_Y==1)connectAttr -f ($newname+".ry") ($obj[$i]+".ry");
+  if($Axi_Z==1)connectAttr -f ($newname+".rz") ($obj[$i]+".rz");
+}
+if($Lin_S==1&&$Axi_A==1){
+  connectAttr -f ($newname+".s") ($obj[$i]+".s"); 
+}
+if($Lin_S==1&&$Axi_A==0){
+  if($Axi_X==1)connectAttr -f ($newname+".sx") ($obj[$i]+".sx");
+  if($Axi_Y==1)connectAttr -f ($newname+".sy") ($obj[$i]+".sy");
+  if($Axi_Z==1)connectAttr -f ($newname+".sz") ($obj[$i]+".sz");
+}
+}
+}
+
+else if($Connection==4){
+	select -r $obj[$i];
+	sg_OffsetGroup;
+	string $shape[]=`listRelatives -s $newname`;
+	parent -s -add $shape[0] $obj[$i];
+	delete ($newname+"_grp");
+}
+
+if($Connection!=4&&$i>0&&$Parent==1){
+	if($new==1){
+		parent ($obj[$i]+"_con_grp") ($obj[$i-1]+"_con");
+	}
+	else if($Connection==1){
+		parent ($obj[$i]+"_con_grp") $obj[$i-1];
+	}	
+	else{
+		parent ($name+"_"+$i+"_grp") ($name+"_"+($i-1));
+	} 
+}
+asControllerNodeClear $newname;
+}
+$curves={};
+appendStringArray $curves $cvs (size($cvs));
+}
+
+//==========次级绑定===========//
+global proc sg_LoadTargetModel (){
+string $sel[]=`ls -sl`;
+int $size=size($sel);
+if($size>1) error "请选择一个对象！！！";
+else if($sel[0]=="") error "请选择对象！！！";
+textFieldButtonGrp -e -tx ($sel[0]) asTextTargetModel;
+}
+///////
+global proc sg_LoadRootController (){
+string $sel[]=`ls -sl`;
+int $size=size($sel);
+if($size>1) error "请选择一个对象！！！";
+else if($sel[0]=="") error "请选择对象！！！";
+textFieldButtonGrp -e -tx ($sel[0]) asTextRootController;
+}
+///////
+global proc sg_LoadControlObject (){
+	string $sel[]=`ls -sl`;
+	textScrollList -e -ra asTextControlObject;
+	for($i=0;$i<size($sel);$i++){
+		textScrollList -e -a $sel[$i] asTextControlObject;
+	}
+} 
+////////
+global proc sg_CreateSecondaryControlBinding (){
+
+string $mesh=`textFieldButtonGrp -q -tx asTextTargetModel`;
+string $root_con=`textFieldButtonGrp -q -tx asTextRootController`;
+string $bns[]=`textScrollList -q -ai asTextControlObject`;
+string $shape=`sg_PreShape`;
+string $mesh_sp[]=`listRelatives -s $mesh`;
+
+string $loc_grp=$mesh+"_part_loc_grp";
+string $con_grp=$mesh+"_part_con_grp";
+
+if(!`objExists $loc_grp`)
+	group -empty -n $loc_grp;
+
+if(!`objExists $con_grp`)
+	group -empty -n $con_grp;
+
+string $node_clo=`shadingNode -asShader closestPointOnMesh`;
+connectAttr -force ($mesh_sp[0]+".outMesh") ($node_clo+".inMesh") ;
+
+for($i=0;$i<size($bns);$i++){
+
+select -cl;
+string $loc=$bns[$i]+"_loc";
+spaceLocator -p 0 0 0;
+rename $loc;
+string $loc_root=`group -n ($loc+"_grp")`;
+
+delete `parentConstraint $bns[$i] $loc_root` ;
+parentConstraint $loc $bns[$i];
+scaleConstraint $loc $bns[$i];
+
+select -cl;
+string $con=$bns[$i]+"_con";
+circle -ch 0;
+rename $con;
+asSetPreColors $con;
+asNurbsCircleShpape $con $shape;
+asPresuppositionScale $con;
+select -r $con;
+string $con_offset=`group -n ($con+"_offset")`;
+string $con_rot_sca=`group -n ($con+"_rot_sca")`;
+string $con_root=`group -n ($con+"_root")`;
+delete `parentConstraint $bns[$i] $con_root` ;
+
+parent $loc_root $loc_grp;
+
+string $follicle_sp=`shadingNode -asShader follicle -n ($bns[$i]+"_follicleShape")`;
+string $follicle[]=`listRelatives -p $follicle_sp`;
+
+//string $follicle_offset=`group -n ($bns[$i]+"_follicle_offset_rot")`;
+//string $follicle_rot=`group -em -n ($bns[$i]+"_rot_grp")`;
+//parent $follicle_rot $follicle[0];
+
+//setAttr ($follicle_sp+".visibility") 0;
+sg_ShapeVis $follicle[0] 0;
+
+connectAttr -force ($mesh_sp[0]+".worldMatrix[0]") ($follicle_sp+".inputWorldMatrix") ;
+connectAttr -force ($mesh_sp[0]+".outMesh") ($follicle_sp+".inputMesh");
+
+connectAttr -f ($follicle_sp+".outTranslate") ($follicle[0]+".translate") ;
+//connectAttr -f ($follicle_sp+".outRotate") ($follicle[0]+".rotate") ;
+
+orientConstraint -offset 0 0 0 $root_con $follicle[0];
+//connectAttr -f ($root_con+".rotate") ($follicle_rot+".rotate") ;
+scaleConstraint -offset 1 1 1 $root_con $follicle[0];
+
+float $pos[]=`xform -q -ws -t $bns[$i]`;
+setAttr -typ float3 ($node_clo+".inPosition") $pos[0] $pos[1] $pos[2];
+
+float $U=`getAttr ($node_clo+".parameterU")`;
+float $V=`getAttr ($node_clo+".parameterV")`;
+
+setAttr ($follicle_sp+".parameterU") $U;
+setAttr ($follicle_sp+".parameterV") $V;
+
+parent $con_root $follicle[0];
+parent $follicle[0] $con_grp;
+
+string $node_PF=`shadingNode -asUtility decomposeMatrix -n ($bns[$i]+"_offset")`;
+
+connectAttr -f ($con+".inverseMatrix") ($node_PF+".inputMatrix");
+
+connectAttr -f ($node_PF+".outputTranslate") ($con_offset+".translate");
+connectAttr -f ($node_PF+".outputRotate") ($con_offset+".rotate");
+connectAttr -f ($node_PF+".outputScale") ($con_offset+".scale");
+
+connectAttr -f ($con+".translate") ($loc+".translate");
+connectAttr -f ($con+".rotate") ($loc+".rotate");
+connectAttr -f ($con+".scale") ($loc+".scale");
+connectAttr -f ($con+".rotate") ($con_rot_sca+".rotate");
+connectAttr -f ($con+".scale") ($con_rot_sca+".scale");
+
+}
+delete $node_clo;
+asControllerNodeClear $con_grp;
+}
+
+//==========绳子飘带绑定工具===========//
+
+global proc sg_RopeRigTool (){
+
+string $curve[]=`ls -sl`;
+
+if(size($curve)!=1)
+	error "请选择一条曲线！！！";
+string $names=`textFieldGrp -q -tx asEstablishNames `;
+float $jot_ss=`intFieldGrp -q -v1 asJointNumber `;
+float $con_ss=`intFieldGrp -q -v1 asControllerAmount `;
+
+string $curve_sp[]=`listRelatives -s $curve[0]`;
+
+if(!`objExists ($names+"_rope_grp")`)
+	group -em -n ($names+"_rope_grp");
+
+if(!`objExists ($names+"_jot_grp")`){
+	group -em -n ($names+"_jot_grp");
+	parent ($names+"_jot_grp") ($names+"_rope_grp");
+}
+
+if(!`objExists ($names+"_con_rope_grp")`){
+	group -em -n ($names+"_con_rope_grp");
+	circle -ch 0 -n ($names+"_con_rope");
+	asNurbsCircleShpape ($names+"_con_rope") C01;
+	asPresuppositionScale ($names+"_con_rope");
+	sg_SetColor ($names+"_con_rope") 13;
+	parent ($names+"_con_rope") ($names+"_con_rope_grp");
+	string $cvrefer_sp[]=`listRelatives -s $curve[0]`;
+	float $pos[]=`xform -q -ws -t ($cvrefer_sp[0]+".cv[0]")`;
+	move -ws $pos[0] $pos[1] $pos[2] ($names+"_con_rope_grp");
+	parent ($names+"_con_rope_grp") ($names+"_rope_grp");
+}
+
+/////////////////////////////////////////////
+
+select -r ($curve[0]+".cv[:]");
+string $curve_cv[]=`ls -sl -fl`;
+
+string $offsetA=$names+"_offsetA";
+string $offsetB=$names+"_offsetB";
+string $Surface=$names+"_Surface";
+string $wire=$names+"_wire";
+offsetCurve -ch 0 -d 0.25 -sd 0 -ugn false -n $offsetA $curve[0];
+offsetCurve -ch 0 -d -.25 -sd 0 -ugn false -n $offsetB $curve[0];
+
+loft -ch 1 -u 0 -c 0 -ar 1 -d 1 -ss 1 -rn 1 -po 0 -rsn true -n $Surface $offsetA $offsetB;
+int $su=size($curve_cv)*5;
+rebuildSurface -ch 1 -su $su -sv 1 $Surface;
+DeleteHistory $Surface;
+
+string $curveInfo=`createNode curveInfo -n ($names+"_curveInfo")`;
+connectAttr -force ($curve_sp[0]+".worldSpace[0]") ($curveInfo+".inputCurve");
+float $arcLength=`getAttr ($curveInfo+".arcLength")`;
+
+delete $curveInfo;
+delete $offsetA;
+delete $offsetB;
+
+wire -n $wire -w $curve[0] $Surface;
+setAttr ($wire+".dropoffDistance[0]") ($arcLength*5);
+setAttr ($Surface+".template") 1;
+
+string $con_grp =`sg_CurveController $curve[0] $names`;
+
+parent $con_grp ($names+"_con_rope");
+parent $Surface ($names+"_rope_grp");
+parent ($curve[0]+"BaseWire") ($names+"_rope_grp");
+
+//////////////////////////////
+
+float $uu;
+string $locs[],$follicles[],$joints[];
+
+for($j=0;$j<$jot_ss;$j++){
+
+	if($jot_ss>1){
+		$uu=$j/($jot_ss-1);
+	}
+	else $uu=0.5;
+
+	string $follicle= `sg_SurfaceAddFollicle $Surface ($names+$j) $uu 0.5`;
+
+	string $loc[] = `spaceLocator -p 0 0 0 -n ($names+"_loc_"+$j)`;
+	string $jot = `joint -n ($names+"_jot_"+$j)`;
+	sg_ShapeVis $loc[0] 0;
+	parent $loc[0] $follicle;
+
+	setAttr -typ float3 ($loc[0]+".translate") 0 0 0;
+	setAttr -typ float3 ($loc[0]+".rotate") 0 0 0;
+
+	parent $follicle ($names+"_jot_grp");
+
+	scaleConstraint -offset 1 1 1 ($names+"_con_rope") $loc[0];
+
+	string $folliclea[]={$follicle};
+	string $jots[]={$jot};
+	appendStringArray $locs $loc 1;
+	appendStringArray $follicles $folliclea 1;
+	appendStringArray $joints $jots 1;
+
+}
+
+string $rot_con=`sg_CreateFollowCurveObjects $Surface ($names+"_rot") $con_ss $follicles $locs $joints ($names+"_con_rope")`;
+parent $rot_con ($names+"_rope_grp");
+
+asControllerNodeClear ($names+"_rope_grp");
+
+}
+
+//==========曲线添加旋转控制器===========//
+global proc string sg_CreateFollowCurveObjects (string $Surface,string $names,float $number,string $follicles[],string $locs[],string $joints[],string $con_root){
+
+string $grp_root=$names+"_grp";
+if(!`objExists $grp_root`)
+	group -em -n $grp_root;
+
+float $uu;
+string $follicle_rot[],$cons[];
+
+for($j=0;$j<$number;$j++){
+
+	if($number>1)
+		$uu=$j/($number-1);
+	else
+		$uu=0.5;
+
+	string $follicle= `sg_SurfaceAddFollicle $Surface ($names+$j) $uu 0.5`;
+
+	//string $loc[] = `spaceLocator -p 0 0 0 -n ($names+"_loc_"+$j)`;
+	//sg_ShapeVis $loc[0] 0;
+
+	string $con=$names+"_con_"+$j;
+	circle -nr 0 1 0 -ch 0 -n $con;
+	asNurbsCircleShpape $con Z05;
+	asPresuppositionScale $con;
+	sg_SetColor $con 14;
+
+	setAttr -lock true -keyable false -channelBox false ($con+".tx");
+	setAttr -lock true -keyable false -channelBox false ($con+".ty");
+	setAttr -lock true -keyable false -channelBox false ($con+".tz");
+	setAttr -lock true -keyable false -channelBox false ($con+".ry");
+	setAttr -lock true -keyable false -channelBox false ($con+".rz");
+	setAttr -keyable false ($con+".sy");
+	setAttr -keyable false ($con+".sz");
+
+	string $grp = `group -em -n ($names+"_grp_"+$j)`;
+
+	parent $con $grp;
+	//parent $loc[0] $grp;
+	parent $grp $follicle;
+	setAttr -typ float3 ($grp+".translate") 0 0 0;
+	setAttr -typ float3 ($grp+".rotate") 0 0 0;
+	parent $follicle $grp_root;
+
+	scaleConstraint -offset 1 1 1 $con_root $grp;
+
+	string $nodes[]={$follicle};
+	appendStringArray $follicle_rot $nodes 1;
+	string $cona[]={$con};
+	appendStringArray $cons $cona 1;
+}
+
+for($i=0;$i<size($follicles);$i++){
+	sg_LatelyCon $follicles[$i] $locs[$i] $joints[$i] $follicle_rot $cons;
+}
+return $grp_root;
+}
+
+//==========相邻控制器===========//
+global proc sg_LatelyCon (string $follicle,string $loc,string $jot,string $follicles[],string $cons[]){
+
+float $max=0;
+float $min=0;
+float $tempMax,$tempMin;
+string $maxobj,$minobj,$maxFoll,$minFoll;
+
+string $follicle_sp[]=`listRelatives -s $follicle`;
+float $uu=`getAttr ($follicle_sp[0]+".parameterU")`;
+
+for ($i=0;$i<size($follicles);$i++){
+
+string $follicles_sp[]=`listRelatives -s $follicles[$i]`;
+float $us=`getAttr ($follicles_sp[0]+".parameterU")`;
+
+if($us!=$uu){
+	if($us>$uu){
+		$tempMax=$max;
+		$max=$us;
+		if($max>$tempMax&&$tempMax>0){
+			$max=$tempMax;
+		}
+	}
+	if($us<$uu){
+		$tempMin=$min;
+		$min=$us;
+		if($min<$tempMin&&$tempMin>0){
+			$min=$tempMin;
+		}
+	}
+}
+else if($us==$uu){
+	$maxobj=$cons[$i];
+	$minobj=$cons[$i];
+	$maxFoll=$follicles[$i];
+	$minFoll=$follicles[$i];
+	break;
+}
+if($max==$us){
+	$maxobj=$cons[$i];
+	$maxFoll=$follicles[$i];
+}
+if($min==$us){
+	$minobj=$cons[$i];
+	$minFoll=$follicles[$i];
+}
+}
+
+string $maxFoll_sp[]=`listRelatives -s $maxFoll`;
+string $minFoll_sp[]=`listRelatives -s $minFoll`;
+
+float $maxu=`getAttr ($maxFoll_sp[0]+".parameterU")`;
+float $minu=`getAttr ($minFoll_sp[0]+".parameterU")`;
+
+float $maxs,$mins;
+if(($maxu-$minu)!=0){
+	$maxs=($uu-$minu)/($maxu-$minu);
+	$mins=1-$maxs;
+}
+else {
+	$maxs=0;
+	$mins=1;
+}
+
+string $node_Rot_mul = `createNode multiplyDivide -n ($loc+"_RotDivide")`;
+string $node_Rot_loc = `createNode plusMinusAverage -n ($loc+"_RotAverage")`;
+connectAttr -f ($maxobj+".rotateX") ($node_Rot_mul+".input1X");
+connectAttr -f ($minobj+".rotateX") ($node_Rot_mul+".input1Y");
+connectAttr -f ($node_Rot_mul+".outputX") ($node_Rot_loc+".input1D[0]");
+connectAttr -f ($node_Rot_mul+".outputY") ($node_Rot_loc+".input1D[1]");
+connectAttr -f ($node_Rot_loc+".output1D") ($loc+".rotateX");
+setAttr ($node_Rot_mul+".input2X") $maxs;
+setAttr ($node_Rot_mul+".input2Y") $mins;
+
+string $node_Sca_mul = `createNode multiplyDivide -n ($loc+"_ScaDivide")`;
+string $node_Sca_loc = `createNode plusMinusAverage -n ($loc+"_ScaAverage")`;
+connectAttr -f ($maxobj+".scaleX") ($node_Sca_mul+".input1X");
+connectAttr -f ($minobj+".scaleX") ($node_Sca_mul+".input1Y");
+connectAttr -f ($node_Sca_mul+".outputX") ($node_Sca_loc+".input1D[0]");
+connectAttr -f ($node_Sca_mul+".outputY") ($node_Sca_loc+".input1D[1]");
+connectAttr -f ($node_Sca_loc+".output1D") ($jot+".scaleY");
+connectAttr -f ($node_Sca_loc+".output1D") ($jot+".scaleZ");
+
+catchQuiet (`connectAttr ($maxobj+".scaleX") ($maxobj+".scaleY")`);
+catchQuiet (`connectAttr ($maxobj+".scaleX") ($maxobj+".scaleZ")`);
+catchQuiet (`connectAttr ($minobj+".scaleX") ($minobj+".scaleY")`);
+catchQuiet (`connectAttr ($minobj+".scaleX") ($minobj+".scaleZ")`);
+
+setAttr ($node_Sca_mul+".input2X") $maxs;
+setAttr ($node_Sca_mul+".input2Y") $mins;
+
+}
+
+//==========曲线CV点加控制器===========//
+global proc string sg_CurveController (string $curve,string $name){
+
+string $shape=`sg_PreShape`;
+
+string $cv_sp[]=`listRelatives -s $curve`;
+select -r ($curve+".cv[:]");
+string $cv_d[]=`ls -sl -fl`;
+string $grp=$name+"_con_grp";
+
+if(!`objExists $grp`)
+	group -em -n $grp;
+
+	for($j=0;$j<size($cv_d);$j++){
+		float $pos[]=`xform -q -ws -t $cv_d[$j]`;
+		string $loc[]=`spaceLocator -p 0 0 0 -n ($name+"_loc_con_"+$j)`;
+		move $pos[0] $pos[1] $pos[2];
+		string $con[]=`circle -ch 0 -n ($name+"_con_"+$j)`;
+		setAttr -lock true -keyable false -channelBox false ($con[0]+".sx");
+		setAttr -lock true -keyable false -channelBox false ($con[0]+".sy");
+		setAttr -lock true -keyable false -channelBox false ($con[0]+".sz");
+		asSetPreColors $con[0];
+		asNurbsCircleShpape $con[0] $shape;
+		asPresuppositionScale $con[0];
+		select -r $con[0];
+		string $con_grp=`group -n ($name+"_con_grp_"+$j)`;
+		move $pos[0] $pos[1] $pos[2];
+		string $loc_sp[]=`listRelatives -s $loc[0]`;
+		connectAttr -f ($loc_sp[0]+".worldPosition[0]") ($cv_sp[0]+".controlPoints["+$j+"]");
+		sg_ShapeVis $loc[0] 0;
+		parent $loc[0] $con[0];
+		parent $con_grp $grp;
+	}
+setAttr -typ float3 ($curve+".translate") 0 0 0;
+
+return $grp;
+}
+
+//==========创建颈椎工具===========//
+
+global proc sg_LoadCerController (){
+string $sel[]=`ls -sl`;
+if(size($sel)==0) error "请选择对象！！！";
+textFieldButtonGrp -e -tx $sel[0] asCerController;
+}
+///
+global proc sg_CervicalVertebra (){
+string $curve[]=`ls -sl`;
+string $name=`textFieldGrp -q -tx asCerName`;
+string $IKFKcon=`textFieldButtonGrp -q -tx asCerController`;
+int $number=`intFieldGrp -q -v1 asCerNumber`;
+int $e,$p;
+string $cons_FK[],$cons_SK[],$cons_IK[];
+float $uu;
+
+string $grp_root=$name+"_root_grp";
+string $grp_follicle=$name+"_follicle_grp";
+string $grp_offset=$name+"_offset_grp";
+string $grp_joint=$name+"_joint_grp";
+string $grp_con=$name+"_con_grp";
+
+float $pos[]=`xform -q -ws -t ($curve[0]+".cv[0]")`;
+if(!`objExists $grp_root`){
+	group -em -n $grp_root;
+
+	move -ws $pos[0] $pos[1] $pos[2] $grp_root;
+}
+
+if(!`objExists $grp_offset`){
+	group -em -n $grp_offset;
+	parent $grp_offset $grp_root;
+	setAttr -typ float3 ($grp_offset+".translate") 0 0 0;
+	setAttr ($grp_offset+".visibility") 0;
+	setAttr -lock true ($grp_offset+".v");
+	string $node_dm = `createNode decomposeMatrix -n ($name+"_con_dec")`;
+	connectAttr -f ($grp_offset+".parentInverseMatrix[0]") ($node_dm+".inputMatrix");
+	connectAttr -f ($node_dm+".outputTranslate") ($grp_offset+".translate");
+	connectAttr -f ($node_dm+".outputRotate") ($grp_offset+".rotate");
+	connectAttr -f ($node_dm+".outputScale") ($grp_offset+".scale");
+}
+
+if(!`objExists $grp_follicle`){
+	group -em -n $grp_follicle;
+	parent $grp_follicle $grp_offset;
+	setAttr -typ float3 ($grp_follicle+".translate") 0 0 0;
+}
+
+if(!`objExists $grp_joint`){
+	group -em -n $grp_joint;
+	parent $grp_joint $grp_offset;
+	setAttr -typ float3 ($grp_joint+".translate") 0 0 0;
+}
+
+if(!`objExists $grp_con`){
+	group -em -n $grp_con;
+	parent $grp_con $grp_root;
+	setAttr -typ float3 ($grp_root+".translate") 0 0 0;
+}
+
+if(!`objExists ($IKFKcon+".IKFKswitch")`)
+	addAttr -ln IKFKswitch -nn "IKFK Switch" -at double -min 0 -max 10 -dv 0 -k 1 $IKFKcon;
+
+if(!`objExists ($name+"_setRange")`)
+	createNode setRange -n ($name+"_setRange");
+
+if(!`objExists ($name+"_reverse")`)
+	createNode reverse -n ($name+"_reverse");
+
+if(!`objExists ($name+"_setRangeVis")`)
+	createNode setRange -n ($name+"_setRangeVis");
+
+if(!`objExists ($name+"_reverseVis")`)
+	createNode reverse -n ($name+"_reverseVis");
+
+connectAttr -f ($IKFKcon+".IKFKswitch") ($name+"_setRange.valueX");
+connectAttr -f ($IKFKcon+".IKFKswitch") ($name+"_setRangeVis.valueX");
+
+connectAttr -f ($name+"_setRange.outValueX") ($name+"_reverse.inputX");
+connectAttr -f ($name+"_setRangeVis.outValueX") ($name+"_reverseVis.inputX");
+
+setAttr ($name+"_setRange.maxX") 1;
+setAttr ($name+"_setRange.oldMaxX") 10;
+
+setAttr ($name+"_setRange.maxY") 1;
+setAttr ($name+"_setRange.oldMaxY") 10;
+
+setAttr ($name+"_setRangeVis.maxX") 1;
+setAttr ($name+"_setRangeVis.oldMaxX") 10;
+
+string $curve_sp[]=`listRelatives -s $curve[0]`;
+
+rebuildCurve -ch 0 -s 1 $curve[0];
+
+string $joints_skin[]=`sg_SamplingJoint_Tool $curve ($name+"_skin") $number`;
+
+string $joints_IK[]=`sg_SamplingJoint_Tool $curve ($name+"_IK") $number`;
+string $joints_FK[]=`sg_SamplingJoint_Tool $curve ($name+"_FK") $number`;
+
+string $joints_con[]=`sg_SamplingJoint_Tool $curve ($name+"_con") 3`;
+parent -w $joints_con[1];
+parent -w $joints_con[2];
+select -r ($curve[0]+".cv[:]");
+string $curve_cv[]=`ls -sl -fl`;
+
+string $offsetA=$name+"_offsetA";
+string $offsetB=$name+"_offsetB";
+string $Surface=$name+"_Surface";
+//string $wire=$name+"_wire";
+offsetCurve -ch 0 -d 0.25 -sd 0 -ugn false -n $offsetA $curve[0];
+offsetCurve -ch 0 -d -.25 -sd 0 -ugn false -n $offsetB $curve[0];
+
+loft -ch 1 -u 0 -c 0 -ar 1 -d 1 -ss 1 -rn 1 -po 0 -rsn true -n $Surface $offsetA $offsetB;
+int $su=size($curve_cv);
+rebuildSurface -ch 1 -su $su -sv 1 $Surface;
+DeleteHistory $Surface;
+
+string $curveInfo=`createNode curveInfo -n ($name+"_curveInfo")`;
+connectAttr -force ($curve_sp[0]+".worldSpace[0]") ($curveInfo+".inputCurve");
+float $arcLength=`getAttr ($curveInfo+".arcLength")`;
+
+delete $curveInfo;
+delete $offsetA;
+delete $offsetB;
+
+skinCluster $joints_con $Surface;
+
+
+string $con_root=$name+"_root_con";
+circle -ch 0 -n $con_root; 
+string $con_root_grp=`group -n ($name+"_root_con_grp")`;
+move -ws $pos[0] $pos[1] $pos[2] $con_root_grp;
+
+asNurbsCircleShpape $con_root A05;
+asPresuppositionScale $con_root;
+sg_SetColor $con_root 19;
+asScaleController $con_root 3 1.3;
+
+parent $con_root_grp $grp_con;
+parent $Surface $grp_offset;
+parent $joints_IK[0] $grp_joint;
+parent $joints_FK[0] $grp_joint;
+
+float $JotSize=size($joints_skin);
+for($i=0;$i<(size($joints_skin));$i++){
+
+	if($JotSize>1){
+		$uu=$i/($JotSize-1);
+	}
+	else $uu=0.5;
+
+	string $follicle_temp = `sg_SurfaceAddFollicle $Surface ($name+$i) $uu 0.5`;
+	string $follicle = `asRenameSuffixNumber $follicle_temp`;
+	string $loc[] = `spaceLocator -p 0 0 0 -n ($name+"_loc_"+$i)`;
+	//string $jot = `joint -n ($name+"_jot_"+$j)`;
+	sg_ShapeVis $loc[0] 0;
+	parent $loc[0] $follicle;
+	parent $follicle $grp_follicle;
+	setAttr -typ float3 ($loc[0]+".translate") 0 0 0;
+	setAttr -typ float3 ($loc[0]+".rotate") 0 0 0;
+
+	parentConstraint -mo -weight 1 $loc[0] $joints_IK[$i];
+
+///////
+	select -r $joints_IK[$i];
+	select -add $joints_FK[$i];
+	select -add $joints_skin[$i];
+	string $par[]=`parentConstraint -mo -weight 1 -n ($joints_skin[$i]+"_Par")`;
+	connectAttr -f ($name+"_reverse.outputX") ($par[0]+"."+$joints_IK[$i]+"W0");
+	connectAttr -f ($name+"_setRange.outValueX") ($par[0]+"."+$joints_FK[$i]+"W1");
+	scaleConstraint -mo -weight 1 $con_root $joints_skin[$i];
+}
+
+for($j=0;$j<(size($joints_con));$j++){
+	$e=$j-1;
+///////////
+	string $con_FK[]=`circle -ch 0 -n ($name+"_con_FK_"+$j)` ; 
+	string $con_FK_grp=`group -n ($name+"_con_FK_grp_"+$j)`;
+	//asNurbsCircleShpape $con_FK[0] C01;
+	select -r $con_FK[0];
+	asPresuppositionScale $con_FK[0];
+	asRotateController $con_FK[0] 0 90;
+	sg_SetColor $con_FK[0] 18;
+	asScaleController $con_FK[0] 3 0.6;
+	delete `parentConstraint $joints_con[$j] $con_FK_grp`;
+	appendStringArray $cons_FK $con_FK 1;
+	if($j==0)
+		parent ($name+"_con_FK_grp_"+$j) $con_root;
+	if($j>0)
+		parent ($name+"_con_FK_grp_"+$j) ($name+"_con_FK_"+$e);
+	string $con_FK_sp[]=`listRelatives -s $con_FK[0]`;
+	connectAttr -f ($name+"_setRangeVis.outValueX") ($con_FK_sp[0]+".visibility");
+////////
+	string $con_SK[]=`circle -ch 0 -n ($name+"_con_SK_"+$j)` ; 
+	string $con_SK_grp=`group -n ($name+"_con_SK_grp_"+$j)`;
+	if($j==0)
+		asNurbsCircleShpape $con_SK[0] C01;
+	else
+		asNurbsCircleShpape $con_SK[0] Z05;		
+	asPresuppositionScale $con_SK[0];
+	asRotateController $con_SK[0] 2 90;
+	if($j==0)
+		asScaleController $con_SK[0] 3 0.8;
+	sg_SetColor $con_SK[0] 14;
+	delete `parentConstraint $joints_con[$j] $con_SK_grp`;
+	appendStringArray $cons_SK $con_SK 1;
+	if($j==0)
+		parent ($name+"_con_SK_grp_"+$j) $con_root;
+	if($j>0)
+		parent ($name+"_con_SK_grp_"+$j) ($name+"_con_SK_"+$e);
+	string $con_SK_sp[]=`listRelatives -s $con_SK[0]`;
+	connectAttr -f ($name+"_reverseVis.outputX") ($con_SK_sp[0]+".visibility");
+///////
+	string $con_IK[]=`circle -ch 0 -n ($name+"_con_IK_"+$j)` ; 
+	string $SDK_IK_grp=`group -n ($name+"_SDK_IK_grp_"+$j)`;
+	string $CON_IK_grp=`group -n ($name+"_CON_IK_grp_"+$j)`;
+	string $POS_IK_grp=`group -n ($name+"_POS_IK_grp_"+$j)`;
+
+	if($j==0||$j==2){
+		string $loc_par_IK[]=`spaceLocator -p 0 0 0 -n ($name+"_loc_par_"+$j)` ; 	
+		sg_ShapeVis $loc_par_IK[0] 0;
+		parent $loc_par_IK[0] $con_IK[0];
+		if($j==0)
+			setAttr ($loc_par_IK[0]+".translateY") ($arcLength/4);
+		if($j==2)
+			setAttr ($loc_par_IK[0]+".translateY") ($arcLength/4*-1);
+	}
+
+	asNurbsCircleShpape $con_IK[0] C01;
+	asPresuppositionScale $con_IK[0];
+	sg_SetColor $con_IK[0] 13;
+	asScaleController $con_IK[0] 1 0.15;
+
+	delete `parentConstraint $joints_con[$j] $POS_IK_grp`;
+	parent $joints_con[$j] $con_IK[0];
+	parent ($name+"_POS_IK_grp_"+$j) $grp_con;
+	//parentConstraint -weight 1 $con_IK[0] $joints_con[$j];
+	appendStringArray $cons_IK $con_IK 1;
+
+	string $con_IK_sp[]=`listRelatives -s $con_IK[0]`;
+	connectAttr -f ($name+"_reverseVis.outputX") ($con_IK_sp[0]+".visibility");
+
+	if($j==0||$j==2){
+		string $loc_aim_IK[]=`spaceLocator -p 0 0 0 -n ($name+"_loc_aim_"+$j)` ; 
+		string $loc_aim_grp=`group -n ($name+"_loc_aim_grp_"+$j)`;
+		sg_ShapeVis $loc_aim_IK[0] 0;
+		parentConstraint -weight 1 $con_SK[0] $SDK_IK_grp;
+		scaleConstraint -weight 1 $con_SK[0] $SDK_IK_grp;
+		delete `parentConstraint $joints_con[$j] $loc_aim_grp`;
+		parentConstraint $joints_con[$j] $loc_aim_IK[0];
+		parent $loc_aim_grp $grp_con;
+	}
+
+	if($j==1){
+		//parentConstraint -weight 1 $con_SK[0] $SDK_IK_grp;
+		scaleConstraint -weight 1 $con_SK[0] $SDK_IK_grp;	
+	}
+
+
+	if($j==2){
+		select -r ($name+"_loc_par_0");
+		select -add ($name+"_loc_par_2");
+		select -add ($name+"_CON_IK_grp_1");
+		parentConstraint -mo -skipRotate x -skipRotate y -skipRotate z -weight 1;
+		aimConstraint -mo -weight 1 -aimVector 1 0 0 -upVector 0 1 0 -worldUpType "object" -worldUpObject ($name+"_con_IK_2") ($name+"_con_IK_2") ($name+"_CON_IK_grp_1");
+
+		string $node_Rot_mul = `createNode multiplyDivide -n ($name+"_RotDivide")`;
+		string $node_Rot_loc = `createNode plusMinusAverage -n ($name+"_RotAverage")`;
+
+		connectAttr -f ($name+"_loc_aim_0.rotateY") ($node_Rot_mul+".input1X");
+		connectAttr -f ($name+"_loc_aim_2.rotateY") ($node_Rot_mul+".input1Y");
+
+		connectAttr -f ($node_Rot_mul+".outputX") ($node_Rot_loc+".input1D[0]");
+		connectAttr -f ($node_Rot_mul+".outputY") ($node_Rot_loc+".input1D[1]");
+
+		connectAttr -f ($node_Rot_loc+".output1D") ($name+"_SDK_IK_grp_1.rotateY");
+
+		setAttr ($node_Rot_mul+".input2X") 0.5;
+		setAttr ($node_Rot_mul+".input2Y") 0.5;
+		
+	}
+
+}
+
+//int $singular=(size($joints_FK))%2;
+int $middle=(size($joints_FK))/2;
+
+	for($f=0;$f<(size($joints_FK));$f++){
+		$e=$f-1;
+		string $rot_jot = `joint -n ($joints_FK[$f]+"_rot_jot")`;
+		string $rot_grp = `group -n ($joints_FK[$f]+"_rot")`;
+		delete `parentConstraint $joints_FK[$f] $rot_grp`;
+		parentConstraint -weight 1 $rot_jot $joints_FK[$f] ;
+		//setAttr ($rot_jot+".visibility") 0;
+		if($f>0){
+			parent $rot_grp ($joints_FK[$e]+"_rot_jot");
+		}
+		if($f==0){
+			parent $rot_grp $cons_FK[0];
+		}
+		if($f>0 && $f<$middle){
+			connectAttr -f ($cons_FK[0]+".rotate") ($rot_jot+".rotate");
+		}
+		if($f==$middle){
+			parent $rot_grp $cons_FK[1];
+			string $cons_FK_P[]=`listRelatives -p $cons_FK[1]`;
+			parent $cons_FK_P[0] ($joints_FK[$e]+"_rot_jot") ;
+		}
+		if($f>$middle && $f<(size($joints_FK)-1)){
+			connectAttr -f ($cons_FK[1]+".rotate") ($rot_jot+".rotate");
+		}		
+		if($f==(size($joints_FK)-1)){
+			parent $rot_grp $cons_FK[2];
+			string $cons_FK_P[]=`listRelatives -p $cons_FK[2]`;
+			parent $cons_FK_P[0] ($joints_FK[$e]+"_rot_jot") ;	
+		}		
+
+	}
+
+}
+
+
+//==========创建IKFK===========//
+global proc sg_LoadStartJoint (){
+string $sel[]=`ls -sl -typ "joint"`;
+if(size($sel)==0) error "请选择一个关节！！！";
+textFieldButtonGrp -e -tx $sel[0] asStartJoint;
+}
+
+global proc sg_LoadEndingJoint (){
+string $sel[]=`ls -sl -typ "joint"`;
+if(size($sel)==0) error "请选择一个关节！！！";
+textFieldButtonGrp -e -tx $sel[0] asEndingJoint;
+}
+
+global proc sg_LoadController (){
+string $sel[]=`ls -sl`;
+if(size($sel)==0) error "请选择对象！！！";
+textFieldButtonGrp -e -tx $sel[0] asIKFKController;
+}
+
+//////
+global proc sg_CreateIKFK (){
+
+string $jot_st=`textFieldButtonGrp -q -tx asStartJoint`;
+string $jot_en=`textFieldButtonGrp -q -tx asEndingJoint`;
+string $IKFKcon=`textFieldButtonGrp -q -tx asIKFKController`;
+string $name=`textFieldGrp -q -tx asIKFKConName`;
+float $cvsize=`floatSliderGrp -q -v asProportion`;
+
+
+int $Fun_a=`checkBoxGrp -q -v1 asFunctionOnoff` ;
+int $Fun_b=`checkBoxGrp -q -v2 asFunctionOnoff` ;
+int $Fun_c=`checkBoxGrp -q -v3 asFunctionOnoff` ;
+
+//float $number=`textFieldGrp -q -tx asTextradius`;
+
+if(!`objExists ($name+"_con_grp")`){
+	group -em -n ($name+"_con_grp");
+	delete `parentConstraint $jot_st ($name+"_con_grp")`;
+}
+if(!`objExists ($name+"_jot_grp")`){
+	group -em -n ($name+"_jot_grp");
+	setAttr ($name+"_jot_grp.visibility") 0;
+	parent ($name+"_jot_grp") ($name+"_con_grp");
+}
+
+if(!`objExists ($name+"_constrain_grp")`){
+	group -em -n ($name+"_constrain_grp");
+	parent ($name+"_constrain_grp") ($name+"_con_grp");
+}
+
+if(!`objExists ($IKFKcon+".IKFKswitch")`)
+	addAttr -ln IKFKswitch -nn "IKFK Switch" -at double -min 0 -max 10 -dv 0 -k 1 $IKFKcon;
+
+if(!`objExists ($IKFKcon+".SKVis")`)
+	addAttr -ln SKVis -nn "SK Vis" -at bool -dv 1 -k 1 $IKFKcon;
+
+if(!`objExists ($name+"_setRange")`)
+	createNode setRange -n ($name+"_setRange");
+
+if(!`objExists ($name+"_reverse")`)
+	createNode reverse -n ($name+"_reverse");
+
+if(!`objExists ($name+"_setRangeVis")`)
+	createNode setRange -n ($name+"_setRangeVis");
+
+if(!`objExists ($name+"_reverseVis")`)
+	createNode reverse -n ($name+"_reverseVis");
+
+connectAttr -f ($IKFKcon+".IKFKswitch") ($name+"_setRange.valueX");
+connectAttr -f ($IKFKcon+".IKFKswitch") ($name+"_setRangeVis.valueX");
+
+connectAttr -f ($name+"_setRange.outValueX") ($name+"_reverse.inputX");
+connectAttr -f ($name+"_setRangeVis.outValueX") ($name+"_reverseVis.inputX");
+
+setAttr ($name+"_setRange.maxX") 1;
+setAttr ($name+"_setRange.oldMaxX") 10;
+
+setAttr ($name+"_setRange.maxY") 1;
+setAttr ($name+"_setRange.oldMaxY") 10;
+
+setAttr ($name+"_setRangeVis.maxX") 1;
+setAttr ($name+"_setRangeVis.oldMaxX") 10;
+
+string $jot_st_ad[]=`listRelatives -ad -typ "joint" $jot_st`;
+string $jot_en_ad[]=`listRelatives -ad -typ "joint" $jot_en`;
+
+select -r $jot_st_ad $jot_st;
+select -d $jot_en_ad;
+
+string $main_jot_temp[]=`ls -sl -typ "joint"`;
+select -cl;
+for($i=(size($main_jot_temp)-1);$i>=0;$i--){
+	select -add $main_jot_temp[$i];
+}
+string $main_jot[]=`ls -sl -typ "joint"`;
+
+string $FK[]=`sg_oveJoint $main_jot FK `;
+string $IK[]=`sg_oveJoint $main_jot IK `;
+string $SK[]=`sg_oveJoint $main_jot SK `;
+
+string $SK_grp[],$SK_con[];
+
+for($i=0;$i<size($SK);$i++){
+	string $tra_con[]=`circle -ch 0 -n ($name+($i+1)+"_SK_con")`;
+	asNurbsCircleShpape $tra_con[0] A04;
+	select -r $tra_con[0];
+	string $tra_grp=`group -n ($name+($i+1)+"_SK_grp")`;
+	string $tra_con_sp[]=`listRelatives -c $tra_con[0]`;
+	connectAttr -f ($IKFKcon+".SKVis") ($tra_con_sp[0]+".visibility");
+	delete `parentConstraint $SK[$i] $tra_grp`;
+	parent $tra_grp ($name+"_con_grp");
+	parent $SK[$i] $tra_con[0];
+	parentConstraint -mo $SK[$i] $main_jot[$i];
+	scaleConstraint -offset 1 1 1 $tra_con[0] $main_jot[$i];
+	sg_SetColor $tra_con[0] 17;
+	asRotateController $tra_con[0] 2 90;
+	string $tra_grp_add[]={$tra_grp};
+	appendStringArray($SK_grp, $tra_grp_add, 1);
+	appendStringArray($SK_con, $tra_con, 1);
+}
+
+for($i=0;$i<size($SK);$i++){
+	if($i<(size($SK)-1))
+		aimConstraint -mo -worldUpType "object" -worldUpObject $SK[($i+1)] $SK[($i+1)] $SK[$i];
+}
+
+parent $FK[0] ($name+"_jot_grp");
+parent $IK[0] ($name+"_jot_grp");
+
+string $circle_ik_con[]=`circle -ch 0 -n ($name+"_IK_con")`;
+asNurbsCircleShpape $circle_ik_con[0] C01;
+asScaleController $circle_ik_con[0] 3 $cvsize;
+select -r $circle_ik_con[0];
+string $circle_ik_con_grp=`group -n ($name+"_IK_grp")`;
+parent $circle_ik_con_grp ($name+"_con_grp");
+string $circle_ik_con_sp[]=`listRelatives -s $circle_ik_con[0]`;
+sg_SetColor $circle_ik_con[0] 14;
+
+string $circle_ik[]=`circle -ch 0 -n ($name+"_IK_pole")`;
+asNurbsCircleShpape $circle_ik[0] C07;
+asScaleController $circle_ik[0] 3 $cvsize;
+select -r $circle_ik[0];
+string $circle_ik_grp_a=`group -n ($name+"_IK_pole_tar_grp")`;
+string $circle_ik_grp=`group -n ($name+"_IK_pole_grp")`;
+
+parent $circle_ik_grp ($name+"_con_grp");
+string $circle_ik_sp[]=`listRelatives -s $circle_ik[0]`;
+sg_SetColor $circle_ik[0] 14;
+
+addAttr -ln "follow" -at bool -dv 0 -k 1 $circle_ik[0];
+//addAttr -ln "follow" -at bool -dv 1 -k 1 $circle_ik_con[0];
+
+string $jot_st_IK=$IK[0];
+string $jot_en_IK=$IK[(size($IK))-1];
+
+int $size=size($IK)-1;
+int $middle=size($IK)/2;
+
+string $ikHandles[]=`ikHandle -sj $jot_st_IK -ee $jot_en_IK -n ($name+"ikHandle")`;
+parent $ikHandles[0] ($name+"_jot_grp");
+
+string $IK_curve=$name+"_IK_line";
+string $IK_curve_grp=$name+"_IK_line_grp";
+string $IK_locA=$name+"_IK_locA";
+string $IK_locB=$name+"_IK_locB";
+
+curve -d 1 -p 0 1 0 -p 0 -1 0 -k 0 -k 1 -n $IK_curve;
+group -em -n $IK_curve_grp;
+spaceLocator -p 0 0 0 -n $IK_locA;
+spaceLocator -p 0 0 0 -n $IK_locB;
+sg_ShapeVis $IK_locA 0;
+sg_ShapeVis $IK_locB 0;
+//sg_SetColor $IK_curve 14;
+
+string $node_dm = `createNode decomposeMatrix -n ($name+"_IK_line_dec")`;
+connectAttr -f ($IK_curve_grp+".parentInverseMatrix[0]") ($node_dm+".inputMatrix");
+connectAttr -f ($node_dm+".outputTranslate") ($IK_curve_grp+".translate");
+connectAttr -f ($node_dm+".outputRotate") ($IK_curve_grp+".rotate");
+connectAttr -f ($node_dm+".outputScale") ($IK_curve_grp+".scale");
+
+parent $IK_curve $IK_curve_grp;
+parent $IK_curve_grp ($name+"_con_grp");
+parent $IK_locA $circle_ik[0];
+parent $IK_locB $SK[$middle];
+
+setAttr -typ float3 ($IK_locA+".translate") 0 0 0;
+setAttr -typ float3 ($IK_locA+".rotate") 0 0 0;
+setAttr -typ float3 ($IK_locB+".translate") 0 0 0;
+setAttr -typ float3 ($IK_locB+".rotate") 0 0 0;
+
+string $IK_curve_sp[]=`listRelatives -s $IK_curve`;
+string $IK_locA_sp[]=`listRelatives -s $IK_locA`;
+string $IK_locB_sp[]=`listRelatives -s $IK_locB`;
+
+connectAttr -f ($IK_locA_sp[0]+".worldPosition[0]") ($IK_curve_sp[0]+".controlPoints[0]");
+connectAttr -f ($IK_locB_sp[0]+".worldPosition[0]") ($IK_curve_sp[0]+".controlPoints[1]");
+
+connectAttr -f ($name+"_reverseVis.outputX") ($circle_ik_con_sp[0]+".visibility");
+connectAttr -f ($name+"_reverseVis.outputX") ($circle_ik_sp[0]+".visibility");
+connectAttr -f ($name+"_reverseVis.outputX") ($IK_curve_sp[0]+".visibility");
+
+setAttr ($IK_curve_grp+".overrideEnabled") 1;
+setAttr ($IK_curve_grp+".overrideDisplayType") 2;
+
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".tx");
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".ty");
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".tz");
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".rx");
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".ry");
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".rz");
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".sx");
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".sy");
+setAttr -lock true -keyable false -channelBox false ($IK_locA+".sz");
+
+setAttr -lock true -keyable false -channelBox false ($circle_ik[0]+".sx");
+setAttr -lock true -keyable false -channelBox false ($circle_ik[0]+".sy");
+setAttr -lock true -keyable false -channelBox false ($circle_ik[0]+".sz");
+
+delete `parentConstraint $jot_en_IK $circle_ik_con_grp `;
+delete `parentConstraint $IK[$middle] $circle_ik_grp `;
+
+delete `aimConstraint -offset 0 0 0 -aimVector 1 0 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0 $IK[0] $circle_ik_grp`;
+
+poleVectorConstraint $circle_ik[0] $ikHandles[0];
+parent $ikHandles[0] $circle_ik_con[0];
+
+setAttr ($ikHandles[0]+".visibility") 0;
+
+string $FK_con[];
+for($i=0;$i<size($FK);$i++){
+
+	string $circle[]=`circle -nr 1 0 0 -r 1 -ch 0 -n ($name+($i+1)+"_FK_con")`;
+	sg_SetColor $circle[0] 18;
+	asScaleController $circle[0] 3 $cvsize;
+	select -r $circle[0];
+	string $circle_grp=`group -n ($name+($i+1)+"_FK_grp")`;
+	delete `parentConstraint $FK[$i] $circle_grp`;
+	appendStringArray($FK_con, $circle, 1);
+	parentConstraint  -n ($FK[$i]+"_Bind") $circle[0] $FK[$i] ;
+	scaleConstraint -offset 1 1 1 $circle[0] $SK_grp[$i];
+	string $circle_sp[]=`listRelatives -s $circle[0]`;
+	connectAttr -f ($name+"_setRangeVis.outValueX") ($circle_sp[0]+".visibility");
+
+	if($i > 0)
+		parent ($name+($i+1)+"_FK_grp") ($name+$i+"_FK_con");
+	if($i == 0)
+		parent $circle_grp ($name+"_con_grp");
+
+	select -cl;
+	select -r $FK[$i];
+	select -add $IK[$i];
+	select -add $SK_grp[$i];
+	string $par[]=`parentConstraint -mo -n ($main_jot[$i]+"IKFK_Bind")`;
+	connectAttr -f ($name+"_setRange.outValueX") ($par[0]+"."+$FK[$i]+"W0");
+	connectAttr -f ($name+"_reverse.outputX") ($par[0]+"."+$IK[$i]+"W1");
+}
+
+string $raint[]=`parentConstraint -mo $circle_ik_con[0] ($name+"_IK_pole_grp")`;
+connectAttr -f ($circle_ik[0]+".follow") ($raint[0]+"."+$name+"_IK_conW0");
+
+orientConstraint -mo ($name+"_IK_con") $jot_en_IK;
+
+if($Fun_a==1)
+	sg_StretchingIKFK $name $circle_ik_con[0] $IK $main_jot $ikHandles[0];
+
+if($Fun_b==1){
+for($i=0;$i<(size($main_jot)-1);$i++){
+	if(`objExists ($main_jot[$i]+".twistJoints")`){
+		int $size_tw=`getAttr ($main_jot[$i]+".twistJoints")`;
+		if($size_tw>0){
+			sg_InsertJointIKFK $main_jot[$i] $SK[$i] $SK[($i+1)] $name ($name+($i+1)+"_FK_con");
+		}
+	}
+}
+}
+
+if(size($main_jot)==3&&$Fun_c==1)
+	sg_SeamlessSwitch $name $IKFKcon $IK $FK $FK_con $circle_ik_con[0] $circle_ik[0];
+
+string $jot_constrain[]=`listRelatives -typ "parentConstraint" -typ "pointConstraint" -typ "orientConstraint" -typ "scaleConstraint" -typ "aimConstraint" -typ "tangentConstraint" -ad $main_jot[0]`;
+string $con_constrain[]=`listRelatives -typ "parentConstraint" -typ "pointConstraint" -typ "orientConstraint" -typ "scaleConstraint" -typ "aimConstraint" -typ "tangentConstraint" -ad ($name+"_con_grp")`;
+
+select -cl;
+select -r $jot_constrain;
+select -add $con_constrain;
+select -add ($name+"_constrain_grp");
+parent;
+
+asControllerNodeClear ($name+"_con_grp");
+
+}
+
+//==========创建并返回新IKFK关节===========//
+global proc string [] sg_oveJoint (string $main_jot[],string $name ){
+
+string $joint[];
+string $jot_st_p[]=`listRelatives -p $main_jot[0]`;
+for($j=0;$j<size($main_jot);$j++){
+
+	int $y=$j-1;
+
+	channelBoxCommand -unlock;
+	CBunlockAttr ($main_jot[$j]+".rx");
+	CBunlockAttr ($main_jot[$j]+".ry");
+	CBunlockAttr ($main_jot[$j]+".rz");
+
+	string $dup_jot[]=`duplicate -rr -po -n ($main_jot[$j]+"_"+$name) $main_jot[$j]`;
+
+	if($jot_st_p[0]!="")
+		parent -w ($main_jot[$j]+"_"+$name);
+
+	if($y >= 0)
+		parent ($main_jot[$j]+"_"+$name) ($main_jot[$y]+"_"+$name);
+
+	channelBoxCommand -unlock;
+	CBunlockAttr ($main_jot[$j]+"_"+$name+".rx");
+	CBunlockAttr ($main_jot[$j]+"_"+$name+".ry");
+	CBunlockAttr ($main_jot[$j]+"_"+$name+".rz");
+
+	appendStringArray($joint, $dup_jot, 1);
+}
+return $joint;
+}
+
+//==========创建IKFK拉伸效果===========//
+global proc sg_StretchingIKFK (string $name,string $circle_ik_con,string $IK[],string $main_jot[],string  $ikHandles){
+
+if(!`objExists ($name+"_distanceBetween")`)
+	createNode distanceBetween -n ($name+"_distanceBetween");
+
+if(!`objExists ($name+"_curveInfo")`)
+	createNode curveInfo -n ($name+"_curveInfo");
+
+if(!`objExists ($name+"_multiplyDivide")`)
+	createNode multiplyDivide -n ($name+"_multiplyDivide");
+
+if(!`objExists ($name+"_clamp")`)
+	createNode clamp -n ($name+"_clamp");
+
+addAttr -ln "Stretchy" -at double -min 0 -max 10 -dv 0 -k 1 $circle_ik_con;
+
+int $size=size($IK)-1;
+
+if($size==1){
+curve -d 1 -p 0 1 0 -p 0 0 0 -k 0 -k 1 ;
+rename ($name+"_cv_switch");
+}
+
+else if($size==2){
+curve -d 1 -p 0 1 0 -p 0 0 0 -p 0 -1 0 -k 0 -k 1 -k 2 ;
+rename ($name+"_cv_switch");
+}
+
+else {
+curve -d 1 -p 0 1 0 -p 0 0 0 -k 0 -k 1 ;
+rename ($name+"_cv_switch");
+rebuildCurve -ch 0 -s $size -d 1 ($name+"_cv_switch");
+}
+
+parent ($name+"_cv_switch") ($name+"_jot_grp");
+
+string $cv_sp[]=`listRelatives -s ($name+"_cv_switch")`;
+
+for($c=0;$c<size($main_jot);$c++){
+	float $pos[]=`xform -q -ws -t $main_jot[$c]`;
+	move -ws $pos[0] $pos[1] $pos[2] ($name+"_cv_switch.cv["+$c+"]");
+}
+
+connectAttr -f ($cv_sp[0]+".worldSpace[0]") ($name+"_curveInfo.inputCurve");
+
+spaceLocator -p 0 0 0 -n ($name+"_IK_root_loc");
+parent ($name+"_IK_root_loc") ($name+"_jot_grp");
+delete `parentConstraint $IK[0] ($name+"_IK_root_loc")`;
+
+connectAttr -f ($name+"_IK_root_loc.worldMatrix[0]") ($name+"_distanceBetween.inMatrix1");
+//connectAttr -f ($jot_st_IK+".worldMatrix[0]") ($name+"_distanceBetween.inMatrix1");
+connectAttr -f ($ikHandles+".worldMatrix[0]") ($name+"_distanceBetween.inMatrix2");
+
+connectAttr -f ($name+"_distanceBetween.distance") ($name+"_multiplyDivide.input1X");
+
+setAttr ($name+"_multiplyDivide.operation") 2;
+
+connectAttr -f ($circle_ik_con+".Stretchy") ($name+"_setRange.valueY");
+
+connectAttr -f ($name+"_curveInfo.arcLength") ($name+"_multiplyDivide.input2X");
+
+connectAttr -f ($name+"_multiplyDivide.outputX") ($name+"_clamp.inputR");
+
+setAttr ($name+"_clamp.minR") 1;
+setAttr ($name+"_clamp.maxR") 99999;
+
+for($i=0;$i<(size($IK)-1);$i++){
+
+	addAttr -ln ("Stretchy"+($i+1)) -nn ("Stretchy "+($i+1)) -at double -min 0 -dv 1 -k 1 ($name+"_IK_con");
+	createNode blendTwoAttr -n ($IK[$i]+"_blendTwoAttr");
+	createNode plusMinusAverage -n ($IK[$i]+"_plusMinusAverageA");
+	createNode plusMinusAverage -n ($IK[$i]+"_plusMinusAverageB");
+
+	setAttr ($IK[$i]+"_plusMinusAverageA.input1D[1]") 1;
+	setAttr ($IK[$i]+"_plusMinusAverageA.operation") 2;
+
+	connectAttr -f ($name+"_IK_con.Stretchy"+($i+1)) ($IK[$i]+"_plusMinusAverageA.input1D[0]");
+
+	connectAttr -f ($IK[$i]+"_plusMinusAverageA.output1D") ($IK[$i]+"_plusMinusAverageB.input1D[0]");
+	connectAttr -f ($name+"_clamp.outputR") ($IK[$i]+"_plusMinusAverageB.input1D[1]");
+	connectAttr -f ($IK[$i]+"_plusMinusAverageB.output1D") ($IK[$i]+"_blendTwoAttr.input[1]");
+
+	connectAttr -f ($name+"_setRange.outValueY") ($IK[$i]+"_blendTwoAttr.attributesBlender");
+
+	connectAttr -f ($name+"_IK_con.Stretchy"+($i+1)) ($IK[$i]+"_blendTwoAttr.input[0]");
+
+	connectAttr -f ($IK[$i]+"_blendTwoAttr.output") ($IK[$i]+".scaleX");
+	connectAttr -f ($IK[$i]+"_blendTwoAttr.output") ($IK[$i]+".scaleY");
+	connectAttr -f ($IK[$i]+"_blendTwoAttr.output") ($IK[$i]+".scaleZ");
+
+}
+}
+
+//==========创建IKFK无缝切换===========//
+global proc sg_SeamlessSwitch (string $name,string $con,string $IK[],string $FK[],string $FK_con[],string $nameIK_con,string $nameIK_pole){
+
+string $con_sp[]=`listRelatives -typ "nurbsCurve" -s $con`;
+if(!`objExists ($con+".IKFK_Seamless")`){
+	addAttr -ln "IKFK_Seamless" -at "enum" -en "IK:FK:" -k 1 $con;
+	setAttr -cb true ($con+".IKFK_Seamless");
+}
+if(!`objExists ($con+".IKFKSeamlessSwitching")`)
+	addAttr -ln "IKFKSeamlessSwitching" -dt "string" $con_sp[0];
+setAttr -type "string" ($con_sp[0]+".IKFKSeamlessSwitching") $name;
+
+for($i in $IK){
+	if(!`objExists ($con_sp[0]+"."+$i)`)
+		addAttr -ln $i -dt "string" $con_sp[0];
+	if(!`objExists ($i+"."+$i)`)
+		addAttr -ln $i -dt "string" $i;
+	connectAttr -f ($con_sp[0]+"."+$i) ($i+"."+$i);
+}
+
+for($f in $FK){
+	if(!`objExists ($con_sp[0]+"."+$f)`)
+		addAttr -ln $f -dt "string" $con_sp[0];
+	if(!`objExists ($f+"."+$f)`)
+   		addAttr -ln $f -dt "string" $f;
+	connectAttr -f ($con_sp[0]+"."+$f) ($f+"."+$f);
+}
+
+for($c in $FK_con){
+	if(!`objExists ($con_sp[0]+"."+$c)`)
+		addAttr -ln $c -dt "string" $con_sp[0];
+	if(!`objExists ($c+"."+$c)`)
+		addAttr -ln $c -dt "string" $c;
+	connectAttr -f ($con_sp[0]+"."+$c) ($c+"."+$c);
+}
+
+if(!`objExists ($con_sp[0]+"."+$nameIK_con)`)
+	addAttr -ln $nameIK_con -dt "string" $con_sp[0];
+if(!`objExists ($nameIK_con+"."+$nameIK_con)`)
+	addAttr -ln $nameIK_con -dt "string" $nameIK_con;
+
+	connectAttr -f ($con_sp[0]+"."+$nameIK_con) ($nameIK_con+"."+$nameIK_con);
+
+if(!`objExists ($con_sp[0]+"."+$nameIK_pole)`)
+	addAttr -ln $nameIK_pole -dt "string" $con_sp[0];
+if(!`objExists ($nameIK_pole+"."+$nameIK_pole)`)
+	addAttr -ln $nameIK_pole -dt "string" $nameIK_pole;
+
+	connectAttr -f ($con_sp[0]+"."+$nameIK_pole) ($nameIK_pole+"."+$nameIK_pole);
+
+string $text="";
+	  $text+="string $con_all[]=`ls -typ \"nurbsCurve\"`;\n";
+	  $text+="string $con_obj;\n";
+	  $text+="for($objname in $con_all){\n";
+	  $text+="	if(`objExists ($objname+\".IKFKSeamlessSwitching\")`){\n";
+	  $text+="		string $nsmes=`getAttr ($objname+\".IKFKSeamlessSwitching\")`;\n";
+	  $text+="		if($nsmes==\""+$name+"\")\n";	 
+	  $text+="			$con_obj=$objname;\n";
+	  $text+="	}\n";  
+	  $text+="}\n";
+	  $text+="string $cons[]=`listRelatives -p $con_obj`;\n";
+	  $text+="string $con=$cons[0];\n";
+	  $text+="scriptJob -ac ($con+\".IKFK_Seamless\") (\""+$name+"_switching \"+$con+\" \"+$cons[0]) -kws;\n";
+	  $text+="global proc "+$name+"_switching (string $con,string $con_sp){\n";
+
+	  $text+="string $IK1[]=`listConnections ($con_sp+\".\"+\""+$IK[0]+"\")`;\n";
+	  $text+="string $IK2[]=`listConnections ($con_sp+\".\"+\""+$IK[1]+"\")`;\n";
+	  $text+="string $IK3[]=`listConnections ($con_sp+\".\"+\""+$IK[2]+"\")`;\n"; 
+
+	  $text+="string $FK1[]=`listConnections ($con_sp+\".\"+\""+$FK[0]+"\")`;\n";
+	  $text+="string $FK2[]=`listConnections ($con_sp+\".\"+\""+$FK[1]+"\")`;\n";
+	  $text+="string $FK3[]=`listConnections ($con_sp+\".\"+\""+$FK[2]+"\")`;\n";		
+
+	  $text+="string $FK_con1[]=`listConnections ($con_sp+\".\"+\""+$FK_con[0]+"\")`;\n";
+	  $text+="string $FK_con2[]=`listConnections ($con_sp+\".\"+\""+$FK_con[1]+"\")`;\n";
+	  $text+="string $FK_con3[]=`listConnections ($con_sp+\".\"+\""+$FK_con[2]+"\")`;\n";		
+
+	  $text+="string $nameIK_con[]=`listConnections ($con_sp+\".\"+\""+$nameIK_con+"\")`;\n";   
+	  $text+="string $nameIK_pole[]=`listConnections ($con_sp+\".\"+\""+$nameIK_pole+"\")`;\n";   
+
+	  $text+="int $ikfk=`getAttr ($con+\".IKFK_Seamless\")`;\n";
+	  $text+="if($ikfk==0){\n";
+	  $text+="	setAttr ($con+\".IKFKswitch\") 0;\n";
+	  $text+="	string $tempa[]=`parentConstraint $FK3[0] $nameIK_con[0]`;\n";
+	  $text+="	string $tempb[]=`parentConstraint $FK2[0] $nameIK_pole[0]`;\n";
+	  $text+="	"+$name+"_animCurve $FK_con1[0] $nameIK_con[0] $con 0;\n";
+	  $text+="	"+$name+"_animCurve $FK_con1[0] $nameIK_pole[0] $con 0;\n";   
+	  $text+="	delete $tempa[0];\n"; 
+	  $text+="	delete $tempb[0];\n";		
+	  $text+="}\n";
+	  $text+="if($ikfk==1){\n";
+	  $text+="	setAttr ($con+\".IKFKswitch\") 10;\n";
+	  $text+="	string $tempc[]=`parentConstraint $IK1[0] $FK_con1[0]`;\n";
+	  $text+="	string $tempd[]=`parentConstraint $IK2[0] $FK_con2[0]`;\n";
+	  $text+="	string $tempe[]=`parentConstraint $IK3[0] $FK_con3[0]`;\n";
+
+	  $text+="	"+$name+"_animCurve $FK_con1[0] $FK_con1[0] $con 1;\n";
+	  $text+="	"+$name+"_animCurve $FK_con1[0] $FK_con2[0] $con 1;\n"; 
+	  $text+="	"+$name+"_animCurve $FK_con1[0] $FK_con3[0] $con 1;\n";			
+	  $text+="	delete $tempc[0];\n"; 
+	  $text+="	delete $tempd[0];\n";		 
+	  $text+="	delete $tempe[0];\n";		  
+	  $text+="}\n";
+	  $text+="}\n";
+
+	  $text+="global proc "+$name+"_animCurve (string $FK,string $con,string $switch,int $ikfk){\n";
+	  $text+="string $nodet[]=`listConnections -t \"animCurveTL\" $con`;\n";
+	  $text+="string $noder[]=`listConnections -t \"animCurveTA\" $con`;\n";
+	  $text+="string $nodes[]=`listConnections -t \"animCurveTU\" $con`;\n";
+	  $text+="int $time=`currentTime -q`;\n";
+
+	  $text+="int $size=size($nodet)+size($noder)+size($nodes);\n";
+	  $text+="if($size!=0){\n";
+	  $text+="	setKeyframe $FK;\n";
+	  $text+="	setKeyframe $con;\n";
+	  $text+="if($ikfk==0){\n";
+	  $text+="	setAttr ($switch+\".IKFKswitch\") 10;\n";
+	  $text+="	setKeyframe -t ($time-1) -at \"IKFKswitch\" $switch;\n";
+	  $text+="	setAttr ($switch+\".IKFKswitch\") 0;\n";
+	  $text+="	setKeyframe -t $time -at \"IKFKswitch\" $switch;\n";  
+	  $text+="}\n";
+	  $text+="if($ikfk==1){\n";
+	  $text+="	setAttr ($switch+\".IKFKswitch\") 0;\n";
+	  $text+="	setKeyframe -t ($time-1) -at \"IKFKswitch\" $switch;\n";
+	  $text+="	setAttr ($switch+\".IKFKswitch\") 10;\n";
+	  $text+="	setKeyframe -t $time -at \"IKFKswitch\" $switch;  \n";  
+	  $text+="}\n";
+	  $text+="}\n";
+	  $text+="}\n";
+
+scriptNode -beforeScript $text -n ($name+"_IKFK_Script");
+scriptNode -eb ($name+"_IKFK_Script");
+setAttr ($name+"_IKFK_Script.scriptType") 1;
+}
+
+
+//==========插入关节===========//
+global proc sg_InsertJointIKFK (string $joint,string $SK,string $SK_end,string $name,string $cons){
+
+string $cv=`textFieldButtonGrp -q -tx asIKFKController`;
+
+if(!`objExists ($cv+".twistVis")`)
+	addAttr -ln "twistVis" -at bool -dv 1 -k 1 $cv;
+
+string $grp_root=$name+"_twist_grp";
+string $grp_hide=$name+"_twist_hide";
+
+if(!`objExists $grp_root`){
+	group -em -n $grp_root;
+	parent $grp_root ($name+"_con_grp");
+	string $node_dm = `createNode decomposeMatrix -n ($name+"_con_dec")`;
+	connectAttr -f ($grp_root+".parentInverseMatrix[0]") ($node_dm+".inputMatrix");
+	connectAttr -f ($node_dm+".outputTranslate") ($grp_root+".translate");
+	connectAttr -f ($node_dm+".outputRotate") ($grp_root+".rotate");
+	connectAttr -f ($node_dm+".outputScale") ($grp_root+".scale");
+}
+if(!`objExists $grp_hide`){
+	group -em -n $grp_hide;
+	parent $grp_hide $grp_root;
+	setAttr ($grp_hide+".visibility") 0;
+}
+
+float $size=`getAttr ($joint+".twistJoints")`;
+float $number=$size+2;
+string $jot_c[]=`listRelatives -typ "joint" -c $joint `;
+
+float $posA[]=`xform -q -ws -t $joint`;
+float $posB[]=`xform -q -ws -t $jot_c[0]`;
+
+string $curves=`curve -d 1 -p $posA[0] $posA[1] $posA[2] -p $posB[0] $posB[1] $posB[2] -k 0 -k 1 `;
+string $curve=`rename ($joint+"_cv")`;
+string $curve_sp[]=`listRelatives -s $curve`;
+
+parent $curve $grp_hide;
+
+string $locA=($joint+"_root_loc");
+string $locB=($joint+"_end_loc");
+
+if(!`objExists $locA`)
+	spaceLocator -p 0 0 0 -n $locA;
+
+if(!`objExists $locB`)
+	spaceLocator -p 0 0 0 -n $locB;
+
+parent $locA $grp_hide;
+parent $locB $grp_hide;
+
+delete `parentConstraint $joint $locA ` ;
+
+pointConstraint -mo $SK $locA;
+
+delete `parentConstraint $SK_end $locB ` ;
+
+pointConstraint -mo $SK_end $locB;
+
+string $locA_sp[]=`listRelatives -s $locA`;
+string $locB_sp[]=`listRelatives -s $locB`;
+
+connectAttr -f ($locA_sp[0]+".worldPosition[0]") ($curve_sp[0]+".controlPoints[0]");
+connectAttr -f ($locB_sp[0]+".worldPosition[0]") ($curve_sp[0]+".controlPoints[1]");
+
+string $twist_cv=$joint+"_cv_twist";
+duplicate -rr -n $twist_cv $curve;
+rebuildCurve -ch 0 -s 1 $twist_cv;
+//parent $twist_cv $grp_hide;
+
+string $twist_cv_sp[]=`listRelatives -s $twist_cv`;
+
+connectAttr -f ($locA_sp[0]+".worldPosition[0]") ($twist_cv_sp[0]+".controlPoints[0]");
+connectAttr -f ($locB_sp[0]+".worldPosition[0]") ($twist_cv_sp[0]+".controlPoints[3]");
+
+float $uu; 
+
+for($i=1;$i<3;$i++){
+
+	if($i==1){
+		$uu=0.3333;
+	}
+	if($i==2){
+		$uu=0.6666;
+	}
+
+	string $node = `createNode motionPath`;
+
+	string $grp = `group -em -n ($joint+"_twist_grp_"+$i)`;
+	setAttr ($node+".fractionMode") 1;
+	setAttr ($node+".uValue") $uu;
+
+	connectAttr -f ($curve_sp[0]+".worldSpace[0]") ($node+".geometryPath");
+	connectAttr -f ($node+".allCoordinates") ($grp+".translate");
+
+	orientConstraint -offset 0 0 0 $joint $grp;
+
+	string $con[]=`circle -ch 0 -n ($joint+"_twist_con_"+$i)`;
+	asNurbsCircleShpape $con[0] Z05;
+	sg_SetColor $con[0] 14;
+	string $loc[]=`spaceLocator -p 0 0 0 -n ($joint+"_twist_loc_"+$i)`;
+	sg_ShapeVis $loc[0] 0;
+	parent $loc[0] $con[0];
+	parent $con[0] $grp;
+
+	setAttr -typ float3 ($con[0]+".translate") 0 0 0;
+	setAttr -typ float3 ($con[0]+".rotate") 0 0 0;
+
+	string $con_sp[]=`listRelatives -s $con[0]`;
+	string $loc_sp[]=`listRelatives -s $loc[0]`;
+	connectAttr -f ($cv+".twistVis") ($con_sp[0]+".visibility");
+	
+	//scaleConstraint -mo -weight 1 $joint $grp;
+	connectAttr -f ($joint+".scale") ($grp+".scale");
+	setAttr -lock true -keyable false -channelBox false ($con[0]+".rx");
+	setAttr -lock true -keyable false -channelBox false ($con[0]+".ry");
+	setAttr -lock true -keyable false -channelBox false ($con[0]+".rz");
+	setAttr -lock true -keyable false -channelBox false ($con[0]+".sx");
+	setAttr -lock true -keyable false -channelBox false ($con[0]+".sy");
+	setAttr -lock true -keyable false -channelBox false ($con[0]+".sz");
+	
+	if($i==1){
+		connectAttr -f ($loc_sp[0]+".worldPosition[0]") ($twist_cv_sp[0]+".controlPoints[1]");
+	}
+	if($i==2){
+		connectAttr -f ($loc_sp[0]+".worldPosition[0]") ($twist_cv_sp[0]+".controlPoints[2]");
+	}
+
+	parent $grp $grp_root;
+}
+
+//select -r ($twist_cv+".cv[:]");
+//string $curve_cv[]=`ls -sl -fl`;
+if(!`objExists ($name+"_rope_grp")`){
+	group -em -n ($name+"_rope_grp");
+	parent ($name+"_rope_grp")  $grp_hide;
+}
+if(!`objExists ($name+"_rope_jot_grp")`){
+	group -em -n ($name+"_rope_jot_grp");
+	parent ($name+"_rope_jot_grp") ($name+"_rope_grp");
+}
+
+string $offsetA=$joint+"_offsetA";
+string $offsetB=$joint+"_offsetB";
+string $Surface=$joint+"_Surface";
+string $wire=$joint+"_wire";
+offsetCurve -ch 0 -d 0.25 -sd 0 -ugn false -n $offsetA $twist_cv;
+offsetCurve -ch 0 -d -.25 -sd 0 -ugn false -n $offsetB $twist_cv;
+
+loft -ch 1 -u 0 -c 0 -ar 1 -d 1 -ss 1 -rn 1 -po 0 -rsn true -n $Surface $offsetA $offsetB;
+rebuildSurface -ch 1 -su 20 -sv 1 $Surface;
+DeleteHistory $Surface;
+
+string $curveInfo=`createNode curveInfo -n ($name+"_curveInfo")`;
+connectAttr -f ($twist_cv_sp[0]+".worldSpace[0]") ($curveInfo+".inputCurve");
+float $arcLength=`getAttr ($curveInfo+".arcLength")`;
+
+delete $curveInfo;
+delete $offsetA;
+delete $offsetB;
+
+wire -n $wire -w $twist_cv $Surface;
+setAttr ($wire+".dropoffDistance[0]") ($arcLength*5);
+setAttr ($Surface+".template") 1;
+
+parent $Surface ($name+"_rope_grp");
+parent ($twist_cv+"BaseWire") ($name+"_rope_grp");
+
+for($j=1;$j<($number-1);$j++){
+
+	int $e=$j-1;
+
+	if($number>1){
+		$uu=$j/($number-1);
+	}
+	else $uu=0.5;
+
+	string $follicle= `sg_SurfaceAddFollicle $Surface ($joint+"_"+$j) $uu 0.5`;
+
+	//string $loc_rot[] = `spaceLocator -p 0 0 0 -n ($joint+"_rot_loc_"+$j)`;
+	string $loc[] = `spaceLocator -p 0 0 0 -n ($joint+"_rope_loc_"+$j)`;
+	string $jot_par = `joint -n ($joint+"_rope_jot_"+$j)`;
+
+	//sg_ShapeVis $loc_rot[0] 0;
+	sg_ShapeVis $loc[0] 0;
+
+	parent $loc[0] $follicle;
+	//parent $loc_rot[0] $follicle;
+	parent $follicle ($name+"_rope_jot_grp");
+
+	setAttr -typ float3 ($loc[0]+".translate") 0 0 0;
+	setAttr -typ float3 ($loc[0]+".rotate") 0 0 0;
+	//setAttr -typ float3 ($loc_rot[0]+".translate") 0 0 0;
+	//setAttr -typ float3 ($loc_rot[0]+".rotate") 0 0 0;
+
+	//select -r $joint;
+	//select -add $loc_rot[0];
+	//select -add $loc[0];
+	//string $rot[]=`orientConstraint -mo -skip y -skip z -weight 1`;
+
+	//float $W1=$j/$number;
+	//float $W0=1-$W1;
+
+	//setAttr ($rot[0]+"."+$joint+"W0") $W0;
+	//setAttr ($rot[0]+"."+$loc_rot[0]+"W1") $W1;
+
+	orientConstraint -mo -skip y -skip z -weight 1 $joint $loc[0];
+
+	select -r $follicle;
+	string $jot = `joint -n ($joint+"_twist_"+$j)`;
+
+	parent -w $jot;
+
+	delete `pointConstraint -offset 0 0 0 $jot_par $jot`;
+	delete `orientConstraint -offset 0 0 0 $joint $jot`;
+	parentConstraint -mo -weight 1 $jot_par $jot;
+	connectAttr -f ($joint+".scale") ($jot+".scale");
+	if($j==1)
+		parent $jot $joint;
+
+	if($j>=2)
+		parent $jot ($joint+"_twist_"+$e);
+
+	if($j==$number-2)
+		parent $jot_c[0] $jot;
+
+}
+
+}
+
+global proc sg_InsertTwistAttrIKFK (){
+string $sel[]=`ls -sl -typ "joint"`;
+for($i in $sel){
+	if(!`objExists ($i+".twistJoints")`)
+		addAttr -ln "twistJoints" -at long  -min 0 -dv 3 -k 1 $i;
+	else
+		deleteAttr ($i+".twistJoints");
+}
+}
+
+global proc sg_ShapeVis (string $obj,int $vis){
+string $obj_sp[]=`listRelatives -s $obj`;
+for ($i in $obj_sp)
+	setAttr ($i+".visibility") $vis;
+}
+
+/////////////////////////==================================分隔符==================================/////////////////////////
+/////////////////////////==================================分隔符==================================/////////////////////////
+/////////////////////////==================================分隔符==================================/////////////////////////
+/////////////////////////==================================分隔符==================================/////////////////////////
+/////////////////////////==================================分隔符==================================/////////////////////////
+/////////////////////////==================================分隔符==================================/////////////////////////
+/////////////////////////==================================分隔符==================================/////////////////////////
+
+//==========创建关节===========//
+
+global proc sg_EstablishJoint (){
+string $vertexs[]=`ls -sl -fl`;
+if($vertexs[0]!=""){
+string $ObjTyp=`objectType $vertexs[0]`;
+if($ObjTyp=="transform"||$ObjTyp=="joint"){
+
+for($i=0;$i<size($vertexs);$i++){
+	select -cl;
+	string $jot=`joint `;
+	delete `parentConstraint $vertexs[$i] $jot`;
+
+}
+}
+
+else if($ObjTyp=="mesh"||$ObjTyp=="nurbsCurve"){
+ConvertSelectionToVertices;
+string $mesh[]=`ls -sl -fl`;
+
+for($i=0;$i<size($mesh);$i++){
+	select -cl;
+	float $pos[]=`xform -q -ws -t $mesh[$i]`;
+	string $jot=`joint -p $pos[0] $pos[1] $pos[2] `;
+
+}}}
+else joint;
+}
+
+//==========创建定位器===========//
+global proc sg_EstablishLocator (){
+string $vertexs[]=`ls -sl -fl`;
+if($vertexs[0]!=""){
+string $ObjTyp=`objectType $vertexs[0]`;
+if($ObjTyp=="transform"||$ObjTyp=="joint"){
+
+for($i=0;$i<size($vertexs);$i++){
+	select -cl;
+	string $loc[]=`spaceLocator -p 0 0 0 `;
+	delete `parentConstraint $vertexs[$i] $loc[0]`;
+}
+}
+else if($ObjTyp=="mesh"||$ObjTyp=="nurbsCurve"){
+ConvertSelectionToVertices;
+string $mesh[]=`ls -sl -fl`;
+
+for($i=0;$i<size($mesh);$i++){
+	select -cl;
+	float $pos[]=`xform -q -ws -t $mesh[$i]`;
+	string $loc[]=`spaceLocator -p 0 0 0 `;
+	move -ws $pos[0] $pos[1] $pos[2] $loc[0];
+
+}}}
+else CreateLocator;
+}
+
+//==========清除控制器节点信心===========//
+global proc asControllerNodeClear (string $Grp){
+select -r $Grp;
+select -hi;
+string $f = `itemFilter -byType "nurbsCurve"`;
+select -r `lsThroughFilter -sl $f`;
+pickWalk -d up;
+sg_ControllerNodeClear;
+select -cl;
+}
+
+//==========创建父子级===========//
+global proc sg_Parent (){
+
+string $sel[]=`ls -sl`;
+
+for($i=0;$i<size($sel);$i++){
+	if($i>0)
+		parent $sel[$i] $sel[($i-1)];
+}
+}
+
+//==========显示隐藏关节===========//
+global proc sg_JointsVisibility (int $onOff){
+
+string $joints[]=`ls -type joint`;
+int $drawStyle=0;
+string $but_c="sg_JointsVisibility 0";
+if (!$onOff){
+	$drawStyle=2;
+	$but_c="sg_JointsVisibility 1";
+}
+for ($i=0;$i<size($joints);$i++)
+	setAttr ($joints[$i]+".drawStyle") $drawStyle;
+
+iconTextButton -e -c $but_c asVisJoint;
+}
+
+//==========显示隐藏轴心===========//
+global proc sg_FitDisplayJointAxis  (int $onOff){
+
+string $objs[]=`ls -sl`;
+
+if(size($objs)!=0){
+	for ($i=0;$i<size($objs);$i++){
+		string $tempString[]=`listRelatives -c $objs[$i]`;
+		string $child=$tempString[0];
+		setAttr ($objs[$i]+".displayLocalAxis") $onOff;
+	}
+
+}
+
+if(size($objs)==0){
+	string $objs[]=`ls -typ joint`;
+	if(size($objs)==0)
+		error "场景没有找到关节！！！";
+	for ($i=0;$i<size($objs);$i++){
+		string $tempString[]=`listRelatives -c $objs[$i]`;
+		string $child=$tempString[0];
+		setAttr ($objs[$i]+".displayLocalAxis") $onOff;
+	}
+
+}
+}
+
+
+/////////////////////////==================================属性栏==================================/////////////////////////
+/////////////////////////==================================属性栏==================================/////////////////////////
+/////////////////////////==================================属性栏==================================/////////////////////////
+/////////////////////////==================================属性栏==================================/////////////////////////
+/////////////////////////==================================属性栏==================================/////////////////////////
+/////////////////////////==================================属性栏==================================/////////////////////////
+/////////////////////////==================================属性栏==================================/////////////////////////
+
+//==========添加属性===========//
+global proc sg_AddAttribute (){
+
+string $sel[]=`ls -sl`;
+
+	string $names=`textFieldGrp -q -tx asAttrname`;
+	int $make=`radioButtonGrp -q -sl asMakeAttribute`;
+	int $type=`radioButtonGrp -q -sl asAttributetype` + sign(float(`radioButtonGrp -q -sl asAttributetype2`))*3.0 + `radioButtonGrp -q -sl asAttributetype2`;
+	string $Minimum=`textFieldGrp -q -tx asMinimum`;
+	string $Maximum=`textFieldGrp -q -tx asMaximum`;
+	string $Default=`textFieldGrp -q -tx asDefault`;
+	string $Enumname=`textFieldGrp -q -tx asEnumname`;
+
+float $min,$max,$dv;
+if($Minimum=="")
+	$min=0;
+else $min=$Minimum;
+if($Maximum=="")
+	$max=0;
+else $max=$Maximum;
+if($Default=="")
+	$dv=0;
+else $dv=$Default;
+
+string $name_a[];
+int $name_s=`tokenize $names " " $name_a`;
+
+int $k;
+if($make==1||$make==3)$k=1;
+if($make==2)$k=0;
+
+string $typ;
+if($type==1)$typ="long";
+if($type==2)$typ="double";
+if($type==3)$typ="enum";
+if($type==4)$typ="bool";
+if($type==5)$typ="double";
+if($type==6)$typ="string";
+
+for($j=0;$j<size($sel);$j++){
+	for($i=0;$i<$name_s;$i++){
+		select -r ($sel[$j]);
+		if($type==1&&$Minimum!=""&&$Maximum!=""||$type==2&&$Minimum!=""&&$Maximum!=""){
+			addAttr -ln $name_a[$i] -at $typ -min $min -max $max -dv $dv -k $k;
+		}
+		if($type==1&&$Minimum==""&&$Maximum!=""||$type==2&&$Minimum==""&&$Maximum!=""){
+			addAttr -ln $name_a[$i] -at $typ -max $max -dv $dv -k $k;
+		}
+		if($type==1&&$Minimum!=""&&$Maximum==""||$type==2&&$Minimum!=""&&$Maximum==""){
+			addAttr -ln $name_a[$i] -at $typ -min $min -dv $dv -k $k;
+		}
+		if($type==1&&$Minimum==""&&$Maximum==""||$type==2&&$Minimum==""&&$Maximum==""){
+			addAttr -ln $name_a[$i] -at $typ -dv $dv -k $k;
+		}
+		if($type==3){
+			addAttr -ln $name_a[$i] -at $typ -en $Enumname -k $k;
+		}
+		if($type==4){
+			addAttr -ln $name_a[$i] -at $typ -k $k;	
+		}
+		if($type==5){
+			addAttr -ln $name_a[$i] -at ($typ+"3") -k $k ;
+			addAttr -ln ($name_a[$i]+"X") -at $typ -p $name_a[$i] -k $k ;
+			addAttr -ln ($name_a[$i]+"Y") -at $typ -p $name_a[$i] -k $k ;
+			addAttr -ln ($name_a[$i]+"Z") -at $typ -p $name_a[$i] -k $k ;	
+		}
+		if($type==6){
+			addAttr -ln $name_a[$i] -dt $typ -k $k ;
+		}   
+		if($make==3){
+			setAttr -cb true ($sel[$j]+"."+$name_a[$i]);
+		}
+	}
+}
+select -r $sel;
+}
+
+//==========属性移动===========//
+global proc sg_MoveUpDnAttrsProc(int $updn){
+string $objs[]=`ls -sl`;
+string $attrs[]=`channelBox -q -sma mainChannelBox`;
+int $ex;
+for($j=0;$j<size($objs);$j++){
+string $obj=$objs[$j];
+	for($i=0;$i<size($attrs);$i++){
+		string $attr=$attrs[$i];
+		$ex=`objExists ($obj+"."+$attr)`;
+		if($ex==0)continue;
+		string $udAttrs[]=`listAttr -ud -u $obj`;
+
+		int $index=-1;
+		for($a=0;$a<size($udAttrs);$a++)
+			if($attr==$udAttrs[$a])$index=$a;
+		if($index==-1)continue;
+		int $indexUp=$index-1;
+		if($indexUp<0)$indexUp=$index;
+		string $upAttr=$udAttrs[$indexUp];
+
+		if($updn==1){		
+		if($index==0)continue;
+		deleteAttr ($obj+"."+$upAttr);
+		undo;
+		for($aa=($index+1);$aa<size($udAttrs);$aa++){
+			deleteAttr ($obj+"."+$udAttrs[$aa]);
+			undo;
+			}
+		}
+		if($updn==0){ 
+		deleteAttr ($obj+"."+$attr);
+		undo;
+		int $dnSize=size($attrs);
+		for($aa=($index+$dnSize+1);$aa<size($udAttrs);$aa++){
+			deleteAttr ($obj+"."+$udAttrs[$aa]);
+			undo;
+				}
+			}
+		}  
+	}
+}
+
+//==========批量属性连接===========//
+global proc sg_LoadOutput (){
+	string $sel[]=`ls -sl`;
+	textScrollList -e -ra asTextOutputObj;
+	for($i=0;$i<size($sel);$i++){
+		textScrollList -e -a $sel[$i] asTextOutputObj;
+	}
+} 
+
+global proc sg_LoadInput (){
+	string $sel[]=`ls -sl`;
+	textScrollList -e -ra asTextInputObj;
+	for($i=0;$i<size($sel);$i++){
+		textScrollList -e -a $sel[$i]  asTextInputObj;
+	}
+} 
+
+global proc sg_LoadOutput_Attr (){
+	int $s=`optionMenuGrp -q -sl asBoxOutput_on`;
+	string $box;
+	if($s==1)$box="-r";
+	if($s==2)$box="-k";
+	if($s==3)$box="-ud";
+	if($s==4)$box="-m";
+	string $sel[]=`textScrollList -q -si asTextOutputObj`;
+	if(size($sel)>0){
+		string $attr[]=`listAttr $box $sel[0]`;
+		textScrollList -e -ra asTextOutputAttr;
+		for($i=0;$i<size($attr);$i++){
+			textScrollList -e -a $attr[$i] asTextOutputAttr;
+		}
+	}
+}
+
+global proc sg_LoadInput_Attr (){
+	int $s=`optionMenuGrp -q -sl asBoxInput_on`;
+	string $box;
+	if($s==1)$box="-r";
+	if($s==2)$box="-k";
+	if($s==3)$box="-ud";
+	if($s==4)$box="-m";
+	string $sel[]=`textScrollList -q -si asTextInputObj`;
+	if(size($sel)>0){
+		string $attr[]=`listAttr $box $sel[0]`;
+		textScrollList -e -ra asTextInputAttr;
+		for($i=0;$i<size($attr);$i++){
+			textScrollList -e -a $attr[$i] asTextInputAttr;
+		}
+	}
+} 
+
+global proc sg_SelectAll_Ou (){
+	int $ni=`textScrollList -q -ni asTextOutputObj`;
+	for($i=1;$i<($ni+1);$i++){
+		int $ni=`textScrollList -e -sii $i asTextOutputObj`;
+	}
+}
+
+global proc sg_SelectAll_In (){
+	int $ni=`textScrollList -q -ni asTextInputObj`;
+	for($i=1;$i<($ni+1);$i++){
+		int $ni=`textScrollList -e -sii $i asTextInputObj`;
+	}
+}
+
+global proc sg_DeleteSelection_Ou (){
+	string $sel[]=`textScrollList -q -si asTextOutputObj`;
+		for($i=0;$i<size($sel);$i++){
+			textScrollList -e -ri $sel[$i] asTextOutputObj;
+		}
+}
+
+global proc sg_DeleteSelection_In (){
+	string $sel[]=`textScrollList -q -si asTextInputObj`;
+		for($i=0;$i<size($sel);$i++){
+			textScrollList -e -ri $sel[$i] asTextInputObj;
+		}
+}
+
+global proc sg_ZoomBox (int $s){
+int $h=`textScrollList -q -h asTextOutputAttr`;
+int $newh;
+if($s==1)$newh=$h+17;
+if($s==0)$newh=$h-17;
+textScrollList -e -h $newh asTextOutputAttr;
+textScrollList -e -h $newh asTextInputAttr;
+}
+
+global proc sg_SearchAttr_In (){
+int $size[]=`textScrollList -q -sii asTextInputAttr`;
+sg_LoadInput_Attr;
+string $obj[]=`textScrollList -q -ai asTextInputAttr`;
+string $name=`textField -q -tx asSearch_In`;
+textScrollList -e -ra asTextInputAttr;
+	for($i=0;$i<size($obj);$i++){
+		if (`gmatch $obj[$i] ("*"+$name+"*")`)
+			textScrollList -e -a $obj[$i] asTextInputAttr;
+	}
+	for($j=0;$j<size($size);$j++){
+		catchQuiet (`textScrollList -e -sii $size[$j] asTextInputAttr`);
+	}
+}
+
+global proc sg_SearchAttr_Ou (){
+int $size[]=`textScrollList -q -sii asTextOutputAttr`;
+sg_LoadOutput_Attr;
+string $obj[]=`textScrollList -q -ai asTextOutputAttr`;
+string $name=`textField -q -tx asSearch_Ou`;
+textScrollList -e -ra asTextOutputAttr;
+	for($i=0;$i<size($obj);$i++){
+		if (`gmatch $obj[$i] ("*"+$name+"*")`)
+			textScrollList -e -a $obj[$i] asTextOutputAttr;
+	}
+	for($j=0;$j<size($size);$j++){
+		catchQuiet (`textScrollList -e -sii $size[$j] asTextOutputAttr`);
+	}
+}
+
+global proc sg_CreateAttributeConnection (){
+
+string $OutputObj[]=`textScrollList -q -si asTextOutputObj`;
+string $InputObj[]=`textScrollList -q -si asTextInputObj`;
+
+string $OutputAttr[]=`textScrollList -q -si asTextOutputAttr`;
+string $InputAttr[]=`textScrollList -q -si asTextInputAttr`;
+
+int $ou=size($OutputObj);
+int $In=size($InputObj);
+
+if($ou==$In){
+	for($i=0;$i<size($OutputObj);$i++){
+		for($j=0;$j<size($InputAttr);$j++){
+			connectAttr -f ($OutputObj[$i]+"."+$OutputAttr[0]) ($InputObj[$i]+"."+$InputAttr[$j]);
+		}
+	}
+}
+if($ou!=$In){
+	for($i=0;$i<size($OutputObj);$i++){
+		for($j=0;$j<size($InputObj);$j++){
+			for($e=0;$e<size($InputAttr);$e++){
+				connectAttr -f ($OutputObj[$i]+"."+$OutputAttr[0]) ($InputObj[$j]+"."+$InputAttr[$e]);
+			}
+		}
+	}
+}
+}
+
+//==========批量转移属性连接===========//
+global proc sg_LoadOriginalObj (){
+	string $sel[]=`ls -sl`;
+	textScrollList -e -ra asOriginalObj;
+	for($i=0;$i<size($sel);$i++){
+		textScrollList -e -a $sel[$i] asOriginalObj;
+	}
+}
+
+global proc sg_LoadReplaceObj (){
+	string $sel[]=`ls -sl`;
+	textScrollList -e -ra asReplaceObj;
+	for($i=0;$i<size($sel);$i++){
+		textScrollList -e -a $sel[$i]  asReplaceObj;
+	}
+}
+
+global proc sg_DeleteSelection_Original (){
+	string $sel[]=`textScrollList -q -si asOriginalObj`;
+		for($i=0;$i<size($sel);$i++){
+			textScrollList -e -ri $sel[$i] asOriginalObj;
+		}
+}
+
+global proc sg_DeleteSelection_Replace (){
+	string $sel[]=`textScrollList -q -si asReplaceObj`;
+		for($i=0;$i<size($sel);$i++){
+			textScrollList -e -ri $sel[$i] asReplaceObj;
+		}
+}
+
+global proc sg_LoadAttr (){
+	string $attrs[]=`channelBox -q -sma mainChannelBox`;
+	if(size($attrs)==0) error "请选择属性！！！";
+	textFieldButtonGrp -e -tx $attrs[0] asReplaceAttrName;
+}
+
+global proc sg_RunTransferProperties (){
+
+string $Original[]=`textScrollList -q -ai asOriginalObj`;
+string $Replace[]=`textScrollList -q -ai asReplaceObj`;
+string $AttrName=`textFieldButtonGrp -q -tx asReplaceAttrName`;
+int $Optio=`radioButtonGrp -q -sl asReplaceOption`;
+if(size($Original)==size($Replace)){
+if($Optio==1||$Optio==2||$Optio==3){
+	for($i=0;$i<size($Original);$i++){
+		string $attrs[]=`listAttr -m $Original[$i]`;
+		for($a=0;$a<size($attrs);$a++){
+			if(!`objExists ($Replace[$i]+"."+$attrs[$a])`){
+				string $warning="转移对象未找到 “"+$Replace[$i]+"."+$attrs[$a]+"” 属性，此属性转移失败，请添加属性后再次转移连接。";
+				warning -n $warning;
+			}
+			string $attr_ou[]=`listConnections -c off -p on ($Original[$i]+"."+$attrs[$a])`;
+			string $attr_in[]=`listConnections -d off -p on ($Original[$i]+"."+$attrs[$a])`;
+			if(size($attr_ou)>0&&$Optio!=3){
+				for($j=0;$j<size($attr_ou);$j++){
+					int $ex=stringArrayContains($attr_ou[$j],$attr_in);
+					if($ex==0)
+						catchQuiet (`connectAttr -f ($Replace[$i]+"."+$attrs[$a]) $attr_ou[$j]`);
+				}
+			}
+			if(size($attr_in)>0&&$Optio!=2){
+				for($o=0;$o<size($attr_in);$o++){
+					catchQuiet (`disconnectAttr $attr_in[$o] ($Original[$i]+"."+$attrs[$a])`);
+					catchQuiet (`connectAttr -f $attr_in[$o] ($Replace[$i]+"."+$attrs[$a])`);
+					int $ex=stringArrayContains($attr_in[$o],$attr_ou);
+					if($ex==0){
+						catchQuiet (`disconnectAttr ($Original[$i]+"."+$attrs[$a]) $attr_in[$o]`);
+						catchQuiet (`connectAttr -f ($Replace[$i]+"."+$attrs[$a]) $attr_in[$o]`);
+					}
+				}
+			}
+		}
+	}
+}
+else if($Optio==4){
+	for($i=0;$i<size($Original);$i++){
+		string $attr_ou[]=`listConnections -c off -p on ($Original[$i]+"."+$AttrName)`;
+		string $attr_in[]=`listConnections -d off -p on ($Original[$i]+"."+$AttrName)`;
+		if(!`objExists ($Replace[$i]+"."+$AttrName)`){
+			string $warning="转移对象未找到 “"+$Replace[$i]+"."+$AttrName+"” 属性，此属性转移失败，请添加属性后再次转移连接。";
+			warning -n $warning;
+		}
+		if(size($attr_ou)>0){
+			for($j=0;$j<size($attr_ou);$j++){
+				int $ex=stringArrayContains($attr_ou[$j],$attr_in);
+				if($ex==0) 
+					catchQuiet (`connectAttr -f ($Replace[$i]+"."+$AttrName) $attr_ou[$j]`);
+			}
+		}
+		if(size($attr_in)>0){
+			for($o=0;$o<size($attr_in);$o++){
+				catchQuiet (`disconnectAttr $attr_in[$o] ($Original[$i]+"."+$AttrName)`);
+				catchQuiet (`connectAttr -f $attr_in[$o] ($Replace[$i]+"."+$AttrName)`);
+				int $ex=stringArrayContains($attr_in[$o],$attr_ou);
+				if($ex==0){
+					catchQuiet (`disconnectAttr ($Original[$i]+"."+$AttrName) $attr_in[$o]`);
+					catchQuiet (`connectAttr -f ($Replace[$i]+"."+$AttrName) $attr_in[$o]`);
+				}
+			}
+		}
+	}
+}
+}
+else error "原始对象与转移对象加载数量不等！！！";
+}
+
+/////////////////////////==================================特殊控制器创建==================================/////////////////////////
+/////////////////////////==================================特殊控制器创建==================================/////////////////////////
+/////////////////////////==================================特殊控制器创建==================================/////////////////////////
+/////////////////////////==================================特殊控制器创建==================================/////////////////////////
+/////////////////////////==================================特殊控制器创建==================================/////////////////////////
+/////////////////////////==================================特殊控制器创建==================================/////////////////////////
+/////////////////////////==================================特殊控制器创建==================================/////////////////////////
+
+//==========控制器添加移动曲轴===========//
+global proc sg_AddMovePivot (){
+string $sel[]=`ls -sl`;
+for($i in $sel){
+	if(!`objExists ($i+".MovePivotVis")`){
+		addAttr -ln "MovePivotVis" -at bool -k on $i;
+		setAttr ($i+".MovePivotVis") 1;
+	}
+	string $loc[]=`spaceLocator -p 0 0 0 -n ($i+"_pivot")`;
+	string $loc_sp[]=`listRelatives -s $loc[0]`;
+	delete `parentConstraint $i $loc[0]`;
+	parent $loc[0] $i;
+	connectAttr -f ($loc[0]+".translate") ($i+".rotatePivot");
+	connectAttr -f ($loc[0]+".translate") ($i+".scalePivot");
+	connectAttr -f ($i+".MovePivotVis") ($loc_sp[0]+".visibility");
+}
+}
+
+//==========世界坐标次级绑定===========//
+global proc sg_CreateSecondaryControlBinding_world (){
+
+string $sel[]=`ls -sl`;
+
+string $shape=`sg_PreShape`;
+
+for($i=0;$i<size($sel);$i++){
+string $Loc_a[]=`spaceLocator -p 0 0 0 -n ($sel[$i]+"_loc")`;
+string $Loc_a_sp[]=`listRelatives -s $Loc_a[0]`;
+//setAttr ($Loc_a_sp[0]+".visibility") 0;
+sg_ShapeVis $Loc_a[0] 0;
+string $Loc_b[]=`spaceLocator -p 0 0 0 -n ($sel[$i]+"_loc_con")`;
+string $con_a[]=`circle -ch 0 -n ($sel[$i]+"_con")`;
+asSetPreColors $con_a[0];
+asNurbsCircleShpape $con_a[0] $shape;
+asPresuppositionScale $con_a[0];
+string $Grp_a=`group -em -n ($sel[$i]+"_loc_grp")`;
+string $Grp_b=`group -em -n ($sel[$i]+"_grp")`;
+string $Grp_c=`group -em -n ($sel[$i]+"_loc_con_grp")`;
+
+parent $Loc_a[0] $Grp_a;
+parent $con_a[0] $Grp_b;
+parent $Loc_b[0] $Grp_c;
+parent $Grp_a $Grp_b;
+
+string $node_mm=`createNode multMatrix`;
+string $node_dm=`createNode decomposeMatrix`;
+
+connectAttr -f ($con_a[0]+".worldMatrix[0]") ($node_mm+".matrixIn[0]");
+connectAttr -f ($Grp_a+".worldInverseMatrix[0]") ($node_mm+".matrixIn[1]");
+
+connectAttr -f ($node_mm+".matrixSum") ($node_dm+".inputMatrix");
+connectAttr -f ($node_dm+".ot") ($Loc_a[0]+".t");
+connectAttr -f ($node_dm+".or") ($Loc_a[0]+".r");
+connectAttr -f ($node_dm+".os") ($Loc_a[0]+".s");
+connectAttr -f ($node_dm+".osh") ($Loc_a[0]+".sh");
+
+delete `parentConstraint $sel[$i] $Grp_c`;
+delete `parentConstraint $sel[$i] $Grp_b`;
+
+connectAttr -f ($Loc_a[0]+".t") ($Loc_b[0]+".t");
+connectAttr -f ($Loc_a[0]+".r") ($Loc_b[0]+".r");
+connectAttr -f ($Loc_a[0]+".s") ($Loc_b[0]+".s");
+connectAttr -f ($Loc_a[0]+".sh") ($Loc_b[0]+".sh");
+
+parentConstraint -mo $Loc_b[0] $sel[$i];
+asControllerNodeClear $con_a[0];
+}
+}
+
+//==========添加毛囊控制器===========//
+
+global proc sg_AddFollicleCon (){
+
+string $sel[]=`ls -sl`;
+string $mesh=$sel[(size($sel)-1)];
+string $mesh_sp[]=`listRelatives -s $mesh`;
+string $shape=`sg_PreShape`;
+string $node_clo=`shadingNode -asShader closestPointOnMesh`;
+connectAttr -force ($mesh_sp[0]+".outMesh") ($node_clo+".inMesh") ;
+
+for ($i=0;$i<(size($sel)-1);$i++){
+	string $con=$sel[$i]+"_con";
+	//string $grp=$sel[$i]+"_grp";
+	string $con_grp=$sel[$i]+"_con_grp";
+	string $follicle_sp=`shadingNode -asShader follicle -n ($sel[$i]+"_follicleShape")`;
+	string $follicle[]=`listRelatives -p $follicle_sp`;
+	connectAttr -force ($mesh_sp[0]+".worldMatrix[0]") ($follicle_sp+".inputWorldMatrix") ;
+	connectAttr -force ($mesh_sp[0]+".outMesh") ($follicle_sp+".inputMesh");
+
+	connectAttr -f ($follicle_sp+".outTranslate") ($follicle[0]+".translate") ;
+	connectAttr -f ($follicle_sp+".outRotate") ($follicle[0]+".rotate") ;
+
+	float $pos[]=`xform -q -ws -t $sel[$i]`;
+	setAttr -typ float3 ($node_clo+".inPosition") $pos[0] $pos[1] $pos[2];
+
+	float $U=`getAttr ($node_clo+".parameterU")`;
+	float $V=`getAttr ($node_clo+".parameterV")`;
+
+	setAttr ($follicle_sp+".parameterU") $U;
+	setAttr ($follicle_sp+".parameterV") $V;
+
+	sg_ShapeVis $follicle[0] 0;
+
+	circle -ch 0 -n $con;
+	asSetPreColors $con;
+	asNurbsCircleShpape $con $shape;
+	asPresuppositionScale $con ;
+	select -r $con;
+	group -n $con_grp;
+	parent $con_grp $follicle[0];
+	setAttr -typ float3 ($con_grp+".translate") 0 0 0;
+	setAttr -typ float3 ($con_grp+".rotate") 0 0 0;
+}
+delete $node_clo;
+}
+
+//==========曲线CV点添加控制器===========//
+
+global proc sg_CurveControllerTool (){
+string $sel[]=`ls -sl`;
+for ($i in $sel)
+	sg_CurveController $i $i;
+
+}
+
+//==========曲面添加毛囊===========//
+global proc string sg_SurfaceAddFollicle (string $Surface,string $name,float $u,float $v){
+
+string $follicle_sp=`createNode follicle -n ($name+"_follicleShape")`;
+string $follicle[]=`listRelatives -p $follicle_sp`;
+
+string $Surface_sp[]=`listRelatives -s $Surface`;
+
+connectAttr -f ($follicle_sp+".outTranslate") ($follicle[0]+".translate");
+connectAttr -f ($follicle_sp+".outRotate") ($follicle[0]+".rotate");
+
+connectAttr -f ($Surface_sp[0]+".worldMatrix[0]") ($follicle_sp+".inputWorldMatrix");
+connectAttr -f ($Surface_sp[0]+".worldSpace[0]") ($follicle_sp+".inputSurface");
+
+setAttr ($follicle_sp+".parameterU") $u;
+setAttr ($follicle_sp+".parameterV") $v;
+setAttr ($follicle_sp+".visibility") 0;
+
+return $follicle[0];
+}
+
+/////////////////////////==================================其他工具==================================/////////////////////////
+/////////////////////////==================================其他工具==================================/////////////////////////
+/////////////////////////==================================其他工具==================================/////////////////////////
+/////////////////////////==================================其他工具==================================/////////////////////////
+/////////////////////////==================================其他工具==================================/////////////////////////
+/////////////////////////==================================其他工具==================================/////////////////////////
+/////////////////////////==================================其他工具==================================/////////////////////////
+
+//==========插入关节===========//
+global proc sg_SamplingJoint (){
+string $sel[]=`ls -sl`;
+int $decide=`radioButtonGrp -q -sl asPattern`;
+float $size=`intFieldGrp -q -v1 asJointSize `;
+string $name=`textFieldGrp -q -tx asSuffixName`;
+if($decide==1)
+    sg_SamplingJoint_Tool $sel $name $size;
+if($decide==2)
+    sg_InsertJoint_Tool $sel $name $size;
+}
+
+global proc string [] sg_SamplingJoint_Tool (string $curve[],string $name,float $size){
+
+	if(size($curve)){
+		string $curve_sp[]=`listRelatives -s $curve[0]`;
+    	string $typ=`objectType $curve_sp[0]`;
+    	if($typ!="nurbsCurve")
+        	error "请选择曲线！！！";
+	}
+	else error "请选择曲线！！！";
+
+int $e;
+float $uu,$ss; 
+string $jotname,$joints[];
+float $sk=`floatSliderGrp -q -v asSkewing `;
+
+string $node = `createNode motionPath`;
+setAttr ($node+".fractionMode") 1;
+
+for($j=0;$j<size($curve);$j++){
+
+	string $curve_sp[]=`listRelatives -s $curve[$j]`;
+	connectAttr -f ($curve_sp[0]+".worldSpace[0]") ($node+".geometryPath");
+
+	for($i=0;$i<$size;$i++){
+
+		if((size($curve))==1)
+			$jotname=$name+"_"+$i;
+		if((size($curve))>1)
+			$jotname=$name+"_"+$i+"_"+$j;
+
+		$e=$i-1;
+
+		if($size>1){
+			$ss=$i/($size-1);
+		}
+		else $ss=0.5;
+
+		if($i > 0 && $i < $size-1 ){
+			$uu=$ss+($size-$i-1)*($ss/$size*$sk);
+		}
+
+		else $uu=$ss;
+
+		string $grp = `group -em -n ("temp"+"_"+$i)`;
+		string $jot = `joint -n $jotname`;
+
+		setAttr ($node+".uValue") $uu;
+
+		connectAttr -f ($node+".allCoordinates") ($grp+".translate");
+		connectAttr -f ($node+".rotate") ($grp+".rotate");
+		parent -w $jot;
+
+		if($i>0&&(size($curve))==1)
+			parent ($name+"_"+$i) ($name+"_"+$e);
+		if($i>0&&(size($curve))>1)
+			parent ($name+"_"+$i+"_"+$j) ($name+"_"+$e+"_"+$j);
+
+		string $jots[]={$jot};
+		appendStringArray $joints $jots 1;
+
+		if($i==($size-1)){
+			joint -e  -oj yzx -secondaryAxisOrient xup -ch -zso $joints;
+			joint -e  -oj none -ch -zso $jotname;
+		}
+
+		disconnectAttr ($node+".allCoordinates") ($grp+".translate");
+		disconnectAttr ($node+".rotate") ($grp+".rotate");
+		delete $grp;
+
+}
+}
+delete $node;
+return $joints;
+}
+
+global proc sg_InsertJoint_Tool (string $joints[],string $name,float $size){
+
+	if(size($joints)){
+    	string $typ=`objectType $joints[0]`;
+    	if($typ!="joint")
+        	error "请选择关节！！！";
+	}
+	else error "请选择关节！！！";
+
+int $e;
+float $uu,$ss;
+float $number=$size+2;
+
+float $sk=`floatSliderGrp -q -v asSkewing `;
+
+for($joint in $joints){
+
+	string $jot_c[]=`listRelatives -typ "joint" -c $joint `;
+
+	float $posA[]=`xform -q -ws -t $joint`;
+	float $posB[]=`xform -q -ws -t $jot_c[0]`;
+
+	string $curves=`curve -d 1 -p $posA[0] $posA[1] $posA[2] -p $posB[0] $posB[1] $posB[2] -k 0 -k 1 `;
+	string $curve=`rename ($joint+"_cv_twist")`;
+	string $curve_sp[]=`listRelatives -s $curve`;
+
+	for($i=1;$i<($number-1);$i++){
+
+		$e=$i-1;
+
+		$ss=$i/($number-1);
+
+		$uu=$ss+($number-$i-1)*($ss/($number-1)*$sk);
+
+		string $node = `createNode motionPath`;
+
+		string $grp = `group -em -n ($joint+"_temp_"+$i)`;
+		string $jot = `joint -n ($joint+"_"+$name+"_"+$i)`;
+
+		setAttr ($node+".fractionMode") 1;
+		setAttr ($node+".uValue") $uu;
+
+		connectAttr -f ($curve_sp[0]+".worldSpace[0]") ($node+".geometryPath");
+
+		connectAttr -f ($node+".allCoordinates") ($grp+".translate");
+
+		parent -w $jot;
+
+		delete `orientConstraint -offset 0 0 0 $joint $jot`;
+		makeIdentity -apply true -t 0 -r 1 -s 0 -n 0 -pn 1 $jot;
+
+		if($i==1)
+			parent $jot $joint;
+
+		if($i>=2)
+			parent $jot ($joint+"_"+$name+"_"+$e);
+
+		if($i==$number-2)
+			parent $jot_c[0] $jot;
+
+		string $addjoint[]={$jot};
+		delete $node;
+		delete $grp;
+}
+delete $curve;
+}
+}
+
+//==========快速平滑权重===========//
+global proc sg_SmoothingWeight (){
+string $model[]=`ls -sl`;
+int $numSmoo=`intFieldGrp -q -v1 asSmoothingSize`;
+
+string $historyNodes[]=`listHistory -pdo 1 -il 2 $model[0]`;
+string $skinCluster;
+for ($i=0;$i<size($historyNodes);$i++)
+	if (`nodeType $historyNodes[$i]`=="skinCluster")
+		$skinCluster=$historyNodes[$i];
+if ($skinCluster=="")
+	error "在所选对象上找不到SkinCluster！！！";
+
+string $joint[]=`listConnections -type "joint" ($skinCluster+".matrix")`;
+
+int $s=`getAttr ($skinCluster+".normalizeWeights")`;
+setAttr ($skinCluster+".normalizeWeights") 2;
+
+for ($i=0;$i<size($joint);$i++){
+    ArtPaintSkinWeightsTool; 
+    artAttrSkinPaintCtx -e -sao smooth -influence $joint[$i] artAttrSkinContext;
+    artSkinInflListChanging $joint[$i] 1;
+    artSkinInflListChanged artAttrSkinPaintCtx;
+    for($u=0;$u<$numSmoo;$u++){
+        artFloodSurfaces;
+	}
+}
+setAttr ($skinCluster+".normalizeWeights") $s;
+}
+
+//==========批量添加空组===========//
+global proc sg_CreateEmptyGroup(){
+	string $bns[]=`ls -sl`;
+	int $number=`intFieldGrp -q -v1 asGroupSize`;
+	int $a=`checkBoxGrp -q -v1 asEliminateMode`;
+	int $t=`checkBoxGrp -q -v2 asEliminateMode`;
+	int $r=`checkBoxGrp -q -v3 asEliminateMode`;
+	int $s=`checkBoxGrp -q -v4 asEliminateMode`;
+	int $make_onof=$a+$t+$r+$s;
+	string $names=`textFieldGrp -q -tx asGroupSuffix`;
+	for($j=0;$j<size($bns);$j++){
+		int $e=$number-1;
+		string $pt[]=`listRelatives -p $bns[$j]`;
+		string $zm[]={"","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
+
+		select -cl;
+		for($i=0;$i<$number;$i++){
+			doGroup 0 1 1;
+			rename ($bns[$j]+$names+$zm[$i]);
+		}
+			delete `parentConstraint -weight 1 $bns[$j] ($bns[$j]+$names+$zm[$e])`;
+		if($make_onof > 0)
+			makeIdentity -apply false -t $t -r $r -s $s ($bns[$j]+$names+$zm[$e]);
+		if($pt[0]!=""){
+			parent ($bns[$j]+$names+$zm[$e]) $pt[0];
+			parent $bns[$j] ($bns[$j]+$names+$zm[0]);	
+		}
+		else{
+			parent $bns[$j] ($bns[$j]+$names+$zm[0]);
+		}
+	}
+}
+
+//==========复制蒙皮===========//
+global proc sg_CopySkinWeights (){
+string $model[]=`ls -sl`;
+
+string $historyNodes[]=`listHistory -pdo 1 -il 2 $model[0]`;
+string $skinCluster;
+for ($i=0;$i<size($historyNodes);$i++)
+	if (`nodeType $historyNodes[$i]`=="skinCluster")
+		$skinCluster=$historyNodes[$i];
+if ($skinCluster=="")
+	error "在所选对象上找不到SkinCluster！！！";
+
+string $joints[]=`listConnections -type "joint" ($skinCluster+".matrix")`;
+
+	for($i=1;$i<size($model);$i++){
+		string $model_p[]=`listRelatives -s $model[$i]`;
+		string $skin_p[]=`listConnections -type "skinCluster" $model_p[0]`;
+
+		if(size($skin_p)==0)
+			skinCluster $joints $model[$i];
+		copySkinWeights -noMirror -surfaceAssociation closestPoint -influenceAssociation closestJoint $model[0] $model[$i];
+
+	}
+}
+
+//==========切头工具===========//
+global proc sg_CuttingTool (int $but){
+string $dns[]=`ls -sl`;
+if($dns[0]=="") error "请选择模型切线";
+string $shape[]=`listRelatives -p $dns[0]`;
+string $geo[]=`listRelatives -p $shape[0]`;
+DetachComponent;
+string $cuutting[]=`polySeparate -ch 0 $shape[0]`;
+
+rename $geo[0] "temp_Cutting" ;
+select -r "temp_Cutting";
+
+if($but==0){
+	parent -w `duplicate -rr -n HeadMesh $cuutting[0]`;
+	polyUnite -ch 0 -muv 1 -n BodyMesh $cuutting[0] $cuutting[1];
+}
+
+if($but==1){
+	parent -w `duplicate -rr -n HeadMesh $cuutting[1]`;
+	polyUnite -ch 0 -muv 1 -n BodyMesh $cuutting[1] $cuutting[0];
+}
+
+polyMergeVertex  -d 0.0001 -am 1 -ch 0 BodyMesh;
+polySoftEdge -a 180 -ch 0 BodyMesh;
+move 0 0 0 BodyMesh.scalePivot BodyMesh.rotatePivot ;
+//delete "temp_Cutting";
+select -r HeadMesh;
+}
+
+global proc sg_CuttingTool_switch (){
+	string $c=`button -q -c asCuttingTool`;
+	if($c=="sg_CuttingTool 0")
+		button -e -l "模型切头工具（反）" -c "sg_CuttingTool 1" asCuttingTool;
+	if($c=="sg_CuttingTool 1")
+		button -e -l "模型切头工具（正）" -c "sg_CuttingTool 0" asCuttingTool;	
+}
+
+
+/////////////////////////==================================名称栏==================================/////////////////////////
+/////////////////////////==================================名称栏==================================/////////////////////////
+/////////////////////////==================================名称栏==================================/////////////////////////
+/////////////////////////==================================名称栏==================================/////////////////////////
+/////////////////////////==================================名称栏==================================/////////////////////////
+/////////////////////////==================================名称栏==================================/////////////////////////
+/////////////////////////==================================名称栏==================================/////////////////////////
+
+global proc sg_Select (){
+
+int $typ=`radioButtonGrp -q -sl asSelectToolA` + sign(float(`radioButtonGrp -q -sl asSelectToolB`))*3.0 + `radioButtonGrp -q -sl asSelectToolB`;
+string $typs;
+if($typ==1)
+	$typs="transform";
+if($typ==2)
+	$typs="joint";
+if($typ==3)
+	$typs="mesh";
+if($typ==4)
+	$typs="nurbsCurve";
+if($typ==5)
+	$typs="locator";
+
+string $sel[]=`ls -sl`;
+if(size($sel)!=0){
+	select -hi;
+	string $f = `itemFilter -byType $typs`;
+	select -r `lsThroughFilter -sl $f`;
+	if($typ==3||$typ==4||$typ==5)
+		pickWalk -d up;
+}
+else {
+	string $seltyp[]=`ls -typ $typs`;
+	select -r $seltyp;
+	if($typ==3||$typ==4||$typ==5&&size($seltyp)!=0)
+		pickWalk -d up;
+}
+}
+
+global proc sg_RenameObjs_Rename (int $mode){
+
+	string $p = `textFieldButtonGrp -q -tx sg_RenameObjs_Fld_Txt_1`;
+	string $n = `textFieldButtonGrp -q -tx sg_RenameObjs_Fld_Txt_2`;
+	string $s = `textFieldButtonGrp -q -tx sg_RenameObjs_Fld_Txt_3`;
+
+	string $r = `textFieldGrp -q -tx sg_RenameObjs_Fld_Txt_4`;
+	string $w = `textFieldGrp -q -tx sg_RenameObjs_Fld_Txt_5`;	
+
+	string $objs[] = `ls -l -sl`;
+	string $sorted[] = `sg_SortHierarchy $objs`;
+	string $reversed[] = `sg_ReverseArray $sorted`;
+
+	for ($obj in $reversed){
+		switch ($mode){
+			case 1:
+			string $snA = `match "[^|]*$" $obj`;
+			$renameCommand = ("rename " + $obj + " " + ($p + $snA));
+			break;
+
+			case 2:
+			$renameCommand = ("rename " + $obj + " " + $n);
+			break;
+
+			case 3:
+			string $snB = `match "[^|]*$" $obj`;
+			$snB = `match ".*[^_0-9]" $snB`;
+			$renameCommand = ("rename " + $obj + " " + ($snB + $s));
+			break;
+
+			case 4:
+			string $snC = `match "[^|]*$" $obj`;	
+
+			if ($r == "") error "";
+	
+			$snC = `substitute $r $snC $w`;
+			$renameCommand = ("rename " + $obj + " " + $snC);
+			break;
+			case 5:
+			string $sn = `match "[^|]*$" $obj`;
+			$sn = `match ".*[^_0-9]" $sn`;
+			string $numbers[] = `sg_RenameObjs_Number $objs`;
+
+			for ($o = 0; $o < `size $objs`; $o++){
+				if ($objs[$o] == $obj){
+					$renameCommand = ("rename " + $obj + " " + ($sn + "_" + $numbers[$o]));
+					break;			
+				}
+			}
+			break;
+		}
+		if (catch (`eval $renameCommand`)) print "";
+	}
+}
+
+global proc string[] sg_RenameObjs_Number (string $objs[]){
+	string $numbers[];
+	string $numString;
+	string $zeros = "";
+
+	int $numZeros;
+
+	int $start = `intFieldGrp -q -v1 sg_RenameObjs_IntFld_1`;
+	int $inc = `intFieldGrp -q -v1 sg_RenameObjs_IntFld_2`;
+	int $pad = `intFieldGrp -q -v1 sg_RenameObjs_IntFld_3`;
+
+	int $current = $start;
+
+	if ($pad == 1){
+		for ($obj in $objs){
+			$numbers[`size $numbers`] = $current;
+			$current = $current + $inc;
+		}
+	}
+	if ($pad > 1){
+		for ($obj in $objs){
+			$numString = $current;
+
+			if (`size $numString` < $pad){	
+				$numZeros = $pad - (`size $numString`);
+				for ($n = $numZeros; $n > 0; $n--){
+					$zeros = $zeros + "0";
+				}
+				$numString = $zeros + $numString;
+				$numbers[`size $numbers`] = $numString;
+			}
+			else $numbers[`size $numbers`] = $current;
+			$current = $current + $inc;	
+			$zeros = "";
+		}
+	}
+	return $numbers;
+}
+
+global proc string[] sg_SortHierarchy (string $objs[]){
+	string $levels[];
+	string $sorted[];
+
+	int $n;
+	int $lowest = 0;
+	int $current = 0;
+
+	for ($obj in $objs){
+		$n = (`sg_NumberParents $obj`);
+
+		if ($n != ""){
+			$levels[`size $levels`] = $n;
+		}
+		else $levels[`size $levels`] = 0;
+
+		if ($n > $lowest){
+			$lowest = $n;
+		}
+	}
+
+	while ($current <= $lowest){
+		for ($o = 0; $o < `size $objs`; $o++) {
+			if ($levels[$o] == $current) {
+				$sorted[`size $sorted`] = $objs[$o];
+			}
+		}
+		$current++;
+	}
+	return $sorted;
+}
+
+global proc int sg_NumberParents (string $obj) {
+	string $parentObjs[];
+	int $p = `tokenize $obj "|" $parentObjs`;
+	$p--;
+	return $p;
+}
+
+global proc string[] sg_ReverseArray (string $array[]) {
+	string $returnArray[];
+	int $arraySize = `size $array`;
+
+	for ($e = 0; $e < `size $array`; $e++) {
+		$returnArray[$arraySize - 1 - $e] = $array[$e];
+	}
+	return $returnArray;
+}
+
+global proc asRenameSuffix (string $name){
+	string $sel[]=`ls -sl`;
+	for ($obj in $sel){
+		string $snB = `match "[^|]*$" $obj`;
+		$snB = `match ".*[^_0-9]" $snB`;
+		rename $obj ($snB + $name);
+	}
+}
+
+global proc sg_RenameSuffixNumber (){
+	string $sel[]=`ls -sl`;
+	for ($obj in $sel)
+		asRenameSuffixNumber $obj;
+
+}
+
+global proc string asRenameSuffixNumber (string $obj){
+
+	string $temps[],$name,$newname;
+	int $sn;
+	string $num = `match "[0-9]+" $obj`;
+	if($num!=""){
+		$sn = `tokenize $obj $num $temps`;
+		for ($e = 0; $e < $sn; $e++) {
+			if(!`gmatch $temps[$e] "*_"`)
+				$name+=$temps[$e]+"_";
+			else $name+=$temps[$e];
+		}
+
+		$newname=$name + $num;
+		$newname=substituteAllString($newname, "__", "_");
+		rename $obj $newname;
+		return $newname;
+	}
+	else return $obj;
+}
+
+//==========检查重名===========//
+
+global proc string sg_lastName(string $name1){
+	if(`gmatch $name1 "*|*"`)
+	{
+		$name1 = `match "|.*" $name1`;
+		$name1 = `substring $name1 2 (size($name1))`;
+		$name1 = `sg_lastName $name1`;
+	}
+	return $name1;
+}
+
+global proc string[] sg_endCharName(string $str1[]){
+	string $lastChar = endString($str1[0], 1);
+	if(`gmatch $lastChar "[0-9]"`)
+	{
+		$str1[0] = `substring $str1[0] 1 (size($str1[0])-1)`;
+		$str1[1] = $lastChar + $str1[1];
+		$str1 = `sg_endCharName $str1`;
+	}
+	return $str1;
+}
+
+global proc string sg_findMax(string $array[],string $str,int $min,int $max){
+	int $middle = ($max-$min)/2+$min;
+	$array[$middle] = sg_lastName($array[$middle]);
+	string $tempStrs[] = sg_endCharName({$array[$middle]});
+	if($middle!=$min)
+	{
+		if($str==$tempStrs[0])
+			$min = $middle;
+		else
+			$max = $middle;
+		$tempStrs[0] = sg_findMax($array,$str,$min,$max);
+	}
+	else
+	{
+		$array[$max] = sg_lastName($array[$max]);
+		$tempStrs = sg_endCharName({$array[$max]});
+		if($str==$tempStrs[0])
+			$tempStrs[0] = $array[$max];
+		else
+			$tempStrs[0] = $array[$middle];
+	}
+	return $tempStrs[0];
+}
+
+global proc string sg_getObjMaxVersion(string $objName){
+	$objName = sg_lastName($objName);
+	string $tempStrs[] = sg_endCharName({$objName});
+	string $array[] = `ls ($tempStrs[0] + "*")`;
+	if(size($array))
+	{
+		$objName = sg_findMax($array,$tempStrs[0],0,(size($array)-1));
+		$tempStrs = sg_endCharName({$objName});
+	}
+	$objName = $tempStrs[0] + (int($tempStrs[1])+1);
+	return $objName;
+}
+
+global proc string[] sg_sortName(string $allName[]){
+	int $i,$j,$temp_num,$numTokens1,$numTokens2;
+	string $temp_name,$buffer[];
+	for($i=0;$i<size($allName);$i++)
+	{
+		$numTokens1 = `tokenize $allName[$i] "|" $buffer`;
+		for($j=0;$j<size($allName);$j++)
+		{
+			$numTokens2 = `tokenize $allName[$j] "|" $buffer`;
+			if($numTokens1>$numTokens2)
+			{
+				$temp_num = $numTokens1; $numTokens1 = $numTokens2; $numTokens2 = $temp_num;
+				$temp_name = $allName[$i]; $allName[$i] = $allName[$j]; $allName[$j] = $temp_name;
+			}
+		}
+	}
+	return $allName;
+}
+
+global proc string sg_rejiggerName(string $allName[],string $nameType,int $amount){
+	string $againName[];
+	int $j=0;
+	for($i=0;$i<size($allName);$i++)
+	{
+		if(`gmatch $allName[$i] "*|*"`)
+		{
+			$againName[$j] = $allName[$i];
+			$j++;
+		}
+		$amount += 3.0*$i/size($allName);
+		progressWindow -edit
+			-progress $amount
+			-status ("====正在检测并且重新命名场景内所有的重名物体和节点: "+$amount+"%====");
+	}
+	if(!$j)
+	{
+		$amount += 30;
+		progressWindow -edit
+				-progress $amount
+				-status ("====正在检测并且重新命名场景内所有的重名物体和节点: "+$amount+"%====");
+		return "";
+	}
+
+	$againName = `sg_sortName $againName`;
+
+	string $temp_name;
+	string $failNames[],$loseName[],$str1[];
+	int $k=0,$l=0;
+	for($i=0;$i<size($againName);$i++)
+	{
+		if ( `progressWindow -query -isCancelled` )
+		{
+			break;
+			return "";
+		}
+		if(`gmatch $againName[$i] "*|*"`)
+		{
+			$againName[$i] = longNameOf($againName[$i]);
+			if($nameType=="Shape节点")
+			{
+				$temp_name = firstParentOf($againName[$i]);
+				$temp_name = `sg_lastName $temp_name`;
+				$str1 = `sg_endCharName {$temp_name}`;
+				$temp_name = $str1[0] + "Shape\#";
+			}
+			else
+			{
+				$temp_name = `sg_lastName $againName[$i]`;
+				$str1 = `sg_endCharName {$temp_name}`;
+				$temp_name = $str1[0] + "\#";
+			}
+
+			if(catchQuiet($temp_name=`rename $againName[$i] $temp_name`))
+			{
+				$failNames[$k] = $againName[$i];
+				$k++;
+			}
+			else
+			{
+				if(`gmatch $temp_name "*|*"`)
+				{
+					$loseName[$l] = longNameOf($temp_name);
+					$l++;
+				}
+			}
+			$amount += 10.0*$i/size($againName);
+			progressWindow -edit
+				-progress $amount
+				-status ("====正在检测并且重新命名场景内所有的重名物体和节点: "+$amount+"%====");
+		}
+	}
+
+	if($l)
+	{
+		$l = 0;
+		for($i=0;$i<size($loseName);$i++)
+		{
+			$temp_name = sg_getObjMaxVersion($loseName[$i]);
+			catchQuiet($loseName[$i]=`rename $loseName[$i] $temp_name`);
+			if(`gmatch $loseName[$i] "*|*"`)
+			{
+				$str1[$l] = $loseName[$i];
+				$l++;
+			}
+			$amount += 20.0*$i/size($loseName);
+			progressWindow -edit
+				-progress $amount
+				-status ("====正在检测并且重新命名场景内所有的重名物体和节点: "+$amount+"%====");
+		}
+	}
+
+	$temp_name = "场景内共找到" + $j + "个重名的" + $nameType + "!\n";
+	$j = $j - $k;
+	if($j)
+	{
+		$temp_name = $temp_name + "场景内" + $j + "个重名的" + $nameType + "已经全部重新更改名称!\n";
+	}
+	if($k)
+	{
+		$temp_name = $temp_name + "场景内" + $k + "个重名的" + $nameType + "重新更改名称失败,请检查是否有reference物体或者被lockNode锁定的物体!\n";
+		print ("场景内" + $k + "个重名的" + $nameType + ",重新更改名称失败的物体为:\n");
+		print $failNames;
+	}
+	if($l)
+	{
+		$temp_name = $temp_name + "场景内" + $l + "个重名的" + $nameType + ",二次重新命名失败,请检查是否有关联物体或者共用相同shape节点的物体!\n";
+		print ("场景内" + $l + "个重名的" + $nameType + ",二次重新命名失败,请检查是否有关联或者共用相同shape节点的物体:\n");
+		print $str1;
+	}
+	return $temp_name;
+}
+
+global proc sg_detectionOfTheSameNameMain(){
+	timer -s;
+	string $scripName = "检测全部重名节点";
+	int $amount = 0;
+	progressWindow
+		-title $scripName
+		-progress $amount
+		-status "====正在检测并且重新命名场景内所有的重名物体和节点: 0%===="
+		-isInterruptable true;
+
+	string $allName[] = `ls -tr`;
+	string $nameType = "模型或者组";
+	string $temp_name = `sg_rejiggerName $allName $nameType $amount`;
+
+	if ( !`progressWindow -query -isCancelled` )
+	{
+		$amount = 33;
+		$allName = `ls -s`;
+		$nameType = "Shape节点";
+		$temp_name = $temp_name + "\n" + `sg_rejiggerName $allName $nameType $amount`;
+	}
+
+	if ( !`progressWindow -query -isCancelled` )
+	{
+		$amount = 67;
+		$allName = `ls`;
+		//string $items[] = `ls -tr`;
+		//$allName = stringArrayRemove($items, $allName);
+		//$items = `ls -s`;
+		//$allName = stringArrayRemove($items, $allName);
+		$nameType = "其它节点";
+		$temp_name = $temp_name + "\n" + `sg_rejiggerName $allName $nameType $amount`;
+	}
+	else
+		$temp_name = "程序已经被终止运行";
+
+	if($temp_name=="\n\n")
+		$temp_name = "场景内没有找到任何重名的物体和节点	";
+
+	progressWindow -endProgress;
+	print("此次运行时间为:"+`timer -e`+"秒.\n");
+
+	confirmDialog -title $scripName -message $temp_name
+		-button "确认" -defaultButton "确认"
+		-cancelButton "确认" -dismissString "确认";
+}
+
+global proc sg_deleteUknownNodes(){
+	string $unknownNodes[]=`ls -et "unknown"`;
+	for($nodes in $unknownNodes){
+		//lockNode -l 0 $nodes;
+		delete $nodes;
+		print ($nodes+" 未知节点已删除！！！\n");
+	}
+	print ("删除 "+size($unknownNodes)+" 个未知节点.\n");
+} 
+

@@ -1,0 +1,830 @@
+//////环关节权重计算工具
+//////制作：久违的时光
+//////电话或微信：15697077077
+//////QQ或邮箱：923373770
+//////最后修改日期  2020/11/26
+
+global proc rg_Ring_Weight_Calculation_Win (){
+
+if(`window -ex rg_Ring_Weight_Calculation_Win`)  
+	deleteUI -window rg_Ring_Weight_Calculation_Win ;
+
+window -title "环关节权重计算" rg_Ring_Weight_Calculation_Win;
+menuBarLayout;
+menu -l "编辑";
+	menuItem -i "rebuild.png" -l "重置" -c "rg_Refresh" ;
+	menuItem -i "smallTrash.png" -l "删除临时文件" -c "rg_Delete_Temp" ;
+	menuItem -d 1;
+	menuItem -i "enabled.png" -l "退出" -c "window -e -vis 0 rg_Ring_Weight_Calculation_Win;";
+	setParent..;
+menu -l "关于";
+	menuItem -i "help.png" -l "帮助" -c "showHelp -a \"https://www.bilibili.com/video/BV1qt4y1a7N2\"";
+	menuItem -l "版本V1.0" -c "";
+	menuItem -l "联系方式" -c "confirmDialog -t \"联系方式\" -message \"制作：久违的时光     更新请加QQ群：121273755    \" -cancelButton \"确定\" ;";
+	setParent..;
+
+string $rgModel=`optionVar -q rgModel`;
+	if (!`objExists $rgModel`)
+        $rgModel="";
+
+string $rgRTJot=`optionVar -q rgRTJot`;
+	if (!`objExists $rgRTJot`)
+        $rgRTJot="";
+
+int $rgBranchWeight=`optionVar -q rgBranchWeight`;
+	if (!`optionVar -ex rgBranchWeight`)
+        $rgBranchWeight=0;
+
+string $ll,$cc;
+if($rgBranchWeight==0){
+    $ll="分配权重";
+    $cc="rg_Weight_Calculation 0";
+}
+if($rgBranchWeight==1){
+    $ll="回传权重";
+    $cc="rg_Weight_Calculation 1";
+}
+
+int $v1=`objExists ($rgModel+"_Outside")`;
+int $v2=`objExists ($rgModel+"_Middle")`;
+int $v3=`objExists ($rgModel+"_Within")`;
+
+formLayout apForm ;
+	textField -tx $rgModel apTextModelName;
+	button -l "载入模型" -c "rg_Loading_Model" apModelName_but;
+	textField -tx $rgRTJot apTextJointName;
+	button -l "载入根关节" -c "rg_Loading_Joint" apJointName_but;
+	textScrollList apTextDescendentsJoints;
+	button -l "载入子关节" -c "rg_Loading_Descendents_Joints" apDescendentsJoints_but;
+	checkBoxGrp -h 25 -cw4 65 66 66 66 -ncb 3 -l "选择环线：" -la3 "外环线" "主环线" "内环线" -v1 $v1 -v2 $v2 -v3 $v3 
+				  -on1 rg_Outside_Ring -of1 rg_Outside_Ring_del
+				  -on2 rg_Middle_Ring -of2 rg_Middle_Ring_del
+				  -on3 rg_Within_Ring -of3 rg_Within_Ring_del 
+				  apBox_a;
+
+	intSliderGrp -adj 3 -cw3 65 45 1 -l "平滑次数：" -f 1 -min 0 -max 36 -v 0 asSmoothSeconds;
+	intSliderGrp -adj 3 -cw3 65 45 1 -l "扩展范围：" -f 1 -min 0 -max 36 -v 0 asExtendSize;
+	floatSliderGrp -cw3 65 45 140 -l "关节大小：" -field 1 -min 0.01 -max 10.0 -pre 2 -v `jointDisplayScale -q` -dc "jointDisplayScale #1" -cc "jointDisplayScale #1" asJotSize;
+
+	button -l "编辑权重" -c "rg_Edit_Weight" apEditWeight;
+	button -h 35 -bgc 0.084 0.235 0.381 -l $ll -c $cc apBranchWeight;
+
+	progressBar -h 15 -maxValue 100 -m 0 apPro_a;
+	//progressBar -h 10 -maxValue 100 -m 1 apPro_b;
+setParent..;
+
+formLayout -e
+
+ -attachForm apTextModelName "top" 0
+ -attachForm apTextModelName "left" 0
+ -attachNone apTextModelName "bottom"
+ -attachForm apTextModelName "right" 0
+
+ -attachControl apModelName_but "top" 0 apTextModelName
+ -attachForm apModelName_but "left" 0
+ -attachNone apModelName_but "bottom"
+ -attachForm apModelName_but "right" 0
+
+ -attachControl apTextJointName "top" 0 apModelName_but
+ -attachForm apTextJointName "left" 0
+ -attachNone apTextJointName "bottom"
+ -attachForm apTextJointName "right" 0
+
+ -attachControl apJointName_but "top" 0 apTextJointName
+ -attachForm apJointName_but "left" 0
+ -attachNone apJointName_but "bottom"
+ -attachForm apJointName_but "right" 0
+ 
+ -attachControl apTextDescendentsJoints "top" 0 apJointName_but
+ -attachForm apTextDescendentsJoints "left" 0
+ -attachControl apTextDescendentsJoints "bottom" 0 apDescendentsJoints_but
+ -attachForm apTextDescendentsJoints "right" 0 
+
+ -attachNone apDescendentsJoints_but "top" 
+ -attachForm apDescendentsJoints_but "left" 0
+ -attachControl apDescendentsJoints_but "bottom" 0 apBox_a
+ -attachForm apDescendentsJoints_but "right" 0 
+ 
+ -attachNone apBox_a "top" 
+ -attachForm apBox_a "left" 0
+ -attachControl apBox_a "bottom" 0 asSmoothSeconds
+ -attachForm apBox_a "right" 0 
+ 
+ -attachNone asSmoothSeconds "top" 
+ -attachForm asSmoothSeconds "left" 0
+ -attachControl asSmoothSeconds "bottom" 0 asExtendSize
+ -attachForm asSmoothSeconds "right" 0  
+
+ -attachNone asExtendSize "top" 
+ -attachForm asExtendSize "left" 0
+ -attachControl asExtendSize "bottom" 0 asJotSize
+ -attachForm asExtendSize "right" 0  
+
+ -attachNone asJotSize "top" 
+ -attachForm asJotSize "left" 0
+ -attachControl asJotSize "bottom" 0 apEditWeight
+ -attachForm asJotSize "right" 0  
+
+ -attachNone apEditWeight "top" 
+ -attachForm apEditWeight "left" 0
+ -attachControl apEditWeight "bottom" 0 apBranchWeight
+ -attachForm apEditWeight "right" 0  
+
+ -attachNone apBranchWeight "top" 
+ -attachForm apBranchWeight "left" 0
+ -attachControl apBranchWeight "bottom" 0 apPro_a
+ -attachForm apBranchWeight "right" 0  
+  
+ -attachNone apPro_a "top" 
+ -attachForm apPro_a "left" 0
+ -attachForm apPro_a "bottom" 0
+ -attachForm apPro_a "right" 0  
+  
+ apForm ;
+
+if(`objExists $rgRTJot`){
+    if(`optionVar -ex rgADJot`){
+	    string $rgADJot[]=`optionVar -q rgADJot`;
+	    if (`objExists $rgRTJot`){
+		    for($i=1;$i<size($rgADJot);$i++){
+			    textScrollList -e -a $rgADJot[$i] apTextDescendentsJoints;
+		    }
+	    }
+	}
+}
+
+showWindow rg_Ring_Weight_Calculation_Win;
+
+print "||=========>>欢迎使用绑定师助手<<=========||\n";
+
+}
+rg_Ring_Weight_Calculation_Win;
+window -e -w 220 rg_Ring_Weight_Calculation_Win;
+
+//=================重置=================//
+global proc rg_Refresh (){
+	textField -e -tx "" apTextModelName; 
+	textField -e -tx "" apTextJointName ;
+	textScrollList -e -ra apTextDescendentsJoints ; 
+	checkBoxGrp -e -v1 0 -v2 0 -v3 0 apBox_a;
+	optionVar -rm rgModel;
+	optionVar -rm rgRTJot;
+	optionVar -rm rgADJot;
+	rg_Button_Switch 0;
+}
+
+//=================删除历史文件=================//
+global proc rg_Delete_Temp (){
+	string $grptemp=`optionVar -q apTemp_Grp`;
+		if(`optionVar -ex apTemp_Grp`){
+			if(`objExists $grptemp`){
+				delete $grptemp;
+				optionVar -rm apTemp_Grp;
+		}
+		else error "未找到历史文件！！！";
+		}
+		else error "历史文件已删除！！！";
+}
+
+//=================按钮切换=================//
+global proc rg_Button_Switch (int $tra){
+if($tra==0){
+    button -e -l "分配权重" -c "rg_Weight_Calculation 0" apBranchWeight;
+    optionVar -iv rgBranchWeight 0;
+    }
+if($tra==1){
+    button -e -l "回传权重" -c "rg_Weight_Calculation 1" apBranchWeight;
+    optionVar -iv rgBranchWeight 1;
+    }
+}
+
+//=================载入模型=================//
+global proc rg_Loading_Model (){
+    string $sel[]=`ls -sl`;
+
+    int $size=size($sel);
+    if($size==0)error "没有选择任何模型！！！";
+
+    textField -e -tx $sel[0] apTextModelName;
+    optionVar -sv rgModel $sel[0];
+}
+
+//=================载入根关节=================//
+global proc rg_Loading_Joint (){
+	string $sel[]=`ls -sl -type "joint"`;
+
+	int $size=size($sel);
+	if($size==0)error "没有选择任何关节！！！";
+
+string $rgModel=`optionVar -q rgModel`;
+
+string $tempString[]=`listHistory $rgModel`;
+string $skinCluster;
+for ($y=0;$y<size($tempString);$y++)
+	if (`objectType $tempString[$y]`=="skinCluster"){
+		$skinCluster=$tempString[$y];
+		optionVar -sv rgSkinCluster $skinCluster;
+	}
+
+	if (!`objExists $skinCluster`)
+		error "选定模型未添加蒙皮！！！";
+
+    textField -e -tx $sel[0] apTextJointName;
+    optionVar -sv rgRTJot $sel[0];
+
+string $grp=$rgModel+"_temp_grp";
+if(!`objExists $grp`){
+	group -em -n $grp;
+	optionVar -sv apTemp_Grp $grp;
+}
+if(!`objExists ($sel[0]+"_temp_jot")`){
+	select -cl;
+	float $pos[]=`xform -q -ws -t $sel[0]`;
+	string $temp_jot=`joint -p $pos[0] $pos[1] $pos[2] -n ($sel[0]+"_temp_jot")`;
+	parent $temp_jot $grp;
+	optionVar -sv rgTemp_Joint $temp_jot;
+	catchQuiet (`skinCluster -e -ug -lw 0 -wt 0 -ai $temp_jot $skinCluster`);
+}
+}
+
+//=================载入子关节=================//
+global proc rg_Loading_Descendents_Joints (){
+    string $sel[]=`ls -sl -typ "joint"`;
+    int $size=size($sel);
+    if($size==0)error "没有选择任何关节！！！";
+    textScrollList -e -ra apTextDescendentsJoints;
+    optionVar -sv rgADJot {};
+    for($i in $sel){
+    	textScrollList -e -a $i apTextDescendentsJoints;
+    	optionVar -sva rgADJot $i;
+    }
+}
+
+//=================外圈按钮=================//
+global proc rg_Outside_Ring (){
+
+string $rgModel=`optionVar -q rgModel`;
+	if ( catchQuiet ( `polyToCurve -f 1 -dg 1 -usm 0 -ch 0 -n ($rgModel+"_Outside")`) ) {
+		checkBoxGrp -e -v1 0 apBox_a;
+		error "请选择外环线！！！" ;
+	}
+
+string $Ou=$rgModel+"_Outside";
+
+rg_Adjust_Curve $Ou;
+
+string $grp=$rgModel+"_temp_grp";
+if(!`objExists $grp`){
+	group -em -n $grp;
+	optionVar -sv apTemp_Grp $grp;
+}
+select -r ($Ou+".cv[:]");
+string $cv[]=`ls -sl -fl`;
+int $vtx_s=`rg_Closest_Vtx $cv[0]`;
+string $vtx_m=`rg_vtx_compose $rgModel $vtx_s`;
+
+rg_Transverse_Vtx $vtx_m;
+
+parent $Ou $grp;
+optionVar -rm rgOutside ;
+	for($i in $cv){
+		int $vtx=`rg_Closest_Vtx $i`;
+		optionVar -iva rgOutside $vtx;
+	}
+}
+global proc rg_Outside_Ring_del (){
+	string $rgModel=`optionVar -q rgModel`;
+	catchQuiet (`delete ($rgModel+"_Outside")`);
+	optionVar -rm rgOutside;
+	checkBoxGrp -e -v2 0 -v3 0 apBox_a;
+	rg_Middle_Ring_del;
+	rg_Within_Ring_del;
+}
+
+//=================中圈按钮=================//
+global proc rg_Middle_Ring (){
+
+int $ex=`checkBoxGrp -q -v1 apBox_a`;
+if($ex==0){
+	checkBoxGrp -e -v2 0 apBox_a;
+	error "请先选择外环线！！！";
+}
+
+string $rgModel=`optionVar -q rgModel`;
+
+	if ( catchQuiet ( `polyToCurve -f 1 -dg 1 -usm 0 -ch 0 -n ($rgModel+"_Middle")`) ) {
+		checkBoxGrp -e -v2 0 apBox_a;
+		error "请选择主环线！！！" ;
+	}
+
+string $Mi=$rgModel+"_Middle";
+
+rg_Adjust_WiMi_Curve $Mi;
+
+string $grp=$rgModel+"_temp_grp";
+if(!`objExists $grp`){
+	group -em -n $grp;
+	optionVar -sv apTemp_Grp $grp;
+}
+parent $Mi $grp;
+
+select -r ($Mi+".cv[:]");
+string $cv[]=`ls -sl -fl`;
+
+optionVar -rm rgMiddle;
+	for($i in $cv){
+		int $vtx=`rg_Closest_Vtx $i`;
+		optionVar -iva rgMiddle $vtx;
+	}
+}
+
+global proc rg_Middle_Ring_del (){
+	string $rgModel=`optionVar -q rgModel`;
+	catchQuiet (`delete ($rgModel+"_Middle")`);
+	optionVar -rm rgMiddle;
+}
+
+//=================内圈按钮=================//
+global proc rg_Within_Ring (){
+
+int $ex=`checkBoxGrp -q -v1 apBox_a`;
+if($ex==0){
+	checkBoxGrp -e -v3 0 apBox_a;
+	error "请先选择外环线！！！";
+}
+
+string $rgModel=`optionVar -q rgModel`;
+
+	if ( catchQuiet ( `polyToCurve -f 1 -dg 1 -usm 0 -ch 0 -n ($rgModel+"_Within")`) ) {
+		checkBoxGrp -e -v3 0 apBox_a;
+		error "请选择内环线！！！" ;
+	}
+
+string $Wi=$rgModel+"_Within";
+rg_Adjust_WiMi_Curve $Wi;
+
+string $grp=$rgModel+"_temp_grp";
+if(!`objExists $grp`){
+	group -em -n $grp;
+	optionVar -sv apTemp_Grp $grp;
+}
+parent $Wi $grp;
+
+select -r ($Wi+".cv[:]");
+string $cv[]=`ls -sl -fl`;
+
+optionVar -rm rgWithin ;
+	for($i in $cv){
+		int $vtx=`rg_Closest_Vtx $i`;
+		optionVar -iva rgWithin $vtx;
+	}
+}
+
+global proc rg_Within_Ring_del (){
+	string $rgModel=`optionVar -q rgModel`;
+	catchQuiet (`delete ($rgModel+"_Within")`);
+	optionVar -rm rgWithin;
+}
+
+//=================重新编辑曲线=================//
+global proc rg_Adjust_Curve (string $curve){
+
+select -r ($curve+".cv[:]");
+string $cv[]=`ls -sl -fl`;
+
+string $curve_sp[]=`listRelatives -s $curve`;
+
+string $vtx=`rg_Obtain_Size $cv 0 1`;
+
+float $cv_u=`rg_int_split $vtx`;
+
+select -r ($curve+".u["+$cv_u+"]");
+catchQuiet (`moveNurbsCurveSeam`) ;
+
+int $jj=size($cv)-1;
+float $pos_t[]=`xform -q -ws -t $cv[1]`;
+float $pos_e[]=`xform -q -ws -t $cv[$jj]`;
+if($pos_t[1]<$pos_e[1])
+	reverseCurve -ch 0 -rpo 1 $curve;
+
+}
+
+//=================重新编辑中内曲线=================//
+global proc rg_Adjust_WiMi_Curve (string $curve){
+
+select -r ($curve+".cv[:]");
+string $cv[]=`ls -sl -fl`;
+
+string $rgModel=`optionVar -q rgModel`;
+
+optionVar -rm rgCvVtx;
+for($i in $cv){
+	int $s=`rg_Closest_Vtx $i`;
+	string $vtx=`rg_vtx_compose $rgModel $s`;
+	optionVar -sva rgCvVtx $vtx;
+}
+
+string $cvvtx[]=`optionVar -q rgCvVtx`;
+string $tran[]=`optionVar -q rgTraVtx`;
+
+for($k in $cvvtx){
+ 	int $ex=stringArrayContains($k,$tran);
+ 	if($ex==1){
+ 		select $k;
+ 		break;
+ 	}
+}
+
+string $vtx_x[]=`ls -sl`;
+
+float $cv_u=`rg_Closest_Cv $curve $vtx_x[0]`;
+select -r ($curve+".u["+$cv_u+"]");
+catchQuiet (`moveNurbsCurveSeam`) ;
+
+int $xx=size($cv)-1;
+float $pos_t[]=`xform -q -ws -t $cv[1]`;
+float $pos_e[]=`xform -q -ws -t $cv[$xx]`;
+if($pos_t[1]<$pos_e[1]){
+	reverseCurve -ch 0 -rpo 1 $curve;
+}
+}
+
+//=================获取模型最近点=================//
+global proc int rg_Closest_Vtx (string $obj){
+
+string $rgModel=`optionVar -q rgModel`;
+string $rgModel_sp[]=`listRelatives -s $rgModel`;
+string $node=`createNode closestPointOnMesh`;
+connectAttr -f ($rgModel_sp[0]+".outMesh") ($node+".inMesh") ;
+float $pos[]=`xform -q -ws -t $obj`;
+setAttr -typ float3 ($node+".inPosition") $pos[0] $pos[1] $pos[2];
+int $vtx=`getAttr ($node+".closestVertexIndex")`;
+delete $node;
+return $vtx;
+
+}
+
+//=================获取CV最近点=================//
+
+global proc int rg_Closest_Cv (string $cv,string $obj){
+
+	string $cv_sp[]=`listRelatives -s $cv`;
+	string $node=`createNode nearestPointOnCurve`;
+	connectAttr -f ($cv_sp[0]+".worldSpace[0]") ($node+".inputCurve") ;
+	float $pos[]=`xform -q -ws -t $obj`;
+	setAttr -typ float3 ($node+".inPosition") $pos[0] $pos[1] $pos[2];
+	int $vtx=`getAttr ($node+".parameter")`;
+	delete $node;
+	return $vtx;
+
+}
+
+//=================获取最近关节=================//
+global proc string rg_Closest_Joint (string $obj){
+
+	float $pos_a[]=`xform -q -ws -t $obj`;
+	string $jot[]=`textScrollList -q -ai apTextDescendentsJoints`;
+	string $node=`createNode distanceBetween`;
+	setAttr -type float3 ($node+".point1") $pos_a[0] $pos_a[1] $pos_a[2];
+	optionVar -rm rgClosestJoint;
+	for ($i in $jot){
+		float $pos_b[]=`xform -q -ws -t $i`;
+		setAttr -type float3 ($node+".point2") $pos_b[0] $pos_b[1] $pos_b[2];
+		float $dis=`getAttr ($node+".distance")`;
+		string $sva=$dis+" "+$i;
+		optionVar -sva rgClosestJoint $sva;
+	}
+
+	string $ClosestJoint[]=`optionVar -q rgClosestJoint`;
+	string $clo_jot_all[]=`sort $ClosestJoint`;
+
+	string $clo[];
+	int $s=`tokenize $clo_jot_all[0] " " $clo`;
+	string $clo_jot=$clo[1];
+	delete $node;
+	return $clo_jot;
+
+}
+
+//=================获取横向点=================//
+global proc rg_Transverse_Vtx (string $obj){
+
+string $rgModel=`optionVar -q rgModel`;
+
+select -r $obj;
+PolySelectTraverse 5;
+string $vtx_a[]=`ls -sl -fl`;
+
+string $vtx=`rg_Obtain_Size $vtx_a 0 1`;
+
+int $vtx_e=`rg_int_split $obj`;
+int $vtx_t=`rg_int_split $vtx`;
+
+int $hol[]=`polySelect -sep $vtx_e $vtx_t $rgModel`;
+int $cir[]=`polySelect -elb $hol[0] $rgModel`;
+ConvertSelectionToVertices;
+string $vtx_obj[]=`ls -sl -fl`;
+optionVar -rm rgTraVtx;
+for($j in $vtx_obj){
+	optionVar -sva rgTraVtx $j;
+}
+}
+//=================编辑权重=================//
+global proc rg_Edit_Weight (){
+string $rgModel=`optionVar -q rgModel`;
+select -r $rgModel;
+ArtPaintSkinWeightsToolOptions ;
+}
+
+//=================计算按钮=================//
+global proc rg_Weight_Calculation (int $tar){
+
+SelectTool;
+
+string $rgModel=`optionVar -q rgModel`;
+string $rgRTJot=`optionVar -q rgRTJot`;
+string $jot[]=`textScrollList -q -ai apTextDescendentsJoints`;
+string $tmep_jot=`optionVar -q rgTemp_Joint`;
+string $skinCluster=`optionVar -q rgSkinCluster`;
+
+int $Ou_vtx[]=`optionVar -q rgOutside`;
+int $Mi_vtx[]=`optionVar -q rgMiddle`;
+int $Wi_vtx[]=`optionVar -q rgWithin`;
+int $numSmoo=`intSliderGrp -q -v asSmoothSeconds`;
+int $Extend=`intSliderGrp -q -v asExtendSize`;
+
+int $speed=size($Mi_vtx);	
+
+	setAttr ($rgRTJot+".liw") 1;
+	setAttr ($tmep_jot+".liw") 0;
+
+if($tar==0){
+
+for($j in $jot){
+	setAttr ($j+".liw") 1;
+}
+progressBar -e -m 1 -bp -ii true -max $speed apPro_a;
+
+for($p=0;$p<size($Mi_vtx);$p++){
+    progressBar -e -s 1 apPro_a;
+    string $vtx=`rg_vtx_compose $rgModel $Mi_vtx[$p]`;
+    string $jot_near=`rg_Closest_Joint $vtx`;
+    setAttr ($jot_near+".liw") 0;
+    select -cl;
+    rg_Select_Least_Edges_Path $Ou_vtx[$p] $Wi_vtx[$p] ;
+    ConvertSelectionToVertices;
+    rg_Extend_Selection $Ou_vtx[$p] $Extend;
+    skinPercent -tmw $tmep_jot -tmw $jot_near $skinCluster;
+}
+progressBar -e -ep apPro_a;
+if($numSmoo!=0){
+select -cl;
+
+for($t in $Mi_vtx){
+    string $vtx=`rg_vtx_compose $rgModel $t`;
+    select -add $vtx;
+}
+string $Mi_all[]=`ls -sl -fl`;
+    select -r $Mi_all;
+    rgInvertSelection;
+for($i in $jot){
+    progressBar -e -s 1 apPro_a;
+    ArtPaintSkinWeightsTool; 
+    artAttrSkinPaintCtx -e -sao smooth -influence $i artAttrSkinContext;
+    artSkinInflListChanging $i 1;
+    artSkinInflListChanged artAttrSkinPaintCtx;
+    for ($u=0;$u<$numSmoo;$u++)
+	    artFloodSurfaces;
+}
+}
+    SelectTool ;
+    progressBar -e -ep apPro_a;
+    progressBar -e -m 0 apPro_a;
+    rg_Button_Switch 1;
+    print "||=========>>已完成分配<<=========||\n";
+}
+
+if($tar==1){
+    for($r in $jot){
+	    setAttr ($r+".liw") 0;
+    }
+    select -cl;
+    select -r $rgModel;
+    ArtPaintSkinWeightsTool; 
+    artAttrSkinPaintCtx -e -sao absolute -influence $tmep_jot artAttrSkinContext;
+    artSkinInflListChanging $tmep_jot 1;
+    artSkinInflListChanged artAttrSkinPaintCtx;
+    artFloodSurfaces;
+    SelectTool ;
+    rg_Button_Switch 0;
+    print "||=========>>已完成回传<<=========||\n";
+}
+}
+
+//=================获取位置最大最小参数=================//
+global proc string rg_Obtain_Size (string $obj[],int $xyz,int $size ){
+
+optionVar -rm rgObtainSize ;
+for ($i=0;$i<size($obj);$i++){
+	float $pos[]=`xform -q -ws -t $obj[$i]`;
+	string $sva=$pos[$xyz]+" "+$obj[$i];
+	optionVar -sva rgObtainSize $sva;
+}
+
+string $size_s[]=`optionVar -q rgObtainSize`;
+string $sort[]=`sort $size_s`;
+
+string $size_n;
+if($size==0){
+    $size_n=$sort[0];
+}
+if($size==1){
+    int $j=size($sort)-1;
+    $size_n=$sort[$j];
+}
+
+    string $size_f[];
+    int $v=`tokenize $size_n " " $size_f`;
+    string $size_name=$size_f[1];
+
+    return $size_name;
+}
+
+//=================线选择=================//
+global proc rg_Select_Least_Edges_Path (int $startVtxNr, int $endVtxNr) {
+
+string $geometry=`optionVar -q rgModel`;
+
+string $tempString[];
+
+select $geometry;
+
+select ($geometry+".vtx["+$startVtxNr+"]") ($geometry+".vtx["+$endVtxNr+"]");
+$tempString=`polySelectSp -q -loop`;
+
+if (size($tempString))
+	{
+	select $tempString;
+	$tempString=`ls -sl -fl`;
+	if (!`stringArrayCount ($geometry+".vtx["+$startVtxNr+"]") $tempString`)
+		{
+		select -cl;
+		clear $tempString;
+		}
+	if (!`stringArrayCount ($geometry+".vtx["+$endVtxNr+"]") $tempString`)
+		{
+		select -cl;
+		clear $tempString;
+		}
+	}
+
+if (!size($tempString))
+	$tempString=`polySelectSp -q -ring`;
+
+if (size($tempString))
+	{
+	select $tempString;
+	$tempString=`ls -sl -fl`;
+	if (!`stringArrayCount ($geometry+".vtx["+$endVtxNr+"]") $tempString`)
+		{
+		select -cl;
+		clear $tempString;
+		}
+	}
+
+if (size($tempString))
+	{
+	select $tempString;
+	ConvertSelectionToContainedEdges;
+	}
+else
+	{
+	select $geometry;
+	select `polySelect -q -asSelectString -shortestEdgePath $startVtxNr $endVtxNr`;
+	}
+}
+
+global proc rgInvertSelection (){
+
+string $tempString[]=`ls -sl`;
+string $tempString2[]=`ls -sl -o`;
+if (`gmatch $tempString[0] "*[.]vtx*"`)
+	{
+	select ($tempString2[0]+".vtx[:]");
+	select -d $tempString;
+	}
+else if (`gmatch $tempString[0] "*[.]f*"`)
+	{
+	select ($tempString2[0]+".f[:]");
+	select -d $tempString;
+	}
+else if (`gmatch $tempString[0] "*[.]e*"`)
+	{
+	select ($tempString2[0]+".e[:]");
+	select -d $tempString;
+	}
+else
+	InvertSelection;
+}
+
+//=================点转换=================//
+global proc int rg_int_split (string $vtx_all){
+	string $vtx_f[];
+	int $s=`tokenize $vtx_all "[ ]" $vtx_f`;
+	int $int=$vtx_f[1];
+	return $int;
+}
+
+global proc string rg_vtx_compose (string $obj,int $vtx){
+	string $obj_sp[]=`listRelatives -s $obj`;
+	string $obj_vtx=$obj_sp[0]+".vtx["+$vtx+"]";
+	return $obj_vtx;
+}
+
+global proc string rg_e_compose (string $obj,int $e){
+	string $obj_e=$obj+".e["+$e+"]";
+	return $obj_e;
+}
+
+//=================扩展选择=================//
+
+global proc rg_Extend_Selection (int $Ou_v ,int $Extend){
+    string $vtx_a[]=`ls -sl -fl`;
+    string $rgModel=`optionVar -q rgModel`;
+    select -cl;
+    select -r `rg_vtx_compose $rgModel $Ou_v`;
+    GrowLoopPolygonSelectionRegion;
+    string $vtx_b[]=`ls -sl -fl`;
+    select -cl;
+    for($k=0;$k<size($vtx_b);$k++){
+    string $vtx_l=$vtx_b[$k];
+    int $ex=stringArrayContains($vtx_l,$vtx_a);
+        if($ex==1){
+ 		    select -add $vtx_l;
+        }
+    }
+    string $vtx_sten[]=`ls -sl -fl`;
+    int $sta=`rg_int_split $vtx_sten[0]`;
+    int $end=`rg_int_split $vtx_sten[1]`;
+    int $ee[]=`polySelect -sep $sta $end $rgModel`;
+    int $vts_e[]=`polySelect -elb $ee[0] $rgModel`;
+    
+    int $ss;
+    for($i=0;$i<size($vts_e);$i++){
+        if($vts_e[$i]==$ee[0])
+            $ss=$i;
+    }
+    select -cl;
+    for($j=0;$j<$Extend;$j++){
+        int $a=$ss+$j+1;
+        int $d=$ss-$j-1;
+        if($a>0&&$a<size($vts_e))
+            select -add `rg_e_compose $rgModel $vts_e[$a]`;
+        if($d>0&&$d<size($vts_e))
+            select -add `rg_e_compose $rgModel $vts_e[$d]`;
+    }
+    select -add `rg_e_compose $rgModel $vts_e[$ss]`;
+    ConvertSelectionToVertices;
+    select -add $vtx_a;
+}
+
+/*
+global proc gtSmoothFlood (string $infA, string $infB, int $numSmoo){
+
+string $rgModel=`optionVar -q rgModel`;
+string $rgModel_sp[]=`listRelatives -s $rgModel`;
+string $skin[]=`listConnections -c 0 -type "skinCluster" $rgModel_sp[0]`;
+string $skinCluster=$skinCluster;
+
+string $infJoints[]=`listConnections ($skinCluster+".matrix")`;
+
+if ($infB!="")
+	for ($i=0;$i<size($infJoints);$i++)
+		{
+		setAttr ($infJoints[$i]+".lockInfluenceWeights") 1;
+		if ($infJoints[$i]==$infA || $infJoints[$i]==$infB)
+			setAttr ($infJoints[$i]+".lockInfluenceWeights") 0;
+		}
+
+ArtPaintSkinWeightsTool; 
+artAttrSkinPaintCtx -e -sao smooth -influence $infA artAttrSkinContext;
+artSkinInflListChanging $infA 1;
+artSkinInflListChanged artAttrSkinPaintCtx;
+for ($i=0;$i<$numSmoo;$i++)
+	artFloodSurfaces;
+
+for ($i=0;$i<size($infJoints);$i++)
+	setAttr ($infJoints[$i]+".lockInfluenceWeights") 0;
+
+}
+*/
+
+
+
+
+
+
+
+
+
+

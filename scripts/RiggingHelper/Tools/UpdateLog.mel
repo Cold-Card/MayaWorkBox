@@ -1,0 +1,110 @@
+
+global proc WinUpdateLog (){
+
+if(`window -ex UpdateLog`)
+    deleteUI -window UpdateLog;
+
+window -title "更新日志" UpdateLog;
+
+    scrollLayout ;
+    rowColumnLayout -numberOfColumns 1 ;
+
+    scrollField -h 110 -wordWrap true
+            -text "百度云更新下载链接：\nhttps://pan.baidu.com/s/1X-H5nE4xiLiku3sJiBHt-w \n提取码：cons\n收费版需要添加微信15697077077获取永久最新版！！"
+            -editable false ;
+
+    frameLayout  -cll 1 -cl 0 -l "版本3.0.0" ;
+        string $text251="";
+        	   $text251+="1、修复绳子飘带绑定工具的缩放功能。\n";
+			   $text251+="2、修复部分BUG。\n";
+        scrollField -h 260 -wordWrap true
+            -text $text251
+            -editable false ;
+    setParent..;            
+
+    frameLayout  -cll 1 -cl 0 -l "版本2.5.0" ;
+        string $text250="";
+        	   $text250+="1、优化内核运算方式,加快运行效率。\n";
+        	   $text250+="2、全新的UI设计，记忆UI界面，使用更得心应手。\n";
+        	   $text250+="3、亮点更新：新增创建颈椎控制器功能。\n";
+        	   $text250+="4、亮点更新：名称栏添加数字编号移到后缀。\n";
+        	   $text250+="5、优化控制器缩放、旋转和复制控制器功能。\n";
+        	   $text250+="6、更改默认预设颜色为24原色,优化颜色菜单。\n";
+        	   $text250+="7、增加多选设置彩色控制器。\n";
+        	   $text250+="8、增加五个圆角图形，从D03-D07。\n";
+
+        scrollField -h 200 -wordWrap true
+            -text $text250
+            -editable false ;
+    setParent..;
+
+    frameLayout  -cll 1 -cl 0 -l "版本2.4.3" ;
+        string $text243="";
+        	   $text243+="1、升级并优化沿曲线创建关节功能，加添旋转控制选项。\n";
+               $text243+="2、修复IKFK无缝切换程序冲突问题，并升级IKFK软修改功能。\n";
+               $text243+="3、曲线栏添加调整线宽功能，选择曲线直接可以调整线宽。\n";
+               $text243+="4、修改“名称规范”为“快速命名”。\n";
+               $text243+="5、修改UI主题。\n";
+               $text243+="6、优化部分功能。\n";
+               $text243+="7、创建控制器连接添加子级模式，勾选子级模式，选择第一个关节点击创建，除最后一个关节外所有子级关节均创建控制器。\n";
+               $text243+="8、添加创建毛囊控制器功能。\n";
+               $text243+="9、重头更新：最老版本支持到maya2016版。";
+        scrollField -h 260 -wordWrap true
+            -text $text243
+            -editable false ;
+    setParent..;
+
+    frameLayout  -cll 1 -cl 0 -l "版本2.4.2" ;
+        string $text242="";
+        	   $text242+="1、修复IKFK K帧后无法正常无缝切换的问题。\n";
+			   $text242+="2、添加模型切头工具，选择模型切线，点击即可，右击按钮可调整错误方向。\n";
+			   $text242+="3、亮点更新：优化帮助功能，部分功能新增帮助按钮，让新手也能轻松上手，帮助内容将会持续完善。\n";
+			   $text242+="4、快捷小功能添加显示轴向功能，单击显示，双击隐藏。\n";
+			   $text242+="5、亮点更新：名称栏优化快速选择按钮，可根据类型快速选择子级所有同类型对象。\n";
+			   $text242+="6、名称栏添加检查重名并删除未知节点功能。\n";
+			   $text242+="7、亮点更新：属性栏添加批量转移属性连接功能，可以快速转移连接属性。\n";
+        scrollField -h 300 -wordWrap true
+            -text $text242
+            -editable false ;
+    setParent..;
+
+    frameLayout  -cll 1 -cl 0 -l "版本2.4.1" ;
+        string $text241="";
+        	   $text241+="1、优化颜色模块，双击色块可以自定义预设颜色。\n";
+        	   $text241+="2、添加快速平滑权重。\n";
+        	   $text241+="3、添加快速复制蒙皮。\n";
+        	   $text241+="4、名称栏添加选择所有子关节。\n";
+        	   $text241+="5、升级快速创建关节链。\n";
+        	   $text241+="6、添加属性功能新增“向量”和“字符”属性。\n";
+        	   $text241+="7、重点更新IKFK功能，模块化创建IKFK所需要的高级功能，添加IKFK无缝切换。\n";
+        	   $text241+="8、添加创建控制器Shapes连接方式。\n";
+        	   $text241+="9、创建控制器添加FK模式。\n";
+        scrollField -h 220 -wordWrap true
+            -text $text241
+            -editable false ;
+    setParent..;
+
+    frameLayout  -cll 1 -cl 0 -l "版本2.4" ;
+        scrollField -h 170 -wordWrap true
+            -text "1、优化次级绑定。 \n2、优化IKFK切换绑定，添加Twist属性功能。 \n3、优化创建控制器建立FK功能。\n4、添加沿曲线创建关节小工具。\n5、添加快捷小功能。\n6、添加底端工具条，可快速还原控制器初始位置。\n7、优化IU。"
+            -editable false ;
+    setParent..;
+
+    frameLayout  -cll 1 -cl 0 -l "版本2.2" ;
+        scrollField -h 200 -wordWrap true
+            -text "1、解决双击创建，更新后可以创建在任意选择对象中心，或组件点中心创建控制器。 \n2、添加批量连接属性的功能。 \n3、单关节权重计算的工具升级到2.0版本。\n4、修复部分BUG。"
+            -editable false ;
+    setParent..;
+
+    setParent..;  
+    setParent..;
+
+showWindow UpdateLog;
+window -e -wh 275 400 UpdateLog;
+}
+WinUpdateLog;
+
+
+
+
+
