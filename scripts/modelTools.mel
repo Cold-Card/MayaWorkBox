@@ -1,0 +1,1123 @@
+source cleanUpScene.mel;
+global proc modelTools()
+{
+if(`window -ex modelTool`)
+	deleteUI modelTool;
+window -t "Model Tools"
+	   -wh 250 400
+	   modelTool;
+columnLayout -adj 1 colMain;
+  columnLayout second;
+   separator -h 10 -style "none";
+   rowLayout -nc 2 -cw2 10 200;
+     text -l ""; 
+     checkBox -l "单独显示选择物体" -align "left" -cc "toggleIsolate " toggle;
+    setParent ..;
+   separator -h 10 -style "none";
+  setParent colMain;	  
+  columnLayout -adj 1;
+   scrollLayout -horizontalScrollBarThickness  0 -cr 1  mainScroll;
+      columnLayout -adj true mainFrame;
+        frameLayout -l "模型与网格对齐" -collapsable 1 -borderStyle "etchedIn" modelGrid;
+         columnLayout -adj 1;
+           separator -h 5 -style "none";
+           button -l "对齐网格" -c "setAxisOrigin" -bgc 0.9 0.9 1;
+           separator -h 3 -style "none";
+          setParent ..;
+         setParent ..;
+         frameLayout -l "模型身高测量" -collapsable 1 -borderStyle "etchedIn" modelHeight;
+           columnLayout -adj 1;
+             separator -h 5 -style "none";
+             button -l "模型身高测量" -c "measure_Heights" -bgc 0.9 0.9 1;
+             popupMenu;
+               menuItem -l "删除参考组" -c "delete \"measureTool*\"" ; 
+             separator -h 3 -style "none";
+           setParent ..;
+         setParent ..;
+         frameLayout -l "模型对称" -collapsable 1 -borderStyle "etchedIn" modelSys;
+           columnLayout -adj 1;
+            separator -h 5 -style "none";
+            rowLayout -nc 2 -cw2 20 200;
+            text -l ""; 
+            radioButtonGrp -numberOfRadioButtons 3 -labelArray3 "YZ" "XZ" "XY" -cw3 70 70 70 -sl 1 axis;
+           setParent ..;
+         separator -h 5 -style "in";
+         rowLayout -nc 2 -cw2 90 200;
+           text -l "  Global Tolerance";
+           floatField -v 0.001 -pre 4 -minValue 0 -maxValue 0.01 -w 80 tol;
+         setParent ..;
+         separator -h 5 -style "in";
+         button -l "Check Symmetry" -c "checkSym" -bgc 0.9 0.9 1;
+         separator -h 3 -style "none";
+        setParent ..;
+       setParent ..;
+       frameLayout -l "模型硬边显示" -collapsable 1 -borderStyle "etchedIn" modelBorder;
+         columnLayout -adj 1;
+          separator -h 5 -style "none";
+          button -l "打开/关闭" -c "toggleBorder" -bgc 0.9 0.9 1; 
+          separator -h 3 -style "none";
+          button -l "选择边界" -c "selectBorder" -bgc 0.9 0.9 1;
+          separator -h 3 -style "none";
+         setParent ..;
+       setParent ..;
+       frameLayout -l "检查多边面" -collapsable 1 -borderStyle "etchedIn" modelFace;
+          columnLayout -adj 1;
+            separator -h 5 -style "none";
+            button -l "三角面" -c "faces 1" -bgc 0.9 0.9 1; 
+            separator -h 3 -style "none";
+            button -l "多边面" -c "faces 2" -bgc 0.9 0.9 1;
+            separator -h 10 -w 500 -style "in";
+            checkBox -l "  标记三角面/多边面"  -cc "deleteMaterial" -align "left" maker;
+            separator -h 10 -w 500 -style "in";
+            button -l "Toggle Normals" -c "toggleNormals" -bgc 0.9 0.9 1;
+            separator -h 5 -style "none";
+            rowLayout -nc 5 -cw5 40 50 30 30 80;
+              text -l "  长度 ";
+              floatField -v 0.3 -pre 1 -cc "polyOptions -ao -sn `floatField -q -v length`" length;
+              text -l "      ";
+              text -l "  类型 ";
+              optionMenu -cc "normalType" options;
+                 menuItem -label "face";
+                 menuItem -label "vtx";
+            setParent ..;
+           separator -h 3 -style "none";
+          button -l "Reverse Normal" -bgc 0.9 0.9 1 -c "reverseNormal";
+           separator -h 3 -style "none";
+          setParent ..;
+       setParent ..;
+       frameLayout -l "重合点选择" -collapsable 1 -borderStyle "etchedIn" mergeVtx;
+         columnLayout -adj 1;
+           separator -h 5 -style "none";
+           floatSliderGrp  -field true -v 0.0001 -pre 4 -ss 0.0001 -l "Threshold" -minValue 0 -maxValue 0.01 -cw3 60 50 10 thred; 
+           button -l "重合点" -c "checkVtx" -bgc 0.9 0.9 1;
+           separator -h 10 -style "in";
+           button -l "获得重合点" -bgc 0.8 0 0 -c "getVtxs";
+           separator -h 3 -style "none";
+         setParent ..;
+      setParent ..;
+      frameLayout -l "左右眼对称" -collapsable 1 -borderStyle "etchedIn" eyeSys;
+       columnLayout -adj 1;
+       separator -h 5 -style "none";
+        button -l "左右眼对称" -c "checkEye" -bgc 0.9 0.9 1; 
+        separator -h 3 -style "none";
+      setParent ..;
+      setParent ..;
+      frameLayout -l "清除变换" -collapsable 1 -borderStyle "etchedIn" trans;
+        columnLayout -adj 1;
+         separator -h 5 -style "none";
+         button -l "删除空组" -c "deleteNullGroup" -bgc 0.9 0.9 1;
+         separator -h 3 -style "none";
+         button -l "删除层" -c "deleteLayer" -bgc 0.9 0.9 1;
+         separator -h 3 -style "none";
+         button -l "删除材质" -c "deleteMat" -bgc 0.9 0.9 1;
+         separator -h 3 -style "none";
+         button -l "冻结变换" -c "resetTran" -bgc 0.9 0.9 1; 
+         separator -h 3 -style "none";
+        setParent ..;
+      setParent ..;
+      frameLayout -l "点信息归零" -collapsable 1 -borderStyle "etchedIn" pointInfo;
+        columnLayout -adj 1 point; 
+        testPtInfo();
+        separator -h 3 -style "none";
+      setParent ..;      	
+  scrollLayout -e -rc "scrollLayout -e -w 100 -h 300 mainScroll" mainScroll; 
+  setParent colMain;
+  separator -h 2 -style "none";
+  button -l "更新窗口" -bgc 0.72 0.95 1 -c "refreshWin";
+showWindow modelTool;
+}
+
+global proc refreshWin()
+{
+   string $currentPanel = `getPanel -withFocus`;
+   string $panelType = `getPanel -to $currentPanel`;
+   int $state = `isolateSelect -q -s $currentPanel`;
+   checkBox -e -v $state toggle;
+}
+
+
+/////////////////得到选择物体的最顶层父物体/////////////////////////////////////////
+global proc string topParent()
+{
+  //获得选择物体
+  string $sel[] = `ls -sl`;
+  //列出父物体全路径名
+  string $parent[] = `listRelatives -f -p $sel[0]`;
+  string $top;
+  //如果选择的是所选物体的最顶层级，则直接归还选择的物体，否则执行下面操作
+  if(size($parent)>0)
+   {
+    string $tops[];
+    //提取所选物体全路径名中的最顶层。
+    tokenize $parent[0] "|" $tops; // print $tops
+    if(size($tops) < 1)
+      $top = $sel[0];
+    else
+      $top = $tops[0];
+    return $top;
+    }
+  else
+   return $sel[0];
+}
+
+///////////////////////////////测量模型身高/////////////////////////////////////////////////////
+global proc string measure_Heights()
+{
+   //获得所选物体的最顶层组
+   string $topObj = topParent();
+   //得到物体的轴心位置
+   float $pivs[] = `xform -q -ws -piv $topObj`;
+   float $piv[];
+   //提取轴心位置到$piv中
+   $piv[0] = ($pivs[0] + $pivs[3]) / 2.0;
+   $piv[1] = ($pivs[1] + $pivs[4]) / 2.0;
+   $piv[2] = ($pivs[2] + $pivs[5]) / 2.0;
+   
+   //创建一个cube，用来做参考
+   string $cube[] = `polyCube`;
+ 
+   //连接顶层物体的boundingBox到cube的scale，并移动cube到轴心位置。
+   connectAttr ($topObj + ".boundingBox.boundingBoxSize") ($cube[0] + ".scale");
+   move -ws $piv[0] $piv[1] $piv[2] $cube[0];
+
+   //提取cube的scaleY值
+   string $scaleY = `getAttr ($cube[0] + ".scaleY")`;
+   //创建测量工具，设置长度为$scaleY
+   string $measures = `distanceDimension -sp 0 0 0 -ep 0 $scaleY 0`;
+   //获得测量工具中的locators，并将它们打组到measureTool中
+   string $locs[] = `listConnections $measures`;
+   string $goupName = `group -n "measureTool" $measures $locs`;
+   //删除参考物cube
+   delete $cube;
+   //返回组名
+   return $goupName;
+}
+
+////////////////////对齐网格//////////////////////////////////////////
+global proc string boundingBox()
+{
+   string $topObj = topParent();
+   select $topObj;
+   CenterPivot;
+
+   float $pivs[] = `xform -q -ws -piv $topObj`;
+   float $piv[];
+   $piv[0] = ($pivs[0] + $pivs[3]) / 2.0;
+   $piv[1] = ($pivs[1] + $pivs[4]) / 2.0;
+   $piv[2] = ($pivs[2] + $pivs[5]) / 2.0;
+   move -ws  (-$piv[0]) (-$piv[1]) (-$piv[2]) $topObj;
+   makeIdentity -apply true -t 1 -r 1 -s 1 -n 0;
+
+   string $cube[] = `polyCube`;
+
+   connectAttr ($topObj + ".boundingBox.boundingBoxSize") ($cube[0] + ".scale");
+   move -ws 0 $piv[1] 0 $cube[0];
+
+   float $sy = `getAttr ($cube[0] + ".scaleY")`;
+   //移动cube到平面上
+   xform -ws -piv 0 (-$sy/2) 0 -t 0 ($sy/2) 0 $cube[0];
+   CenterPivot $cube;
+   select $topObj;
+   CenterPivot;
+   select -cl;
+   return $cube[0];
+}
+global proc setAxisOrigin()
+{
+  string $topObj = topParent();
+  string $cube = boundingBox();
+  pointConstraint $cube $topObj;
+  delete $cube;
+  xform -ws -piv 0 0 0 $topObj;
+  makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 $topObj;
+  select $topObj;
+}
+
+//////////////////////////////////检查模型对称//////////////////////////////////////////////
+global proc string[] abCheckSyms (string $obj, int $axis, float $tol, int $usePiv) 
+{
+// string $all[] = abCheckSyms("pSphere1", 1, 0.001, 1)
+// select $all
+   global int $abSymTable[];
+   global int $abSymTable[];
+   string $aNegVerts[];
+   string $aPosVerts[];
+   string $aNonSymVerts[];
+   string $aStr[];
+   string $vtx;
+   string $str;
+   int $aPosVertsInt[];
+   int $aNegVertsInt[];
+   int $aInt[];
+   int $totVtx;
+   int $i;
+   int $j;
+   int $mAxisInd = $axis - 1; //mirror axis index (for xform)
+   int $axis2Ind = ($mAxisInd + 1) % 3;
+   int $axis3Ind = ($mAxisInd + 2) % 3;
+   int $mod;
+   int $prog;
+   int $vertCounter = 0;
+   float $aNegVertTrans[];
+   float $aPosVertTrans[];
+   float $aVtxTrans[];
+   float $aVtx2Trans[];
+   float $bBox[];
+   float $mid;
+   float $midOffset;
+   float $posOffset;
+   float $negOffset;
+   float $flt;
+   float $progNum;
+   float $progDenom;
+   float $test1;
+   float $test2;
+
+   float $midOffsetTol = -.0000001;
+
+   $aVtxTrans = `xform -q -ws -t $obj`;
+   $mid = $aVtxTrans[$mAxisInd];
+  
+   $aInt = `polyEvaluate -v $obj`; 
+   $totVtx = $aInt[0];
+
+   waitCursor -state on;
+   progressWindow -title "Working" -progress 0 -status "Sorting";
+   $progDenom = $totVtx;
+   $flt = ceil($progDenom/50);
+   $mod = $flt;
+   for ($i=0;$i<$totVtx;$i++)
+    {
+     if (($i % $mod) == 0)
+       {
+         $progNum = $i;
+         $prog = ($progNum/$progDenom)*100.0;
+         progressWindow -e -progress $prog;
+        } 
+     $vtx = $obj+".vtx["+$i+"]";
+     $aVtxTrans = `xform -q -ws -translation $vtx`;
+     $midOffset = $aVtxTrans[$mAxisInd] - $mid;
+     if ($midOffset >= $midOffsetTol)
+        {
+          $aPosVerts[size($aPosVerts)] = $vtx;
+          $aPosVertTrans[size($aPosVertTrans)] = $aVtxTrans[$mAxisInd];
+         }
+     else
+        {
+          if ($midOffset < $midOffsetTol)
+             {
+               $aNegVerts[size($aNegVerts)] = $vtx;
+               $aNegVertTrans[size($aNegVertTrans)] = $aVtxTrans[$mAxisInd];
+                }
+           }
+      }
+
+   progressWindow -e -progress 0 -status $str;
+   $progDenom = size($aPosVerts);
+   $flt = ceil($progDenom/50);
+   $mod = $flt;
+
+   for ($i=0;$i<size($aPosVerts);$i++)
+     {
+       if (($i % $mod) == 0)
+        { 
+          $progNum = $i;
+          $prog = ($progNum/$progDenom)*100.0;
+          progressWindow -e -progress $prog;
+          }
+      $vtx = $aPosVerts[$i];
+      $posOffset = ($aPosVertTrans[$i] - $mid);
+      if ($posOffset < $tol)
+         {
+           $aPosVerts[$i] = "m";
+           $vertCounter ++;
+           continue;
+          }
+      for ($j=0;$j<size($aNegVerts);$j++)
+        {
+           if ($aNegVerts[$j] == "m") 
+               continue;
+           $negOffset = $mid - $aNegVertTrans[$j];
+           if ($negOffset < $tol)
+            {
+               $aNegVerts[$j] = "m";
+               $vertCounter ++;
+               continue;
+              }
+           if (abs($posOffset - $negOffset) <= $tol)
+            {
+              $aVtxTrans = `xform -q -ws -t $vtx`;
+              $aVtx2Trans = `xform -q -ws -t $aNegVerts[$j]`;
+              $test1 = $aVtxTrans[$axis2Ind] - $aVtx2Trans[$axis2Ind];
+              $test2 = $aVtxTrans[$axis3Ind] - $aVtx2Trans[$axis3Ind];
+              if (abs($test1) < $tol && abs($test2) < $tol)
+               {
+                 $aPosVerts[$i] = $aNegVerts[$j] = "m"; //m is for match
+                 break;
+                }
+            }
+       }
+     }
+//now strip out "m" from $aPosVerts and $aNegVerts, and we'll have asymmetry
+   $aStr = {"m"};
+   $aPosVerts = stringArrayRemove($aStr, $aPosVerts);
+   $aNegVerts = stringArrayRemove($aStr, $aNegVerts);
+   $aNonSymVerts = stringArrayCatenate($aPosVerts, $aNegVerts);
+
+   progressWindow -endProgress;
+   waitCursor -state off;
+   return $aNonSymVerts;
+}
+
+global proc checkSym()
+{
+  string $sels[] = `ls -sl`;
+  int $Axis = `radioButtonGrp -q -sl axis`;
+  float $tol = `floatField -q -v tol`;
+  string $asym[] = abCheckSyms($sels[0], $Axis, $tol, 1);
+  if(size($asym) > 0)
+  {
+    selectMode -component;
+    select $asym;
+    warning "当前模型不是对称的";
+    }
+  else
+   print "当前模型是对称的";
+}
+///////////////////////////////模型边界显示////////////////////////////////////////////////////
+global proc toggleBorder()
+{
+ string $selection_list[] = `filterExpand -sm 12`;
+ if(size($selection_list) > 0)
+ {
+  string $obj;
+  for($obj in $selection_list)
+    {
+     select $obj;
+     int $border[] = `polyOptions -q -db -ao`;
+     if($border[0] > 0){
+       polyOptions -db 0 -ao;}
+     else{
+       polyOptions -db 1 -sb 10.0 -ao;}
+    }
+  select $selection_list;
+ }
+ 
+ else{
+	 error "no polygonal objects selected";}
+}
+
+global proc selectBorder()
+{
+ if(size(`filterExpand -sm 12`) > 0)
+   {
+    //convert selection to edges
+    PolySelectConvert 2;
+
+    //limit selection to border edges 
+    polySelectConstraint -t 0x8000 -m 2 -w 1;
+
+    //store a list of the selected edges
+    string $selected_edges[] = `filterExpand -sm 32`;
+
+    //reset selection constraints
+    polySelectConstraint -dis; 
+
+    if(size($selected_edges) > 0){
+      select $selected_edges;}
+   
+    else{
+      error "selection does not have border edges";}
+   }
+   
+ else{
+     error "no polygonal objects selected";}
+}
+//////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////选择三角面和多边面////////////////////////////////////////////
+global proc string[] selectTriss()
+{
+ string $selection_list[] = `filterExpand -sm 12`;
+ string $msg;
+ if(size($selection_list) > 0)
+   { 
+    //apply constraint so that only tris can be selected
+    polySelectConstraint -m 3 -t 8 -sz 1;
+
+    //convert selection to faces
+    PolySelectConvert 1;
+
+    //store the list of selected faces
+    string $selected_faces[] = `filterExpand -sm 34`;
+    // select $selected_faces
+
+    //turn off selection constraint
+    polySelectConstraint -sz 0; 
+ 
+    if(size($selected_faces) == 0){
+      $msg = "no triangles present";
+      select $selection_list;}
+   
+    else{
+      select $selected_faces;
+      $msg = size($selected_faces) + " triangles present"; 
+   } 
+}
+  
+ else{
+   $msg = "ERROR: select poly object";}  
+ string $allTris[] = `ls -sl`;
+ return $allTris;
+}
+// ls -sl
+
+global proc string[] selectNgonss()
+{
+ string $selection_list[] = `filterExpand -sm 12`;
+ string $msg;
+ if(size($selection_list) > 0)
+   {
+    //apply constraint so that only N-gons can be selected
+    polySelectConstraint -m 3 -t 8 -sz 3;
+
+    //convert selection to faces
+    PolySelectConvert 1;
+
+    //store the list of selected faces
+    string $selected_faces[] = `filterExpand -sm 34`;
+
+    //turn off selection constraint
+    polySelectConstraint -sz 0; 
+
+    if(size($selected_faces) == 0){
+    $msg = "no n-gons present";
+    select $selection_list;}
+   
+    else{
+    select $selected_faces;
+    $msg = size($selected_faces) + " n-gons present"; }
+   }
+   
+ else{
+   $msg = "ERROR: select poly object";} 
+ string $allTris[] = `ls -sl`;
+ return $allTris;
+}
+
+global proc toggleNormals()
+{
+ string $selection_list[] = `filterExpand -sm 12`;
+ string $msg;
+ if(size($selection_list) > 0)
+   { 
+    string $selection;
+    for($selection in $selection_list)
+    {
+     select $selection;
+     int $test[] = `polyOptions -q -ao -dn`;
+     if($test[0] > 0){
+       polyOptions -ao -dn 0;}
+     else{
+       string $type = `optionMenu -q -v options`;
+       if($type == "face")
+         polyOptions -ao -dn 1 -sn (`floatField -q -v length`) -f;
+       else
+         polyOptions -ao -dn 1 -sn (`floatField -q -v length`) -pt;}
+    }
+   } 
+ else{
+   $msg = "ERROR: select poly object";}   
+}
+
+global proc normalType()
+{
+ string $type = `optionMenu -q -v options`;
+ if($type == "face"){
+   polyOptions -ao -facet;} 
+ else{
+   polyOptions -ao -pt;} 
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+global string $selectFaces[];
+global proc string[] faces(int $type)
+// faces 2
+{
+  global string $selectFaces[];
+  
+  if($type == 1)
+   {
+    $selectFaces = selectTriss();
+     if(!`gmatch $selectFaces[0] "*.f*"`)
+        print "当前模型没有三角面";
+   }
+  else
+   {
+    $selectFaces = selectNgonss();
+    if(!`gmatch $selectFaces[0] "*.f*"`)
+       print "当前模型没有多边面";
+    }
+      
+  return $selectFaces;
+}
+//print $selectFaces;
+
+global string $materials[];
+global proc deleteMaterial()
+{
+  global string $selectFaces[];
+  global string $materials[];
+  string $sels[] = `ls -sl -fl $selectFaces`;
+  string $shapes[] = `listRelatives -p $selectFaces[0]`;
+  string $des[] = `connectionInfo -destinationFromSource ($shapes[0] + ".instObjGroups[0]") `;
+  if(size($shapes[0]) > 0)
+ {
+  int $checks = `checkBox -q -v maker`;
+  
+  if($checks == 1)
+  {
+  string $shade = `shadingNode -asShader lambert`;
+  setAttr ($shade + ".color") -type double3 1 0 0;
+  string $shadeSG = `sets -renderable true -noSurfaceShader true -empty -name ($shade + "SG")`;
+  connectAttr -f ($shade + ".outColor") ($shadeSG + ".surfaceShader");
+  sets -e -forceElement $shadeSG $selectFaces;
+  $materials = {$shade, $shadeSG};
+  }
+
+  if($checks == 0)
+   {
+    delete $materials; 
+    select $shapes[0];
+    sets -e -forceElement initialShadingGroup;
+   } 
+ }   
+}
+global proc reverseNormal()
+{
+  string $sels[] = `ls -sl -fl`;
+  polyNormal -normalMode 0 -userNormalMode 0 -ch 1 $sels;
+}
+////////////////////////////////////////////////////////////////////
+global proc int[] checkFaces(string $obj)
+// checkFaces sparkShape
+{
+  //string $obj = "sparkShape";
+  int $vtxs[] = `polyEvaluate -v`;
+  float $thred = `floatSliderGrp -q -v thred`;
+  int $closePoint[];
+  float $amounts = 0;
+  progressWindow
+         -title "处理进程"
+         -progress $amounts
+         -status "处理点的数目"
+         -isInterruptable true;
+
+  for($i=0; $i<$vtxs[0]; $i++)
+   {
+
+    $amounts += 100/float($vtxs[0]);
+    string $point1 = $obj + ".vtx[" + $i + "]";
+    float $pos1[] = `xform -q -ws -t $point1`;
+    for($j=0; $j<$vtxs[0]; $j++)
+      {
+       if($i>$j)
+         {
+         string $point2 = $obj + ".vtx[" + $j + "]";
+         float $pos2[] = `xform -q -ws -t $point2`;
+         if(abs($pos1[0]-$pos2[0])<=$thred && abs($pos1[1]-$pos2[1])<=$thred && abs($pos1[2]-$pos2[2])<=$thred)
+           {
+              $closePoint[size($closePoint)] = $i;
+              $closePoint[size($closePoint)] = $j;
+             }
+         }
+     }
+   if ( `progressWindow -query -isCancelled` ) break;
+   progressWindow -edit
+            -progress (int($amounts))
+           -status ("处理点的数目: "+int($amounts)+"%");
+   } 
+  progressWindow -endProgress;
+  return $closePoint;
+}
+
+global proc getVtxs()
+{
+  string $sels[] = `ls -sl`;
+  int $vtxsNum[] = checkFaces($sels[0]);
+  string $vtxs[];
+  for($vtx in $vtxsNum)
+    $vtxs[size($vtxs)] = $vtx;
+  $vtxs = stringArrayRemoveDuplicates($vtxs);
+  string $vtxObj[];
+  for($i in $vtxs)
+   $vtxObj[size($vtxObj)] = $sels[0] + ".vtx[" + $i + "]";
+  selectMode -component;
+  select $vtxObj;
+}
+global proc getExtrudeFace()
+{
+string $objs[] = `ls -sl`;
+string $shapes[] = `listRelatives -s -type shape -ni $objs[0]`;
+string $obj = $shapes[0];
+string $finallFaces[];
+int $morePts[],$oneSide[],$otherSide[];
+string $mores[];
+if(`nodeType $obj` == "mesh")
+ {
+  $morePts = checkFaces($obj);
+
+  for($i=0; $i<size($morePts); $i++)
+     if($i % 2 == 0)
+       $mores[size($mores)] =$morePts[$i];
+// print $mores;
+// clear $mores;
+  string $edg[] = stringArrayRemoveDuplicates($mores);
+  string $parent[] = `listRelatives -p -f $obj`;
+  string $edgeFaces[];
+  for($i=0; $i<size($edg)-1; $i++)
+   {
+     if($i % 2 == 0)
+      {
+       string $index1 = $edg[$i];
+       string $index2 = $edg[$i+1];
+       string $edge = $parent[0] + ".vtx[" + $index1 + ":" + $index2 + "]";
+       $edgeFaces[size($edgeFaces)] = $edge;
+      }
+   }// print $edgeFaces;
+  string $allFaces[];
+  for($i=0; $i<size($edgeFaces)-1; $i++)
+   {
+    if($i % 2 == 0)
+     {
+      string $edge1 = $edgeFaces[$i];
+      string $edge2 = $edgeFaces[$i+1];
+      string $faces[] = `polyListComponentConversion -fv -tf -in $edge1 $edge2`;
+      $finallFaces[size($finallFaces)] = $faces[0];
+     }
+   }// print $allFaces;
+}
+// print $finallFaces;
+if(size($finallFaces) > 0)
+  select -add $finallFaces;
+}
+
+global proc checkVtx()
+{
+string $sels[] = `ls -sl`;
+string $topObj = topParent();
+float $thred = `floatSliderGrp -q -v thred`;
+string $shapes[];
+string $objs[] = `ls -tr -dagObjects $topObj`;
+string $mergePts[];
+for($obj in $objs)
+{
+  string $shape[] = `listRelatives -s -f -type shape -ni $obj`;
+  if(size($shape) > 0)
+  {
+    if(`nodeType $shape[0]` == "mesh")
+      {
+        int $vtxs1[] = `polyEvaluate -v $obj`;
+        string $merge[] = `polyMergeVertex -d $thred -am 1 $obj`;
+        int $vtxs2[] = `polyEvaluate -v $obj`;
+        if($vtxs1[0] != $vtxs2[0])
+          $mergePts[size($mergePts)] = $obj;
+        delete $merge;
+        }
+   }
+}
+if(size($mergePts) > 0)
+  {
+   select $mergePts;
+   warning "当前模型有重合的点";
+  }
+else
+  {
+   select -cl;
+   print "当前模型没有重合的点";
+  }
+}
+///////////////////////////////////////////////////////////////////////////////////
+global proc string[] eyeGroup()
+{
+ string $topObj = topParent();
+ string $allChildren[] = `listRelatives -ad -f $topObj`;
+ string $groups[];
+ string $match = "eye";
+ for($child in $allChildren)
+  {
+    if(`nodeType $child` == "transform")
+      {
+        string $lower = tolower($child);
+        if(size(`match $match $lower`) > 0)
+          {
+            string $parent[] = `listRelatives -p -f $child`;
+            string $anotherLower = tolower($parent[0]);
+            if(size(`match $match $anotherLower`) == 0)
+              $groups[size($groups)] = $child;
+           }
+       }
+  }
+  if(size($groups) == 1)
+     $groups = `listRelatives -c -f $groups[0]`;
+ return $groups;
+}
+
+global proc checkEye()
+{
+  string $eyeGroups[] = eyeGroup();
+  int $numEyes = size($eyeGroups);
+  if($numEyes > 2 || $numEyes == 0)
+   warning "当前模型的眼球没有大组，或者是没有给眼睛正确命名为eye形式。";
+  else
+  {
+     string $trueGroup;
+     string $sels[] = `ls -l -sl`;
+     if(size($sels) > 1)
+       warning "请选择一个物体";
+     else
+      {
+        string $alignEye = $sels[0];
+        for($group in $eyeGroups)
+         {  
+           if(size(`match $group $alignEye`) > 0)
+           $trueGroup = $group;
+          }
+        string $temp1[] = {$trueGroup};
+        string $temp2[] = stringArrayRemove($temp1, $eyeGroups); 
+        string $eyeSel = $temp1[0];
+        string $eyeTwo = $temp2[0];
+
+        float $pos1[] = pivTran($eyeSel);
+        float $pos2[] = pivTran($eyeTwo);
+
+        float $x = abs($pos1[0]) - abs($pos2[0]);
+        float $y = abs($pos1[1]) - abs($pos2[1]);
+        float $z = abs($pos1[2]) - abs($pos2[2]);
+        if($x != 0 || $y != 0 || $z != 0)
+          {
+            move -r -ws (-$pos2[0]) (-$pos2[1]) (-$pos2[2]) $eyeTwo;
+            makeIdentity -apply true -t 1 -r 1 -s 1 -n 0;
+            move -r -ws (-$pos1[0]) ($pos1[1]) ($pos1[2]) $eyeTwo;
+            makeIdentity -apply true -t 1 -r 1 -s 1 -n 0;
+            print "左右眼已经被对齐";
+          }
+       }
+     }
+}
+
+global proc float[] pivTran(string $obj)
+{
+select $obj;
+CenterPivot;
+makeIdentity -apply true -t 1 -r 1 -s 1 -n 0;
+float $pivs[] = `xform -q -ws -piv $obj`;
+float $piv[];
+$piv[0] = ($pivs[0] + $pivs[3]) / 2.0;
+$piv[1] = ($pivs[1] + $pivs[4]) / 2.0;
+$piv[2] = ($pivs[2] + $pivs[5]) / 2.0;
+return $piv;
+}
+
+/////////////////////////////////////////////////////////////////////
+global proc toggleIsolate ()
+{
+int $isoView;
+string $currentPanel = `getPanel -withFocus`;
+string $panelType = `getPanel -to $currentPanel`;
+
+if ($panelType ==  "modelPanel") 
+  {
+    $isoView = (1 - `isolateSelect -q -s $currentPanel`);
+    enableIsolateSelect $currentPanel $isoView;
+    isolateSelect -state $isoView $currentPanel;   
+  }
+};
+
+////////////////////////////////////////////////////////////////////
+global proc resetTran()
+{
+  string $objs[] = `ls -tr`;
+  string $trans[];
+  for($obj in $objs)
+  {
+    //string $transNode[] = `listRelatives -p -f $obj`;
+    makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 $obj;
+  }
+  print "物体变换已经全部冻结到初始状态";
+}
+
+///////////////////////////////////////////////////////////////////
+global proc testPtInfo()
+{
+    setParent point;
+    columnLayout -adj 1;
+      separator -h 10 -style "none";
+      radioButtonGrp -l "  Selection Type" 
+                         -numberOfRadioButtons 2 -labelArray2 "Selected" "All" 
+                         -sl 2
+                         -cw3 90 70 70 selType;
+       separator -h 20 -w 300 -style "in";
+       button -l "Get Info" -bgc 0.6 1 0.8 -c "listObjs";
+    setParent ..;
+}
+//////////////////////////////////////////////////////////////////////////
+
+global proc string[] objects()
+{
+   string $result;
+   int $type = `radioButtonGrp -q -sl selType`;
+
+   string $sels[];
+   if($type == 1)
+     {
+       string $selP[] = `ls -sl`;
+       if(size($selP)>0)
+         {
+           for($sel in $selP)
+             {
+               string $shapes[] = `listRelatives -s -f $sel`;
+               if(`nodeType $shapes[0]` == "mesh")
+                  $sels[size($sels)] = $shapes[0];
+              }
+          }
+      else
+        $result = `confirmDialog -t "警告" -message "请在场景中至少选择一个物体" -button "OK"`;
+    }
+   float $amounts = 0;
+   if($result != "OK")
+     {
+       progressWindow
+            -title "处理进程"
+            -progress $amounts
+            -status "处理点的数目"
+            -isInterruptable true;
+     }
+   if($type == 2)
+       $sels = `ls -v -l -type "mesh"`; 
+   string $quesObj[];
+   for($sel in $sels)
+    {
+       $amounts += 100/float(size($sels));
+        string $trueShape = getShape($sel);
+        if(size($trueShape) > 0)
+           {
+              int $verts[] = `polyEvaluate -v $trueShape`;
+              for($i=0; $i<$verts[0]; $i++)
+                {
+                  string $check[];
+                  $j = ceil(rand($verts[0]));
+                  //$j = $i;
+                  float $pnx = `getAttr ($sel + ".pnts[" + $j + "].pntx")`;
+                  float $pny = `getAttr ($sel + ".pnts[" + $j + "].pnty")`;
+                  float $pnz = `getAttr ($sel + ".pnts[" + $j + "].pntz")`; 
+                  float $pre = 0.00001;
+                  if(($pnx < 0 - $pre||$pnx > 0 + $pre) || ($pny < 0 - $pre||$pny > 0 + $pre) || ($pnz < 0 - $pre||$pnz > 0 + $pre))
+                    {
+                      string $parent[] = `listRelatives -allParents -f $sel`;
+                      $check[size($check)] = $parent[0];
+                      $quesObj[size($quesObj)] = $parent[0];
+                     }
+                 if(size($check) > 0)
+                   {
+                     clear $check;
+                     break;
+                   }
+                }
+            if ( `progressWindow -query -isCancelled` ) break;
+            progressWindow -edit
+                 -progress (int($amounts))
+                 -status ("处理点的数目: "+int($amounts)+"%");
+         }
+     }
+   progressWindow -endProgress;
+   $quesObj[size($quesObj)] = $result;
+   return $quesObj;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+global proc listObjs()
+{
+   string $objs[] = objects();
+   int $num = size($objs)-1;
+   if(size($objs)-1 > 0)
+     {
+       string $prompt = `confirmDialog 
+                            -title "警告" 
+                            -message ("检测到 "+ $num + " 个点信息没有清零的模型,\n单击\"确定\"打开没有清零模型列表") 
+                            -button "确定"
+                            -button "取消"
+                            -dismissString "取消"`;
+     if($prompt == "确定")
+       {
+           if(`window -ex listObjects`)  
+              deleteUI listObjects;
+              window -t "物体列表" -wh 320 160 listObjects;
+               formLayout form;
+                text -l "  下列物体点位置没有清零：" -align "left" text;
+                separator -h 5 -style "none" sep;
+                textScrollList -h 100 -ams 1 textObj;
+		button -l "点信息归零" -bgc 1 0 0 -c "resetCommand"  button ;
+ 		formLayout -e
+		-af text top 0
+		-af text left 0
+		-af text right 0
+
+		-ac sep top 2 text
+		-af sep right 0
+		-af sep left 0
+
+		-ac textObj top 2 sep
+		-af textObj right 0
+		-af textObj left 0
+		-ac textObj bottom 2 button
+
+		-af button right 0
+		-af button left 0
+		-af button bottom 2
+		form;
+
+                for($obj in $objs)
+                   textScrollList -e -a $obj textObj;
+              showWindow listObjects;
+              textScrollList -e -sc "items 1" -dcc "textScrollList -e -da textObj" textObj;
+
+         }
+      }
+   else
+      if($objs[size($objs)-1] != "OK")
+           confirmDialog -t "恭喜" -message "测试完毕，当前模型物体点信息已清零" -button "OK";
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+global proc items(int $type)
+{
+   select -cl;
+   string $selItems[] = `textScrollList -q -si textObj`;
+   if($type == 1)
+     for($sel in $selItems)
+       select -add $sel;
+   if($type == 2)
+     textScrollList -e -ri $selItems[0] textObj;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+global proc string getShape(string $shape)
+{
+	string $parents[] = `listRelatives -p -f $shape`;
+	string $shapes[] = `listRelatives -s -f -type shape -ni $parents[0]`;
+	if($shapes[0] == $shape)
+ 	   return $shape;
+	else
+  	   return "";
+}
+///////////////////////////////////////////////////////////////////////////////////////////////
+global proc resetCommand()
+{
+  string $items[]; 
+  $items = `textScrollList -q -si textObj`;
+  if(size($items) == 0)
+    $items = `textScrollList -q -ai textObj`;
+
+   float $amounts = 0;
+   progressWindow
+          -title "点信息归零进程"
+          -progress $amounts
+          -status "物体点信息归零处理进程"
+          -isInterruptable true;
+  //float $start = `timerX`;
+  for($item in $items) 
+   {
+    $amounts += 100/float(size($items));
+    resetPosition $item;
+    if ( `progressWindow -query -isCancelled` ) break;
+    progressWindow -edit
+              -progress (int($amounts))
+              -status ("物体点信息归零处理进程: "+int($amounts)+"%");
+    textScrollList -e -ri $item textObj;
+    }
+  progressWindow -endProgress;
+  //float $end = `timerX -startTime $start`;
+  $items = `textScrollList -q -ai textObj`;
+  if(size($items) == 0)
+    deleteUI listObjects;
+  print "所选物体的点信息已经归零";
+  //print $end;
+}
+global proc resetPosition(string $item)
+{
+     string $normal1[] = `polyNormal -normalMode 0 $item`;
+     string $normal2[] = `polyNormal -normalMode 0 $item`;
+     delete $normal1[0];
+     delete $normal2[0];
+     select $item;
+    DeleteHistory;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////
+global proc deleteLayer()
+{
+ string $layers[] = `ls -type displayLayer`;
+ string $renderLayer[] = `ls -type renderLayer`;
+ string $default[] = {"defaultLayer"};
+ string $defaultRender[] = {"defaultRenderLayer"};
+ $layers = stringArrayRemove($default, $layers);
+ $renderLayer = stringArrayRemove($defaultRender, $renderLayer);
+ $layers = stringArrayCatenate($layers, $renderLayer);
+ if(size($layers) > 0)
+  {
+    delete $layers;
+    print "层已经清除完成";
+   }
+ else
+   print "没有层要清除";
+}
+
+global proc deleteMat()
+{
+  string $texs[] = `ls -tex`;
+  string $places[];
+  string $allM[];
+  for($tex in $texs)
+   {
+    string $cons[] = `listConnections -s 1 -d 0 $tex`; 
+    for($con in $cons)
+      $places[size($places)] = $con;
+   }
+  $places = stringArrayRemoveDuplicates($places);
+
+  string $mats[] = `ls -mat`;
+  string $existsMats[] = {"lambert1","particleCloud1"};
+  $mats = stringArrayRemove($existsMats, $mats);
+
+  $allM = stringArrayCatenate($places, $mats);
+
+  string $shades[] = `listSets -type 1`;
+  string $existShade[] = {"initialShadingGroup","initialParticleSE"};
+  $shades = stringArrayRemove($existShade, $shades);
+
+  $allM = stringArrayCatenate($allM, $shades);
+
+  string $lights[] = `ls -lights`;
+  for($light in $lights)
+   {
+     string $parent[] = `listRelatives -p $light`;
+     $allM[size($allM)] = $parent[0];
+   }
+  $allM = stringArrayCatenate($texs, $allM);
+  if(size($allM) > 0)
+    {
+     delete $allM;
+     print "多余的材质节点已经被清除";
+     }
+  else
+    print "场景中没有多余的材质节点被清除";
+}
+
+global proc deleteNullGroup()
+{
+ // string $intermediateObject[] = `ls -geometry -io`;
+//  if(size($intermediateObject) > 0)
+//    delete $intermediateObject;
+  deleteEmptyGroups();
+}
+modelTools();

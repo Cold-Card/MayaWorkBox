@@ -55,9 +55,9 @@ def get_shape_pivot(obj):
     shapePivot = om2.MMatrix(pick_matrix(obj.xformMatrix.get(),0,1,1,1)) * om2.MMatrix(bboxM) * om2.MMatrix(obj.xformMatrix.get().inverse())
     return list(shapePivot)
 
-def create_text_control(name,parent=None,txt_grp=None,center_pivot=True,create_border=True):
+def create_text_control(name,parent=None,txt_grp=None,center_pivot=True,create_border=False):
     if txt_grp is None:
-        txt_grp = pm.PyNode(pm.textCurves(t=name, f='Cooper Black')[0])
+        txt_grp = pm.PyNode(pm.textCurves(t=name, f='Times New Roman')[0])
         # txt_grp.s.set(1.3,1.3,1.3)
     
     if center_pivot:

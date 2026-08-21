@@ -1,0 +1,281 @@
+// ============================================================
+// 原始数据数组（保持不变）
+// ============================================================
+float $all_point_u_num_0[] = {0.0,0.09999998419160304,0.2000000078951106,0.29999999207972394,0.39999999601504777,0.5,0.6000000039849522,0.7000000079202761,0.7999999921048893,0.900000015808397,1.0};
+float $all_point_u_num_length_0[] = {0.09999998419160304,0.10000002370350757,0.09999998418461334,0.10000000393532382,0.10000000398495223,0.10000000398495223,0.10000000393532382,0.0999999841846132,0.10000002370350769,0.09999998419160305,0.09999998419160305};
+float $all_curve_rote_num_0[] = {rotate_01_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_0.scaleY,rotate_04_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_3.scaleY,rotate_07_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_6.scaleY,rotate_10_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_9.scaleY,rotate_13_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_12.scaleY,rotate_16_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_15.scaleY,rotate_19_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_18.scaleY,rotate_22_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_21.scaleY,rotate_25_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_24.scaleY,rotate_28_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_27.scaleY,rotate_31_actual_position_out_joint.scaleY*ik_con_0_RotateCurve_30.scaleY};
+float $all_curve_smooth_num_0[] = {0.0,ik_con_0_Curve_1.smooth,ik_con_0_Curve_2.smooth,0.0,ik_con_0_Curve_4.smooth,ik_con_0_Curve_5.smooth,0.0,ik_con_0_Curve_7.smooth,ik_con_0_Curve_8.smooth,0.0,ik_con_0_Curve_10.smooth,ik_con_0_Curve_11.smooth,0.0,ik_con_0_Curve_13.smooth,ik_con_0_Curve_14.smooth,0.0,ik_con_0_Curve_16.smooth,ik_con_0_Curve_17.smooth,0.0,ik_con_0_Curve_19.smooth,ik_con_0_Curve_20.smooth,0.0,ik_con_0_Curve_22.smooth,ik_con_0_Curve_23.smooth,0.0,ik_con_0_Curve_25.smooth,ik_con_0_Curve_26.smooth,0.0,ik_con_0_Curve_28.smooth,ik_con_0_Curve_29.smooth,0.0};
+
+// ============================================================
+// 构建控制点位置、缩放值、左右半径数组
+// ============================================================
+int $numPoints = size($all_point_u_num_0);  // 11
+
+float $ctrlPositions[] = $all_point_u_num_0;
+float $ctrlScales[] = $all_curve_rote_num_0;
+
+// 左半径和右半径分别存储
+float $ctrlLeftRadii[];
+float $ctrlRightRadii[];
+
+for ($i = 0; $i < $numPoints; $i++) {
+    float $leftR = 0.0;
+    float $rightR = 0.0;
+    if ($i == 0) {
+        // 第一个控制点：只有右侧半径（使用区间0的第一个smooth，索引1）
+        $rightR = $all_curve_smooth_num_0[1];
+    } else if ($i == $numPoints - 1) {
+        // 最后一个控制点：只有左侧半径（使用区间9的第二个smooth，索引29）
+        $leftR = $all_curve_smooth_num_0[29];
+    } else {
+        // 内部控制点：左侧半径 = 左区间（i-1）的第二个smooth，右侧半径 = 右区间（i）的第一个smooth
+        $leftR = $all_curve_smooth_num_0[($i-1)*3 + 2];
+        $rightR = $all_curve_smooth_num_0[$i*3 + 1];
+    }
+    $ctrlLeftRadii[$i] = $leftR;
+    $ctrlRightRadii[$i] = $rightR;
+}
+
+// ============================================================
+// 计算叠加缩放值的函数（默认输出为1）
+// ============================================================
+global proc float computeScale(float $u, float $positions[], float $scales[], float $leftRadii[], float $rightRadii[]) {
+    float $total = 1.0;
+    int $count = size($positions);
+    for ($i = 0; $i < $count; $i++) {
+        float $dist = $u - $positions[$i];
+        float $weight = 0.0;
+        
+        if ($dist == 0.0) {
+            $weight = 1.0;
+        } else if ($dist < 0) {
+            // 左侧衰减（使用左半径）
+            float $r = $leftRadii[$i];
+            if ($r > 0 && -$dist < $r) {
+                float $t = (-$dist) / $r;   // 归一化距离 (0~1)
+                // 三次平滑步进（从1衰减到0）
+                float $k = 1.0 - $t;
+                $weight = $k * $k * (3.0 - 2.0 * $k);
+            }
+        } else {
+            // 右侧衰减（使用右半径）
+            float $r = $rightRadii[$i];
+            if ($r > 0 && $dist < $r) {
+                float $t = $dist / $r;      // 归一化距离 (0~1)
+                // 三次平滑步进（从1衰减到0）
+                float $k = 1.0 - $t;
+                $weight = $k * $k * (3.0 - 2.0 * $k);
+            }
+        }
+        // 贡献累加
+        $total += ($scales[$i] - 1.0) * $weight;
+    }
+    return $total;
+}
+
+// ============================================================
+// 所有关节的赋值语句（使用 computeScale）
+// ============================================================
+// 关节 1
+float $r_01_actual_position_joint0_u_num = nearestPointOnCurve1.parameter;
+independent_con_0_Curve_1.scaleZ = computeScale($r_01_actual_position_joint0_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 2
+float $r_02_actual_position_joint1_u_num = nearestPointOnCurve2.parameter;
+independent_con_0_Curve_2.scaleZ = computeScale($r_02_actual_position_joint1_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 3
+float $r_03_actual_position_joint2_u_num = nearestPointOnCurve3.parameter;
+independent_con_0_Curve_3.scaleZ = computeScale($r_03_actual_position_joint2_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 4
+float $r_04_actual_position_joint3_u_num = nearestPointOnCurve4.parameter;
+independent_con_0_Curve_4.scaleZ = computeScale($r_04_actual_position_joint3_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 5
+float $r_05_actual_position_joint4_u_num = nearestPointOnCurve5.parameter;
+independent_con_0_Curve_5.scaleZ = computeScale($r_05_actual_position_joint4_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 6
+float $r_06_actual_position_joint5_u_num = nearestPointOnCurve6.parameter;
+independent_con_0_Curve_6.scaleZ = computeScale($r_06_actual_position_joint5_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 7
+float $r_07_actual_position_joint6_u_num = nearestPointOnCurve7.parameter;
+independent_con_0_Curve_7.scaleZ = computeScale($r_07_actual_position_joint6_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 8
+float $r_08_actual_position_joint7_u_num = nearestPointOnCurve8.parameter;
+independent_con_0_Curve_8.scaleZ = computeScale($r_08_actual_position_joint7_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 9
+float $r_09_actual_position_joint8_u_num = nearestPointOnCurve9.parameter;
+independent_con_0_Curve_9.scaleZ = computeScale($r_09_actual_position_joint8_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 10
+float $r_10_actual_position_joint9_u_num = nearestPointOnCurve10.parameter;
+independent_con_0_Curve_10.scaleZ = computeScale($r_10_actual_position_joint9_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 11
+float $r_11_actual_position_joint10_u_num = nearestPointOnCurve11.parameter;
+independent_con_0_Curve_11.scaleZ = computeScale($r_11_actual_position_joint10_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 12
+float $r_12_actual_position_joint11_u_num = nearestPointOnCurve12.parameter;
+independent_con_0_Curve_12.scaleZ = computeScale($r_12_actual_position_joint11_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 13
+float $r_13_actual_position_joint12_u_num = nearestPointOnCurve13.parameter;
+independent_con_0_Curve_13.scaleZ = computeScale($r_13_actual_position_joint12_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 14
+float $r_14_actual_position_joint13_u_num = nearestPointOnCurve14.parameter;
+independent_con_0_Curve_14.scaleZ = computeScale($r_14_actual_position_joint13_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 15
+float $r_15_actual_position_joint14_u_num = nearestPointOnCurve15.parameter;
+independent_con_0_Curve_15.scaleZ = computeScale($r_15_actual_position_joint14_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 16
+float $r_16_actual_position_joint15_u_num = nearestPointOnCurve16.parameter;
+independent_con_0_Curve_16.scaleZ = computeScale($r_16_actual_position_joint15_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 17
+float $r_17_actual_position_joint16_u_num = nearestPointOnCurve17.parameter;
+independent_con_0_Curve_17.scaleZ = computeScale($r_17_actual_position_joint16_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 18
+float $r_18_actual_position_joint17_u_num = nearestPointOnCurve18.parameter;
+independent_con_0_Curve_18.scaleZ = computeScale($r_18_actual_position_joint17_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 19
+float $r_19_actual_position_joint18_u_num = nearestPointOnCurve19.parameter;
+independent_con_0_Curve_19.scaleZ = computeScale($r_19_actual_position_joint18_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 20
+float $r_20_actual_position_joint19_u_num = nearestPointOnCurve20.parameter;
+independent_con_0_Curve_20.scaleZ = computeScale($r_20_actual_position_joint19_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 21
+float $r_21_actual_position_joint20_u_num = nearestPointOnCurve21.parameter;
+independent_con_0_Curve_21.scaleZ = computeScale($r_21_actual_position_joint20_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 22
+float $r_22_actual_position_joint21_u_num = nearestPointOnCurve22.parameter;
+independent_con_0_Curve_22.scaleZ = computeScale($r_22_actual_position_joint21_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 23
+float $r_23_actual_position_joint22_u_num = nearestPointOnCurve23.parameter;
+independent_con_0_Curve_23.scaleZ = computeScale($r_23_actual_position_joint22_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 24
+float $r_24_actual_position_joint23_u_num = nearestPointOnCurve24.parameter;
+independent_con_0_Curve_24.scaleZ = computeScale($r_24_actual_position_joint23_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 25
+float $r_25_actual_position_joint24_u_num = nearestPointOnCurve25.parameter;
+independent_con_0_Curve_25.scaleZ = computeScale($r_25_actual_position_joint24_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 26
+float $r_26_actual_position_joint25_u_num = nearestPointOnCurve26.parameter;
+independent_con_0_Curve_26.scaleZ = computeScale($r_26_actual_position_joint25_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 27
+float $r_27_actual_position_joint26_u_num = nearestPointOnCurve27.parameter;
+independent_con_0_Curve_27.scaleZ = computeScale($r_27_actual_position_joint26_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 28
+float $r_28_actual_position_joint27_u_num = nearestPointOnCurve28.parameter;
+independent_con_0_Curve_28.scaleZ = computeScale($r_28_actual_position_joint27_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 29
+float $r_29_actual_position_joint28_u_num = nearestPointOnCurve29.parameter;
+independent_con_0_Curve_29.scaleZ = computeScale($r_29_actual_position_joint28_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 30
+float $r_30_actual_position_joint29_u_num = nearestPointOnCurve30.parameter;
+independent_con_0_Curve_30.scaleZ = computeScale($r_30_actual_position_joint29_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 31
+float $r_31_actual_position_joint30_u_num = nearestPointOnCurve31.parameter;
+independent_con_0_Curve_31.scaleZ = computeScale($r_31_actual_position_joint30_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 32
+float $r_32_actual_position_joint31_u_num = nearestPointOnCurve32.parameter;
+independent_con_0_Curve_32.scaleZ = computeScale($r_32_actual_position_joint31_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 33
+float $r_33_actual_position_joint32_u_num = nearestPointOnCurve33.parameter;
+independent_con_0_Curve_33.scaleZ = computeScale($r_33_actual_position_joint32_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 34
+float $r_34_actual_position_joint33_u_num = nearestPointOnCurve34.parameter;
+independent_con_0_Curve_34.scaleZ = computeScale($r_34_actual_position_joint33_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 35
+float $r_35_actual_position_joint34_u_num = nearestPointOnCurve35.parameter;
+independent_con_0_Curve_35.scaleZ = computeScale($r_35_actual_position_joint34_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 36
+float $r_36_actual_position_joint35_u_num = nearestPointOnCurve36.parameter;
+independent_con_0_Curve_36.scaleZ = computeScale($r_36_actual_position_joint35_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 37
+float $r_37_actual_position_joint36_u_num = nearestPointOnCurve37.parameter;
+independent_con_0_Curve_37.scaleZ = computeScale($r_37_actual_position_joint36_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 38
+float $r_38_actual_position_joint37_u_num = nearestPointOnCurve38.parameter;
+independent_con_0_Curve_38.scaleZ = computeScale($r_38_actual_position_joint37_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 39
+float $r_39_actual_position_joint38_u_num = nearestPointOnCurve39.parameter;
+independent_con_0_Curve_39.scaleZ = computeScale($r_39_actual_position_joint38_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 40
+float $r_40_actual_position_joint39_u_num = nearestPointOnCurve40.parameter;
+independent_con_0_Curve_40.scaleZ = computeScale($r_40_actual_position_joint39_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 41
+float $r_41_actual_position_joint40_u_num = nearestPointOnCurve41.parameter;
+independent_con_0_Curve_41.scaleZ = computeScale($r_41_actual_position_joint40_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 42
+float $r_42_actual_position_joint41_u_num = nearestPointOnCurve42.parameter;
+independent_con_0_Curve_42.scaleZ = computeScale($r_42_actual_position_joint41_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 43
+float $r_43_actual_position_joint42_u_num = nearestPointOnCurve43.parameter;
+independent_con_0_Curve_43.scaleZ = computeScale($r_43_actual_position_joint42_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 44
+float $r_44_actual_position_joint43_u_num = nearestPointOnCurve44.parameter;
+independent_con_0_Curve_44.scaleZ = computeScale($r_44_actual_position_joint43_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 45
+float $r_45_actual_position_joint44_u_num = nearestPointOnCurve45.parameter;
+independent_con_0_Curve_45.scaleZ = computeScale($r_45_actual_position_joint44_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 46
+float $r_46_actual_position_joint45_u_num = nearestPointOnCurve46.parameter;
+independent_con_0_Curve_46.scaleZ = computeScale($r_46_actual_position_joint45_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 47
+float $r_47_actual_position_joint46_u_num = nearestPointOnCurve47.parameter;
+independent_con_0_Curve_47.scaleZ = computeScale($r_47_actual_position_joint46_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 48
+float $r_48_actual_position_joint47_u_num = nearestPointOnCurve48.parameter;
+independent_con_0_Curve_48.scaleZ = computeScale($r_48_actual_position_joint47_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 49
+float $r_49_actual_position_joint48_u_num = nearestPointOnCurve49.parameter;
+independent_con_0_Curve_49.scaleZ = computeScale($r_49_actual_position_joint48_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 50
+float $r_50_actual_position_joint49_u_num = nearestPointOnCurve50.parameter;
+independent_con_0_Curve_50.scaleZ = computeScale($r_50_actual_position_joint49_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);
+
+// 关节 51
+float $r_51_actual_position_joint50_u_num = nearestPointOnCurve51.parameter;
+independent_con_0_Curve_51.scaleZ = computeScale($r_51_actual_position_joint50_u_num, $ctrlPositions, $ctrlScales, $ctrlLeftRadii, $ctrlRightRadii);

@@ -11,17 +11,13 @@ vers = '2017-2019'
 if int(str(versions.current())[0:4]) > 2019:
     vers = 2020
 
-try:
-    from PySide2.QtCore import *
-    from PySide2.QtGui import *
-    from PySide2.QtWidgets import *
-    from PySide2 import __version__
-    from shiboken2 import wrapInstance
-except ImportError:
-    from PySide.QtCore import *
-    from PySide.QtGui import *
-    from PySide import __version__
-    from shiboken import wrapInstance
+
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+#from PySide2 import __version__
+from shiboken2 import wrapInstance
+
 
 
 def getMayaWindow():

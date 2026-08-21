@@ -11,7 +11,7 @@ columnLayout -w 350 -h 700 colustretch;
         setParent ..;
         //2
         rowColumnLayout -nr 1 -columnOffset 1 "left" 22;
-            text -w 110 -l "ÔØÈëÇúÏß:" ;
+            text -w 110 -l "è½½å…¥æ›²çº¿:" ;
             textField -en 0 -w 150 cuvtextField;
             button -l "<<" -bgc 0.1 0.2 0.1 -w 60 -c "insertText" cuvInputButton;
             setParent ..;
@@ -19,7 +19,7 @@ columnLayout -w 350 -h 700 colustretch;
         separator -w 600;
         //4
         rowColumnLayout -nr 1 -co 1 "left" 10;
-            text -l "ÇëÑ¡ÔñÄãĞèÒªµÄ¿ØÖÆ·½Ê½:   " ;
+            text -l "è¯·é€‰æ‹©ä½ éœ€è¦çš„æ§åˆ¶æ–¹å¼:   " ;
             radioCollection;
                 radioButton -w 100 -h 20 -label "FK+IK" FKIKriobutton;
                 radioButton -w 100 -label "IK only" IKriobutton;
@@ -27,17 +27,17 @@ columnLayout -w 350 -h 700 colustretch;
             setParent ..;
         //5
         rowColumnLayout -nr 1 -co 1 "left" 10 -w 600;
-            intSliderGrp -label "¹Ç÷ÀÊıÁ¿:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
+            intSliderGrp -label "éª¨éª¼æ•°é‡:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
                         -minValue 2 -maxValue 10 -fieldMinValue 2 -fieldMaxValue 10000 -value 10 jntIntSliderGrp;
             setParent ..;
         //6
         rowColumnLayout -nr 1 -co 1 "left" 10 -w 600;
-            intSliderGrp -label "¿ØÖÆÆ÷ÊıÁ¿:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
+            intSliderGrp -label "æ§åˆ¶å™¨æ•°é‡:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
                         -minValue 2 -maxValue 10 -fieldMinValue 2 -fieldMaxValue 10000 -value 4 ctrlIntSliderGrp;
             setParent ..;
         //7
         rowColumnLayout -nr 1 -co 1 "left" 10;
-            text -l "ÊÇ·ñĞèÒªÌí¼Ó nHair   " ;
+            text -l "æ˜¯å¦éœ€è¦æ·»åŠ  nHair   " ;
             radioCollection;
                 radioButton -w 100 -h 30 -label "Yes" haironriobutton;
                 radioButton -w 100 -label "No" hairoffriobutton;
@@ -51,7 +51,7 @@ columnLayout -w 350 -h 700 colustretch;
         separator -w 600;
         //10
         rowColumnLayout -nr 1 -co 1 "left" 10 -w 600;
-            intSliderGrp -label "Ã«ÄÒÊıÁ¿:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
+            intSliderGrp -label "æ¯›å›Šæ•°é‡:" -field true -w 300 -h 40 -cl3 "left" "left" "left" -cw3 70 40 60
                         -minValue 2 -maxValue 10 -fieldMinValue 2 -fieldMaxValue 10000 -value 10 FloIntSliderGrp;
             setParent ..;
         //11
@@ -62,44 +62,44 @@ columnLayout -w 350 -h 700 colustretch;
         separator -w 600;
         //13
         rowColumnLayout -h 40-nr 1 -columnOffset 1 "left" 20;
-            text -w 110 -l "ÔØÈë´ó»·¿ØÖÆÆ÷:";
+            text -w 110 -l "è½½å…¥å¤§ç¯æ§åˆ¶å™¨:";
             textField -en 0 -w 150 -ec "insertMainText" MaintextField;
             button -l "<<" -bgc 0.0 0.2 0.1 -w 60 -c "insertMainText" MainInputButton;
             setParent ..;
         //14
         rowColumnLayout -nc 1 -co 1 "left" 200;
-            button -l "> ¹ØÁª¿ØÖÆÆ÷ <" -bgc 0 0.2 0.4 -w 140 -h 25 -c "conCtrl" conCtrlButton;
+            button -l "> å…³è”æ§åˆ¶å™¨ <" -bgc 0 0.2 0.4 -w 140 -h 25 -c "conCtrl" conCtrlButton;
             setParent ..;
         //15
         rowColumnLayout -nc 1 -co 1 "left" 200;
-            button -l "> ¹ØÁªÃ«ÄÒ <" -bgc 0 0.2 0.4 -w 140 -h 25 -c "confol" conFolliButton;
+            button -l "> å…³è”æ¯›å›Š <" -bgc 0 0.2 0.4 -w 140 -h 25 -c "confol" conFolliButton;
             setParent ..;
         //16
         separator -w 600;
         //17
         rowColumnLayout -nc 1 -co 1 "left" 20;
-            text -l "nHair ÏµÍ³¹ØÁª";
+            text -l "nHair ç³»ç»Ÿå…³è”";
             setParent ..;
         //18
         rowColumnLayout -nc 2 -co 1 "left" 20;
-            text -l "ÏÈÑ¡Ôñ¿ØÖÆÆ÷,ÔÙÑ¡Ôñ nHair ÏµÍ³,µã»÷Ö´ĞĞ!" -w 240;
-            button -l "Ö´ĞĞ¹ØÁª" -bgc 0 0.2 0.4 -w 80 -h 25 -c "multconHair";
+            text -l "å…ˆé€‰æ‹©æ§åˆ¶å™¨,å†é€‰æ‹© nHair ç³»ç»Ÿ,ç‚¹å‡»æ‰§è¡Œ!" -w 240;
+            button -l "æ‰§è¡Œå…³è”" -bgc 0 0.2 0.4 -w 80 -h 25 -c "multconHair";
             setParent ..;
         //19
         separator -w 600;
         //20
         rowColumnLayout -nc 1 -co 1 "left" 20;
-            text -l "¶à¸öÇúÏßµÄ nHair ÏµÍ³´´½¨";
+            text -l "å¤šä¸ªæ›²çº¿çš„ nHair ç³»ç»Ÿåˆ›å»º";
             setParent ..;
         //21
         rowColumnLayout -nc 2 -co 1 "left" 20;
-            text -l "Ñ¡ÔñËùÓĞÒªÌí¼Ó nHair µÄÇúÏß,µã»÷Ö´ĞĞ!" -w 240;
-            button -l "Ö´ĞĞcurve" -bgc 0 0.2 0.4 -w 80 -h 25 -c "multconHaircv";
+            text -l "é€‰æ‹©æ‰€æœ‰è¦æ·»åŠ  nHair çš„æ›²çº¿,ç‚¹å‡»æ‰§è¡Œ!" -w 240;
+            button -l "æ‰§è¡Œcurve" -bgc 0 0.2 0.4 -w 80 -h 25 -c "multconHaircv";
             setParent ..;
         //22
         rowColumnLayout -nc 2 -co 1 "left" 20;
-            text -l "Ñ¡ÔñËùÓĞÒª¹ØÁªËõ·ÅµÄÇúÏß,µã»÷Ö´ĞĞ!" -w 240;
-            button -l "Ö´ĞĞ¹ØÁª" -bgc 0 0.2 0.4 -w 80 -h 25 -c "mutlconCtrl";
+            text -l "é€‰æ‹©æ‰€æœ‰è¦å…³è”ç¼©æ”¾çš„æ›²çº¿,ç‚¹å‡»æ‰§è¡Œ!" -w 240;
+            button -l "æ‰§è¡Œå…³è”" -bgc 0 0.2 0.4 -w 80 -h 25 -c "mutlconCtrl";
             setParent ..;
         //23
         separator -w 600;
@@ -112,7 +112,7 @@ columnLayout -w 350 -h 700 colustretch;
             setParent ..;
         //25
         rowColumnLayout -h 40 -nr 1 -columnOffset 1 "left" 20;
-            text -w 110 -l "ÔØÈëÒªÎü¸½µÄÄ£ĞÍ:";
+            text -w 110 -l "è½½å…¥è¦å¸é™„çš„æ¨¡å‹:";
             textField -en 0 -w 150 -ec "insertAttachModel" Mainmodel;
             button -l "<<" -bgc 0.0 0.2 0.1 -w 60 -c "insertAttachModel" mdInputButton;
             setParent ..;
@@ -122,7 +122,7 @@ columnLayout -w 350 -h 700 colustretch;
             setParent ..;
         //27
         rowColumnLayout -nc 2 -co 1 "left" 20;
-            text -l "Ñ¡ÔñÇúÏß£¬µã»÷Ö´ĞĞ£¡" -w 240;
+            text -l "é€‰æ‹©æ›²çº¿ï¼Œç‚¹å‡»æ‰§è¡Œï¼" -w 240;
             button -l "simp_hair_set" -bgc 0 0.2 0.4 -w 80 -h 25 -c "multconHaircvonlyjnt";
             setParent ..;
     setParent ..;
@@ -372,7 +372,7 @@ global proc ctrlcurrency()
         connectAttr -f ($selcur[0]+"_jnt"+$h+"_multNodeC.outputX") ($selcur[0]+"_jnt"+$m+".sy");
         connectAttr -f ($selcur[0]+"_jnt"+$h+"_multNodeC.outputX") ($selcur[0]+"_jnt"+$m+".sz");
     }
-    //ÊÇ·ñÌí¼Óhair
+    //æ˜¯å¦æ·»åŠ hair
     int $switch_hair=`radioButton -q -sl haironriobutton`;
     if($switch_hair==0)
     {
@@ -410,7 +410,7 @@ global proc ctrlcurrency()
     setAttr ($selcur[0]+"_ikHandle.dWorldUpType") 4;
     setAttr ($selcur[0]+"_ikHandle.dWorldUpType") 0;
     setAttr ($selcur[0]+"_ikHandle.dTwistControlEnable") 0;
-    //ĞèÒªÊÖ¶¯ÉèÖÃadvanced twist
+    //éœ€è¦æ‰‹åŠ¨è®¾ç½®advanced twist
     int $FKIKselection=`radioButton -q -sl FKIKriobutton`;
     if($FKIKselection==0)
     {
@@ -460,7 +460,7 @@ global proc addFollice()
     string $selc=`textField -q -tx cuvtextField`;
     string $selcur[];
     $selcur[0]=$selc;
-    // Ìí¼ÓÃ«ÄÒ
+    // æ·»åŠ æ¯›å›Š
     string $cur_shape[]=`listRelatives -s $selcur[0]`;
     createNode pointOnCurveInfo -n ($selcur[0]+"_potinfo");
     connectAttr -f ($cur_shape[0]+".worldSpace[0]") ($selcur[0]+"_potinfo.inputCurve");
@@ -757,7 +757,7 @@ global proc multconHaircv()
             }
             skinCluster -n ($selcur[0]+"_skinCluster") $sub_ctrl_jnt $selcur[0];
         }
-        //Ìí¼Óhair
+        //æ·»åŠ hair
         select -r $slcv;
         string $attcmod=`textField -q -tx Mainmodel`;
         if ($attcmod!="")
@@ -786,7 +786,7 @@ global proc multconHaircv()
             string $cuvfollicle[]=`listRelatives -p $slcv[$k]`;
             if (size($cuvfollicle)!=0)
             {
-                //ĞÂ¼ÓÄÚÈİ
+                //æ–°åŠ å†…å®¹
                 setAttr ($slcv[$k]+".inheritsTransform") 0;
                 //
                 string $newfol_name=`rename $cuvfollicle[0] ($slcv[$k]+"_follicle")`;
@@ -801,7 +801,7 @@ global proc multconHaircv()
                 setAttr ($slcv[$k]+"_ikHandle.dWorldUpAxis") 0;
                 setAttr ($slcv[$k]+"_ikHandle.dTwistControlEnable") 0;
                 clear($cuvfollicle);
-                //ĞèÒªÊÖ¶¯ÉèÖÃadvanced twist
+                //éœ€è¦æ‰‹åŠ¨è®¾ç½®advanced twist
             }
             int $FKIKselection=`radioButton -q -sl FKIKriobutton`;
             if ($FKIKselection==0)
@@ -852,7 +852,7 @@ global proc multconHaircv()
     }
     else
     {
-        print("ÇëÑ¡ÔñÇúÏß£¡\n");
+        print("è¯·é€‰æ‹©æ›²çº¿ï¼\n");
     }
 }
 global proc multconHaircvonlyjnt()
@@ -896,7 +896,7 @@ global proc multconHaircvonlyjnt()
             makeIdentity -apply true -t 0 -r 0 -s 1 -n 0 -jointOrient ($selcur[0]+"_jnt"+$spans_down);
             delete ($selcur[0]+"loc");
         }
-        //Ìí¼Óhair
+        //æ·»åŠ hair
         select -r $slcv;
         string $attcmod=`textField -q -tx Mainmodel`;
         if ($attcmod!="")
@@ -923,9 +923,9 @@ global proc multconHaircvonlyjnt()
             string $cuvfollicle[]=`listRelatives -p $slcv[$k]`;
             if (size($cuvfollicle)!=0)
             {
-                //ĞÂ¼ÓÄÚÈİ
+                //æ–°åŠ å†…å®¹
                 setAttr ($slcv[$k]+".inheritsTransform") 1;
-                //ĞÂ¼ÓÍê±Ï
+                //æ–°åŠ å®Œæ¯•
                 string $newfol_name=`rename $cuvfollicle[0] ($slcv[$k]+"_follicle")`;
                 string $cuvfolliclegrp[]=`listRelatives -p ($slcv[$k]+"_follicle")`;
                 setAttr ($newfol_name+"Shape.pointLock") 1;
@@ -939,14 +939,14 @@ global proc multconHaircvonlyjnt()
                 setAttr ($slcv[$k]+"_ikHandle.dTwistControlEnable") 0;
                 clear($cuvfollicle);
             }
-            //ĞèÒªÊÖ¶¯ÉèÖÃadvanced twist
+            //éœ€è¦æ‰‹åŠ¨è®¾ç½®advanced twist
         }
         parent ($slcv[0]+"_hairsystem") ($slcv[0]+"_follicle_grp") ($slcv[0]+"_hairOutputCurves") ($slcv[0]+"_hiding_grp");
         setAttr ($slcv[0]+"_hiding_grp.v") 0;
     }
     else
     {
-        print("ÇëÏÈÑ¡ÔñÇúÏß");
+        print("è¯·å…ˆé€‰æ‹©æ›²çº¿");
     }
 }
 global proc multconHair()

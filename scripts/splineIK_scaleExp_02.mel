@@ -1,0 +1,128 @@
+// ============================================================
+// 原始数据数组（保持不变）
+// ============================================================
+float $all_point_u_num_0[] = {press_fallof_loc_01_nearestPointOnCurve.parameter,press_fallof_loc_02_nearestPointOnCurve.parameter,press_fallof_loc_03_nearestPointOnCurve.parameter,press_fallof_loc_04_nearestPointOnCurve.parameter};
+// float $all_curve_rote_num_0[] = {press_fallof_loc_01.ground,press_fallof_loc_02.ground,press_fallof_loc_03.ground,press_fallof_loc_04.ground};
+float $all_curve_smooth_num_0[] = {press_fallof_loc_01.fallofA,press_fallof_loc_01.fallofB,press_fallof_loc_02.fallofA,press_fallof_loc_02.fallofB,press_fallof_loc_03.fallofA,press_fallof_loc_03.fallofB,press_fallof_loc_04.fallofA,press_fallof_loc_04.fallofB};
+
+// ============================================================
+// 构建控制点位置、缩放值、左右半径数组
+// ============================================================
+int $numPoints = size($all_point_u_num_0);  // 11
+
+float $ctrlPositions[] = $all_point_u_num_0;
+// float $ctrlScales[] = $all_curve_rote_num_0;
+
+// 左半径和右半径分别存储
+float $ctrlLeftRadii[];
+float $ctrlRightRadii[];
+
+for ($i = 0; $i < $numPoints; $i++) {
+    float $leftR = 0.0;
+    float $rightR = 0.0;
+
+        // 内部控制点：左侧半径 = 左区间（i-1）的第二个smooth，右侧半径 = 右区间（i）的第一个smooth
+    $leftR = $all_curve_smooth_num_0[$i*2];
+    $rightR = $all_curve_smooth_num_0[$i*2 + 1];
+    
+    $ctrlLeftRadii[$i] = $leftR;
+    $ctrlRightRadii[$i] = $rightR;
+}
+
+// ============================================================
+// 计算叠加缩放值的函数（默认输出为1）
+// ============================================================
+global proc float computeScale(float $u, float $positions[], float $leftRadii[], float $rightRadii[]) {
+    float $total = 0.0;
+    int $count = size($positions);
+    for ($i = 0; $i < $count; $i++) {
+        float $dist = $u - $positions[$i];
+        float $weight = 0.0;
+        
+        if ($dist == 0.0) {
+            $weight = 1.0;
+        } else if ($dist < 0) {
+            // 左侧衰减（使用左半径）
+            float $r = $leftRadii[$i];
+            if ($r > 0 && -$dist < $r) {
+                float $t = (-$dist) / $r;   // 归一化距离 (0~1)
+                // 三次平滑步进（从1衰减到0）
+                float $k = 1.0 - $t;
+                $weight = $k * $k * (3.0 - 2.0 * $k);
+            }
+        } else {
+            // 右侧衰减（使用右半径）
+            float $r = $rightRadii[$i];
+            if ($r > 0 && $dist < $r) {
+                float $t = $dist / $r;      // 归一化距离 (0~1)
+                // 三次平滑步进（从1衰减到0）
+                float $k = 1.0 - $t;
+                $weight = $k * $k * (3.0 - 2.0 * $k);
+            }
+        }
+        // 贡献累加
+        $total += $weight;
+    }
+    return $total;
+}
+
+// ============================================================
+// 所有关节的赋值语句（使用 computeScale）
+// ============================================================
+// 关节 1
+float $jnt_01_parameter = press_up_01_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_01_ctrl_con_rivet.weight = computeScale($jnt_01_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 2
+float $jnt_02_parameter = press_up_02_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_02_ctrl_con_rivet.weight = computeScale($jnt_02_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 3
+float $jnt_03_parameter = press_up_03_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_03_ctrl_con_rivet.weight = computeScale($jnt_03_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 4
+float $jnt_04_parameter = press_up_04_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_04_ctrl_con_rivet.weight = computeScale($jnt_04_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 5
+float $jnt_05_parameter = press_up_05_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_05_ctrl_con_rivet.weight = computeScale($jnt_05_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 6
+float $jnt_06_parameter = press_up_06_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_06_ctrl_con_rivet.weight = computeScale($jnt_06_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 7
+float $jnt_07_parameter = press_up_07_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_07_ctrl_con_rivet.weight = computeScale($jnt_07_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 8
+float $jnt_08_parameter = press_up_08_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_08_ctrl_con_rivet.weight = computeScale($jnt_08_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 9
+float $jnt_09_parameter = press_up_09_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_09_ctrl_con_rivet.weight = computeScale($jnt_09_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 10
+float $jnt_10_parameter = press_up_10_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_10_ctrl_con_rivet.weight = computeScale($jnt_10_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 11
+float $jnt_11_parameter = press_up_11_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_11_ctrl_con_rivet.weight = computeScale($jnt_11_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 12
+float $jnt_12_parameter = press_up_12_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_12_ctrl_con_rivet.weight = computeScale($jnt_12_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 13
+float $jnt_13_parameter = press_up_13_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_13_ctrl_con_rivet.weight = computeScale($jnt_13_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 14
+float $jnt_14_parameter = press_up_14_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_14_ctrl_con_rivet.weight = computeScale($jnt_14_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 15
+float $jnt_15_parameter = press_up_15_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_15_ctrl_con_rivet.weight = computeScale($jnt_15_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 16
+float $jnt_16_parameter = press_up_16_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_16_ctrl_con_rivet.weight = computeScale($jnt_16_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 17
+float $jnt_17_parameter = press_up_17_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_17_ctrl_con_rivet.weight = computeScale($jnt_17_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 18
+float $jnt_18_parameter = press_up_18_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_18_ctrl_con_rivet.weight = computeScale($jnt_18_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);
+// 关节 19
+float $jnt_19_parameter = press_up_19_ctrl_con_rivet_nearestPointOnCurve.parameter;
+press_up_19_ctrl_con_rivet.weight = computeScale($jnt_19_parameter, $ctrlPositions, $ctrlLeftRadii, $ctrlRightRadii);

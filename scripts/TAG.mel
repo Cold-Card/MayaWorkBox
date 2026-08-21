@@ -1,0 +1,178 @@
+TAG2CopySkinWeights();
+
+global proc TAG2CopySkinWeights()
+{
+if (`window -ex TAG2CopySkinWeights`) {deleteUI TAG2CopySkinWeights;}
+string $windowName =`window -title "TAG2CopySkinWeights" TAG2CopySkinWeights`;
+//string $progress = "";
+
+columnLayout -adjustableColumn true;
+rowLayout -numberOfColumns 2 -columnWidth2 160 160;
+button -label "from" -w 160 -c "TAG2CopySkinWeightsList(0,0)";
+button -label "to" -w 160 -c "TAG2CopySkinWeightsList(1,0)";
+setParent ..;
+rowLayout -numberOfColumns 3 -columnWidth3 160 160 160;
+textScrollList -w 160 -nr 15 -ams 0 copyListA;
+textScrollList -w 160 -nr 15 -ams 0 copyListB;
+setParent ..;
+rowLayout -numberOfColumns 1 -columnWidth1 322;
+button -label "1.SmoothBind" -w 322 -c "TAG2SmoothBindApp";
+setParent ..;
+rowLayout -numberOfColumns 1 -columnWidth1 322;
+button -label "2.AddInfluence" -w 322 -c "TAG2AddInfluenceApp";
+setParent ..;
+rowLayout -numberOfColumns 1 -columnWidth1 322;
+button -label "3.CopySkinWeights" -w 322 -c "TAG2CopySkinWeightsApp";
+setParent ..;
+/*
+rowLayout -numberOfColumns 1 -columnWidth1 322;
+button -label "4.RemoveUnusedInfluence" -w 322 -c "TAG2RemoveUnusedInfluenceApp";
+setParent ..;
+*/
+separator -st "in" -h 8;
+rowLayout -numberOfColumns 1 -columnWidth1 322;
+button -label "Run All" -w 322 -c "TAG2CopySkinWeightsAllApp";
+setParent ..;
+separator -st "in" -h 8;
+rowLayout -numberOfColumns 1 -columnWidth1 322;
+text -label "After Run; skin > Edit Smooth Skin > Remove Unused skin";
+setParent ..;
+/*
+rowLayout -numberOfColumns 1 -columnWidth1 322;
+columnLayout;
+text -label $progress progressText;
+setParent ..;
+setParent ..;
+*/
+setParent ..;
+showWindow;
+}
+
+global proc TAG2CopySkinWeightsList(int $num1,int $num2)
+{
+if ($num1 == 0)
+{
+string $selObjA[] = `ls -sl`;
+/*
+string $selDagA[];
+$selDagA = `ls -sl`;
+*/
+textScrollList -e -ra copyListA;
+for ($i=0; $i<size($selObjA); $i++)
+{
+textScrollList -e -append $selObjA[$i] copyListA;
+}
+}
+if($num1 == 1)
+{
+string $selDagB[] = `ls -sl`;
+textScrollList -e -ra copyListB;
+for($i=0; $i<size($selDagB); $i++)
+{
+textScrollList -e -append $selDagB[$i] copyListB;
+}
+}
+}
+
+global proc TAG2CopySkinWeightsAllApp()
+{
+TAG2SmoothBindApp();
+TAG2AddInfluenceApp();
+TAG2CopySkinWeightsApp();
+TAG2RemoveUnusedInfluenceApp();
+}
+
+global proc TAG2SmoothBindApp()
+{
+//text -e -label "SmoothBind..." progressText;
+
+string $texA[] = `textScrollList -q -ai copyListA`;
+string $texB[] = `textScrollList -q -ai copyListB`;
+string $weightedInf[];
+select -cl;
+
+for($i=0; $i<size($texA); $i++)
+{
+$weightedInf = `skinCluster -q -weightedInfluence $texA[$i]`;
+select -add $weightedInf;
+}
+string $infJoint[] = `ls -sl -type joint`;
+for($i=0; $i<size($texB); $i++)
+{
+select -r $infJoint;
+select -add $texB[$i];
+skinCluster -toSelectedBones -removeUnusedInfluence false /*-skinMethod 0*/;
+}
+//text -e -label "" progressText;
+}
+
+global proc TAG2AddInfluenceApp ()
+{
+//text -e -label "AddInfluence..." progressText;
+string $texA[] = `textScrollList -q -ai copyListA`;
+string $texB[] = `textScrollList -q -ai copyListB`;
+string $weightedInf[];
+select -cl;
+for($i=0; $i<size($texA); $i++)
+{
+$weightedInf = `skinCluster -q -weightedInfluence $texA[$i]`;
+select -add $weightedInf;
+}
+string $infJoint[] = `ls -sl -type joint`;
+
+//select -r $infJoint;
+select -deselect $infJoint;
+string $infTransform[] = `ls -sl`;
+for($i=0; $i<size($texB); $i++)
+{
+for ($j=0; $j<size($infTransform); $j++)
+{
+select -r $texB[$i];
+skinCluster -e -dr 0 -ps 0 -ns 0 -ai $infTransform[$j];
+}
+}
+//text -e -label "" progressText;
+}
+
+global proc TAG2CopySkinWeightsApp()
+{
+//text -e -label "CopySkinWeights..." progressText;
+string $texA[] = `textScrollList -q -ai copyListA`;
+string $texB[] = `textScrollList -q -ai copyListB`;
+for ($i=0; $i<size($texB); $i++)
+{
+select -r $texA;
+select -add $texB[$i];
+copySkinWeights -noMirror -surfaceAssociation closestPoint
+-influenceAssociation closestJoint -influenceAssociation oneToOne;
+}
+//text -e -label "" progressText;
+}
+
+
+global proc TAG2RemoveUnusedInfluenceApp()
+{
+//text -e -label "RemoveUnusedInfluence..." progressText;
+string $texA[] = `textScrollList -q -ai copyListA`;
+string $texB[] = `textScrollList -q -ai copyListB`;
+string $allInf[];
+string $weightedInf[];
+string $unusedInf[];
+string $skinClst;
+select -cl;
+for($i=0; $i<size($texB); $i++)
+{
+$allInf = `skinCluster -q -influence $texB[$i]`;
+$weightedInf = `skinCluster -q -weightedInfluence $texB[$i]`;
+select -r $allInf;
+select -deselect $weightedInf;
+string $selUnused[] = `ls -sl`;
+for($j=0; $j<size($selUnused); $j++)
+{
+$skinClst = `findRelatedSkinCluster $texB[$i]`;
+skinCluster -e -ri $selUnused[$j] $skinClst;
+}
+}
+//text -e -label "" progressText;
+}
+
