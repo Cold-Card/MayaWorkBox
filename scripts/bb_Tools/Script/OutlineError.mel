@@ -1,0 +1,15 @@
+global proc OutlineError()
+{
+    string $Outliner =
+    "import pymel.core as pm" + "\n" +
+    "for items in pm.lsUI(editors=True):" + "\n" +
+    "    if not pm.outlinerEditor(items, query=True, exists=True):" + "\n" +
+    "        continue" + "\n" +
+    "    sel_cmd = pm.outlinerEditor(items, query=True, selectCommand=True)" + "\n" +
+    "    if not sel_cmd:" + "\n" +
+    "        continue" + "\n" +
+    "    if sel_cmd.startswith('<function selCom at '):" + "\n" +
+    "        pm.outlinerEditor(items, edit=True, selectCommand='')";
+    python $Outliner;
+    confirmDialog -title "OK" -message "大纲报错清除完成？\n   保存档案重开Maya" -button "好的！~";
+}

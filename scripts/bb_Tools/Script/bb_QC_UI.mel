@@ -1,0 +1,365 @@
+global string $bb_QC_checkBoxValue = "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0";
+global string $bb_QC_setFileSel;
+
+global proc bb_QC_initialization()
+{
+    global string  $bb_QC_checkBoxValue;
+    global string $bb_QC_setFileSel;
+    if(`optionVar -exists bb_QC_checkBoxValue`)
+        $bb_QC_checkBoxValue = `optionVar -q bb_QC_checkBoxValue`;
+    if(`optionVar -exists bb_QC_setFileSel`)
+        $bb_QC_setFileSel = `optionVar -q bb_QC_setFileSel`;
+}
+
+global proc bb_QC_UIValueSet(int $order,int $value)
+{
+    bb_QC_initialization;
+    global string  $bb_QC_checkBoxValue;
+    string $bb_QC_checkBoxValueArray[] = stringToStringArray($bb_QC_checkBoxValue, " ");
+    $bb_QC_checkBoxValueArray[$order] = $value;
+    $bb_QC_checkBoxValue =  stringArrayToString($bb_QC_checkBoxValueArray, " ");
+    optionVar -stringValue bb_QC_checkBoxValue $bb_QC_checkBoxValue;
+}
+//全选，反选
+global proc bb_QC_UISelect(int $mode,int $type)
+{
+    int $value;
+    string $checkBox1[] = {"bb_QC_unkonwCB","bb_QC_intermediaCB","bb_QC_noVertexCB","bb_QC_soundCB"};
+    string $checkBox2[] = {"bb_QC_renameCB","bb_QC_modleSuffixCB","bb_QC_modleLockCB","bb_QC_modleVisCB","bb_QC_lightCB","bb_QC_camCB",
+                           "bb_QC_ctrlValueCB","bb_QC_faceMappingCB","bb_QC_animKeyCB","bb_QC_layerCB","bb_QC_smoothCB","bb_QC_unusedCB"};
+    if($type == 0){
+        for($i=0;$i<size($checkBox1);$i++){
+            if($mode == 1){
+                $value = 1;
+            }
+            else{
+                $value = 1 - `checkBox -q -v $checkBox1[$i]`;
+            }
+            checkBox -e -v $value $checkBox1[$i];
+            bb_QC_UIValueSet($i,$value);
+        }
+    }
+    else if($type == 1){
+        for($j=0;$j<size($checkBox2);$j++){
+            if($mode == 1){
+                $value = 1;
+            }
+            else{
+                $value = 1 - `checkBox -q -v $checkBox2[$j]`;
+            }
+            checkBox -e -v $value $checkBox2[$j];
+            bb_QC_UIValueSet(($j+4),$value);
+        }
+    }
+}
+
+global proc bb_QCUI()
+{
+    bb_QC_initialization;
+    global string  $bb_QC_checkBoxValue;
+    string $bb_QC_checkBoxValueArray[] = stringToStringArray($bb_QC_checkBoxValue, " ");
+    int $bb_QC_UIValue[];
+    for($i=0;$i<size($bb_QC_checkBoxValueArray);$i++){
+        $bb_QC_UIValue[$i] = $bb_QC_checkBoxValueArray[$i];
+    }
+    if (`window -q -exists bb_QCUIWindow`) deleteUI bb_QCUIWindow;
+    window -title "轻松QC" bb_QCUIWindow; 
+        formLayout bb_QCUI_form;
+            columnLayout -adjustableColumn true -w 210 -columnAttach "both" 3 -rowSpacing 5 bb_QCUI_QC1Layout;
+                frameLayout -label "通用";
+                    rowColumnLayout -numberOfColumns 4 -columnWidth 1 110 -columnWidth 2 40 -columnWidth 3 10 -columnWidth 4 40 -rowSpacing 1 2;
+                        checkBox -label "1.unkonw节点" -v $bb_QC_UIValue[0] -onCommand "bb_QC_UIValueSet(0,1)" -offCommand "bb_QC_UIValueSet(0,0)" bb_QC_unkonwCB;
+                        button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_unkownQC;text -l "";
+                        button -l "Fix" -bgc 0.5 0.5 0.5 -c "bb_QC_deleteFix(\"QC_unkownSets\")";
+                        checkBox -label "2.intermedia OBJ" -v $bb_QC_UIValue[1] -onCommand "bb_QC_UIValueSet(1,1)" -offCommand "bb_QC_UIValueSet(1,0)" bb_QC_intermediaCB;
+                        button -l "QC" -c bb_QC_intermediaObjQC;text -l "";
+                        button -l "Fix" -c "bb_QC_deleteFix(\"QC_intermediaObjSets\")";
+                        checkBox -label "3.无顶点模型" -v $bb_QC_UIValue[2] -onCommand "bb_QC_UIValueSet(2,1)" -offCommand "bb_QC_UIValueSet(2,0)" bb_QC_noVertexCB;
+                        button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_zeroVertexObjQC;text -l "";
+                        button -l "Fix" -bgc 0.5 0.5 0.5 -c "bb_QC_deleteFix(\"QC_zeroVertexObjSets\")";
+                        checkBox -label "4.声音" -v $bb_QC_UIValue[3] -onCommand "bb_QC_UIValueSet(3,1)" -offCommand "bb_QC_UIValueSet(3,0)" bb_QC_soundCB;
+                        button -l "QC" -c bb_QC_audioQC;text -l "";
+                        button -l "Fix" -c "bb_QC_deleteFix(\"QC_audioSets\")";
+                    setParent ..;
+                    rowLayout -numberOfColumns 3 -columnWidth3 40 40 130 -columnAlign  1 "left" ;
+                        button -l "全选" -c "bb_QC_UISelect(1,0)";
+                        button -l "反选" -c "bb_QC_UISelect(0,0)";
+                        button -l "QC" -bgc 0 0.3 0.45 -h 30 -w 120 -c "bb_QC_allQC(0)";
+                    setParent ..;
+                setParent ..; 
+                frameLayout -label "Rigging相关";
+                    rowColumnLayout -numberOfColumns 4 -columnWidth 1 110 -columnWidth 2 40 -columnWidth 3 10 -columnWidth 4 40 -rowSpacing 1 2;
+                        checkBox -label "1.重命名" -v $bb_QC_UIValue[4] -onCommand "bb_QC_UIValueSet(4,1)" -offCommand "bb_QC_UIValueSet(4,0)" bb_QC_renameCB;
+                        button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_repeatedNameQC;text -l "";
+                        button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_repeatedNameFix;
+                        checkBox -label "2.模型后缀" -v $bb_QC_UIValue[5] -onCommand "bb_QC_UIValueSet(5,1)" -offCommand "bb_QC_UIValueSet(5,0)" bb_QC_modleSuffixCB;
+                        button -l "QC" -c bb_QC_modleSuffixQC;text -l "";
+                        button -l "Fix" -vis 0;
+                        checkBox -label "3.模型锁属性" -v $bb_QC_UIValue[6] -onCommand "bb_QC_UIValueSet(6,1)" -offCommand "bb_QC_UIValueSet(6,0)" bb_QC_modleLockCB;
+                        button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_attrLockQC;text -l "";
+                        button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_attrLockFix;
+                        checkBox -label "4.模型显示" -v $bb_QC_UIValue[7] -onCommand "bb_QC_UIValueSet(7,1)" -offCommand "bb_QC_UIValueSet(7,0)" bb_QC_modleVisCB;
+                        button -l "QC" -c bb_QC_modleVisQC;text -l "";
+                        button -l "Fix" -c bb_QC_modleVisFix;
+                        checkBox -label "5.灯光" -v $bb_QC_UIValue[8] -onCommand "bb_QC_UIValueSet(8,1)" -offCommand "bb_QC_UIValueSet(8,0)" bb_QC_lightCB;
+                        button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_lightQC;text -l "";
+                        button -l "Fix" -bgc 0.5 0.5 0.5 -c "bb_QC_deleteFix(\"QC_lightSets\")";
+                        checkBox -label "6.摄像机" -v $bb_QC_UIValue[9] -onCommand "bb_QC_UIValueSet(9,1)" -offCommand "bb_QC_UIValueSet(9,0)" bb_QC_camCB;
+                        button -l "QC" -c bb_QC_camQC;text -l "";
+                        button -l "Fix" -c "bb_QC_deleteFix(\"QC_cameraSets\")";
+                        checkBox -label "7.控制器数值" -v $bb_QC_UIValue[10] -onCommand "bb_QC_UIValueSet(10,1)" -offCommand "bb_QC_UIValueSet(10,0)" bb_QC_ctrlValueCB;
+                        button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_ctrlValueQC;text -l "";
+                        button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_ctrlValueFix;
+                        checkBox -label "8.选面贴" -v $bb_QC_UIValue[11] -onCommand "bb_QC_UIValueSet(11,1)" -offCommand "bb_QC_UIValueSet(11,0)" bb_QC_faceMappingCB;
+                        button -l "QC" -c bb_QC_faceMappingQC;text -l "";
+                        button -l "Fix" -vis 0;
+                        checkBox -label "9.动画帧" -v $bb_QC_UIValue[12] -onCommand "bb_QC_UIValueSet(12,1)" -offCommand "bb_QC_UIValueSet(12,0)" bb_QC_animKeyCB;
+                        button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_animKeyQC;text -l "";
+                        button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_animKeyFix;
+                        checkBox -label "10.显示层" -v $bb_QC_UIValue[13] -onCommand "bb_QC_UIValueSet(13,1)" -offCommand "bb_QC_UIValueSet(13,0)" bb_QC_layerCB;
+                        button -l "QC" -c bb_QC_layerQC;text -l "";
+                        button -l "Fix" -c "bb_QC_deleteFix(\"QC_layerSets\")";;
+                        checkBox -label "11.smooth" -v $bb_QC_UIValue[14] -onCommand "bb_QC_UIValueSet(14,1)" -offCommand "bb_QC_UIValueSet(14,0)" bb_QC_smoothCB;
+                        button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_smoothQC;text -l "";
+                        button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_smoothFix;
+                        checkBox -label "12.无影响骨骼" -v $bb_QC_UIValue[15] -onCommand "bb_QC_UIValueSet(15,1)" -offCommand "bb_QC_UIValueSet(15,0)" bb_QC_unusedCB;
+                        button -l "QC" -c bb_QC_unusedQC;text -l "";
+                        button -l "Fix" -c bb_QC_unusedFix;
+                    setParent ..;
+                    rowLayout -numberOfColumns 3 -columnWidth3 40 40 130 -columnAlign  1 "left" ;
+                        button -l "全选" -c "bb_QC_UISelect(1,1)";
+                        button -l "反选" -c "bb_QC_UISelect(0,1)";
+                        button -l "QC" -bgc 0 0.3 0.45 -h 30 -w 120 -c "bb_QC_allQC(1)";;
+                    setParent ..;
+                setParent ..;
+            setParent ..;
+
+        tabLayout -innerMarginWidth 5 -innerMarginHeight 5 bb_QC_tabLayout;
+            formLayout bb_QC_informationLayout;
+               scrollField -wordWrap true -editable false bb_QC_informationSF;
+                   popupMenu;
+                       menuItem -label "清空信息" -c "scrollField -e -clear bb_QC_informationSF";
+            setParent ..;
+            formLayout -edit
+                -attachForm     "bb_QC_informationSF"     "top"    1
+                -attachForm     "bb_QC_informationSF"     "left"   1
+                -attachForm     "bb_QC_informationSF"     "right"  1
+                -attachForm     "bb_QC_informationSF"     "bottom" 1
+            bb_QC_informationLayout;
+            frameLayout -labelVisible false bb_QC_outlineLayout;
+                string $panel = `outlinerPanel`;
+                string $outliner = `outlinerPanel -query -outlinerEditor $panel`;
+                outlinerEditor -edit
+                    -mainListConnection "worldList"
+                    -selectionConnection "modelList"
+                    -showShapes false
+                    -showReferenceNodes false
+                    -showReferenceMembers false
+                    -showAttributes false
+                    -showConnected false
+                    -showAnimCurvesOnly false
+                    -autoExpand false
+                    -showDagOnly true
+                    -ignoreDagHierarchy false
+                    -expandConnections false
+                    -showCompounds true
+                    -showNumericAttrsOnly false
+                    -highlightActive true
+                    -autoSelectNewObjects false
+                    -doNotSelectNewObjects false
+                    -transmitFilters false
+                    -showSetMembers true
+                    -setFilter defaultSetFilter
+                	-ignoreHiddenAttribute false
+                    $outliner;
+                setParent ..;
+            setParent ..;
+            formLayout bb_QC_setLayout;
+                text -label "配置档案：" bb_QC_setPathTX;
+                optionMenu -changeCommand bb_QC_changeSetFile bb_QC_setPathMenu;
+                button -l "导入设置" -bgc 1 0.95 0.5 -c bb_QC_loadFile bb_QC_loadFileButton;
+                
+                separator -height 10 -style "in" bb_QC_separator1;
+                
+                text -label "重命名检查：" bb_QC_renameTX;
+                checkBox -label "Polygons" bb_QC_renamePlyCB;
+                checkBox -label "Surfaces" bb_QC_renameSurfCB;
+                checkBox -label "Curves" bb_QC_renameCurvesCB;
+                checkBox -label "Joint" bb_QC_renameJointCB;
+                
+                text -label "模型后缀：" bb_QC_modleSuffixTX;
+                textField -cc "bb_QC_checkTextField(\"bb_QC_modleSuffixTF\")" bb_QC_modleSuffixTF;
+                button -l "<<<添加" -c "bb_QC_addApply(\"mesh\",\"bb_QC_modleSuffixTF\",1)" bb_QC_modleSuffixButton;
+                checkBox -label "忽略后缀数字" bb_QC_suffixNumCB;
+                
+                text -label "摄像机:" bb_QC_camTX;
+                textField -cc "bb_QC_checkTextField(\"bb_QC_camTF\")" bb_QC_camTF;
+                button -l "<<<添加" -c "bb_QC_addApply(\"camera\",\"bb_QC_camTF\",0)" bb_QC_camButton;
+                
+                text -label "smooth后缀:" bb_QC_smoothSuffixTX;
+                textField -cc "bb_QC_checkTextField(\"bb_QC_smoothSuffixTF\")" bb_QC_smoothSuffixTF;
+                button -l "<<<添加" -c "bb_QC_addApply(\"mesh\",\"bb_QC_smoothSuffixTF\",1)" bb_QC_smoothSuffixButton;
+                checkBox -label "检查smooth连接" bb_QC_smoothConCB;
+                
+                text -label "控制器后缀:" bb_QC_ctrlSuffixTX;
+                textField -cc "bb_QC_checkTextField(\"bb_QC_ctrlSuffixTF\")" bb_QC_ctrlSuffixTF;
+                button -l "<<<添加" -c "bb_QC_addApply(\"nurbsCurve\",\"bb_QC_ctrlSuffixTF\",1)" bb_QC_ctrlSuffixButton;
+                
+                button -l "控制器属性∨∨∨" -c "bb_QC_addAttr(0)" bb_QC_ctrlAttrButton;
+                textScrollList -ams 1 bb_QC_ctrlAttrTSL;
+                    popupMenu;
+                        menuItem -label "删除选择" -c "bb_QC_deleteAttr(0,\"bb_QC_ctrlAttrTSL\")";
+                        menuItem -label "反选" -c "bb_QC_reverseSelAttr(\"bb_QC_ctrlAttrTSL\")";
+                        menuItem -divider true;
+                        menuItem -label "清空列表" -c "bb_QC_deleteAttr(1,\"bb_QC_ctrlAttrTSL\")";
+                
+                button -l "其他控制器∨∨∨" -c "bb_QC_addAttr(1)" bb_QC_extraCtrlButton;
+                textScrollList -ams 1 bb_QC_extraCtrlTSL;
+                    popupMenu;
+                        menuItem -label "删除选择" -c "bb_QC_deleteAttr(0,\"bb_QC_extraCtrlTSL\")";
+                        menuItem -label "反选" -c "bb_QC_reverseSelAttr(\"bb_QC_extraCtrlTSL\")";
+                        menuItem -divider true;
+                        menuItem -label "清空列表" -c "bb_QC_deleteAttr(1,\"bb_QC_extraCtrlTSL\")";
+                
+                button -l "导出配置" -bgc 0 0.3 0.45 -c bb_QC_setExport bb_QC_exportSetButton;
+                button -l "默认设置" -bgc 0.38 0.03 0.03 -c bb_QC_defaultSet bb_QC_defaultButton;
+                
+            formLayout -edit
+                -attachForm     "bb_QC_setPathTX"     "top"   5
+                -attachForm     "bb_QC_setPathTX"     "left"  5
+                
+                -attachForm     "bb_QC_setPathMenu"     "top"    5
+                -attachForm     "bb_QC_setPathMenu"     "left"   80
+                -attachForm     "bb_QC_setPathMenu"     "right"  60
+                
+                -attachForm     "bb_QC_loadFileButton"     "top"   5
+                -attachControl  "bb_QC_loadFileButton"     "left"  5 "bb_QC_setPathMenu"  
+                -attachForm     "bb_QC_loadFileButton"     "right" 5
+
+                -attachControl  "bb_QC_separator1"     "top"   5 "bb_QC_setPathMenu"
+                -attachForm     "bb_QC_separator1"     "left"  5 
+                -attachForm     "bb_QC_separator1"     "right" 5
+                //重命名
+                -attachControl  "bb_QC_renameTX"     "top"   5 "bb_QC_separator1"
+                -attachForm     "bb_QC_renameTX"     "left"  5 
+                
+                -attachControl  "bb_QC_renamePlyCB"     "top"   5 "bb_QC_separator1"
+                -attachForm     "bb_QC_renamePlyCB"     "left"  80 
+                
+                -attachControl  "bb_QC_renameSurfCB"     "top"   5  "bb_QC_separator1"
+                -attachControl  "bb_QC_renameSurfCB"     "left"  10 "bb_QC_renamePlyCB"
+                
+                -attachControl  "bb_QC_renameCurvesCB"     "top"   5  "bb_QC_separator1"
+                -attachControl  "bb_QC_renameCurvesCB"     "left"  10 "bb_QC_renameSurfCB"
+                
+                -attachControl  "bb_QC_renameJointCB"     "top"   5  "bb_QC_separator1"
+                -attachControl  "bb_QC_renameJointCB"     "left"  10 "bb_QC_renameCurvesCB"  
+                //模型后缀
+                -attachControl  "bb_QC_modleSuffixTX"     "top"   10  "bb_QC_renameTX"
+                -attachForm     "bb_QC_modleSuffixTX"     "left"  5
+                
+                -attachControl  "bb_QC_modleSuffixTF"     "top"    10  "bb_QC_renameTX"
+                -attachForm     "bb_QC_modleSuffixTF"     "left"   80
+                -attachForm     "bb_QC_modleSuffixTF"     "right"  70
+                
+                -attachControl  "bb_QC_modleSuffixButton"     "top"   10  "bb_QC_renameTX"
+                -attachControl  "bb_QC_modleSuffixButton"     "left"  5   "bb_QC_modleSuffixTF"  
+                -attachForm     "bb_QC_modleSuffixButton"     "right" 5
+                
+                -attachControl  "bb_QC_suffixNumCB"     "top"   10  "bb_QC_modleSuffixTX"
+                -attachForm     "bb_QC_suffixNumCB"     "left"  80
+                //相机
+                -attachControl  "bb_QC_camTX"     "top"   10  "bb_QC_suffixNumCB"
+                -attachForm     "bb_QC_camTX"     "left"  5
+                
+                -attachControl  "bb_QC_camTF"     "top"    10  "bb_QC_suffixNumCB"
+                -attachForm     "bb_QC_camTF"     "left"   80
+                -attachForm     "bb_QC_camTF"     "right"  70
+                
+                -attachControl  "bb_QC_camButton"     "top"   10  "bb_QC_suffixNumCB"
+                -attachControl  "bb_QC_camButton"     "left"  5   "bb_QC_camTF"  
+                -attachForm     "bb_QC_camButton"     "right" 5
+                //smooth后缀
+                -attachControl  "bb_QC_smoothSuffixTX"     "top"   10  "bb_QC_camTX"
+                -attachForm     "bb_QC_smoothSuffixTX"     "left"  5
+                
+                -attachControl  "bb_QC_smoothSuffixTF"     "top"    10  "bb_QC_camTX"
+                -attachForm     "bb_QC_smoothSuffixTF"     "left"   80
+                -attachForm     "bb_QC_smoothSuffixTF"     "right"  70
+                
+                -attachControl  "bb_QC_smoothSuffixButton"     "top"   10  "bb_QC_camTX"
+                -attachControl  "bb_QC_smoothSuffixButton"     "left"  5   "bb_QC_smoothSuffixTF"  
+                -attachForm     "bb_QC_smoothSuffixButton"     "right" 5
+                
+                -attachControl  "bb_QC_smoothConCB"     "top"   10  "bb_QC_smoothSuffixTX"
+                -attachForm     "bb_QC_smoothConCB"     "left"  80
+                //控制器后缀
+                -attachControl  "bb_QC_ctrlSuffixTX"     "top"   10  "bb_QC_smoothConCB"
+                -attachForm     "bb_QC_ctrlSuffixTX"     "left"  5
+                
+                -attachControl  "bb_QC_ctrlSuffixTF"     "top"    10  "bb_QC_smoothConCB"
+                -attachForm     "bb_QC_ctrlSuffixTF"     "left"   80
+                -attachForm     "bb_QC_ctrlSuffixTF"     "right"  70
+                
+                -attachControl  "bb_QC_ctrlSuffixButton"     "top"   10  "bb_QC_smoothConCB"
+                -attachControl  "bb_QC_ctrlSuffixButton"     "left"  5   "bb_QC_ctrlSuffixTF"  
+                -attachForm     "bb_QC_ctrlSuffixButton"     "right" 5
+                //控制器属性
+                -attachControl  "bb_QC_ctrlAttrButton"     "top"    5   "bb_QC_ctrlSuffixButton"
+                -attachForm     "bb_QC_ctrlAttrButton"     "left"   5
+                -attachPosition "bb_QC_ctrlAttrButton"     "right"  0 35
+                
+                -attachControl  "bb_QC_ctrlAttrTSL"     "top"    5  "bb_QC_ctrlAttrButton"
+                -attachForm     "bb_QC_ctrlAttrTSL"     "left"   5   
+                -attachPosition "bb_QC_ctrlAttrTSL"     "right"  0 35
+                -attachForm     "bb_QC_ctrlAttrTSL"     "bottom" 40
+                //其他控制器
+                -attachControl  "bb_QC_extraCtrlButton"     "top"    5   "bb_QC_ctrlSuffixButton"
+                -attachControl  "bb_QC_extraCtrlButton"     "left"   5   "bb_QC_ctrlAttrButton"
+                -attachForm     "bb_QC_extraCtrlButton"     "right"  5
+                
+                -attachControl  "bb_QC_extraCtrlTSL"     "top"    5  "bb_QC_extraCtrlButton"
+                -attachControl  "bb_QC_extraCtrlTSL"     "left"   5  "bb_QC_ctrlAttrTSL"
+                -attachForm     "bb_QC_extraCtrlTSL"     "right"  5
+                -attachForm     "bb_QC_extraCtrlTSL"     "bottom" 40
+                //导出&恢复默认
+                -attachControl  "bb_QC_exportSetButton"     "top"    5  "bb_QC_extraCtrlTSL"
+                -attachForm     "bb_QC_exportSetButton"     "left"   5
+                -attachForm     "bb_QC_exportSetButton"     "right"  60
+                -attachForm     "bb_QC_exportSetButton"     "bottom" 5
+                
+                -attachControl  "bb_QC_defaultButton"     "top"    5  "bb_QC_extraCtrlTSL"
+                -attachControl  "bb_QC_defaultButton"     "left"   5  "bb_QC_exportSetButton"
+                -attachForm     "bb_QC_defaultButton"     "right"  5
+                -attachForm     "bb_QC_defaultButton"     "bottom" 5
+            bb_QC_setLayout;
+            setParent ..;
+            formLayout bb_QC_helpLayout;
+               scrollField -wordWrap true -editable false bb_QC_helpSF;
+            setParent ..;   
+            formLayout -edit
+                -attachForm     "bb_QC_helpSF"     "top"    1
+                -attachForm     "bb_QC_helpSF"     "left"   1
+                -attachForm     "bb_QC_helpSF"     "right"  1
+                -attachForm     "bb_QC_helpSF"     "bottom" 1
+            bb_QC_helpLayout;
+        tabLayout -edit -tabLabel bb_QC_informationLayout "信息" -tabLabel bb_QC_outlineLayout "Outliner"
+                  -tabLabel bb_QC_setLayout "设置" -tabLabel bb_QC_helpLayout "帮助" bb_QC_tabLayout;
+        formLayout -edit
+            -attachForm     "bb_QCUI_QC1Layout"     "top"    5
+            -attachForm     "bb_QCUI_QC1Layout"     "left"   5
+            -attachForm     "bb_QCUI_QC1Layout"     "bottom" 5
+
+            -attachForm     "bb_QC_tabLayout"     "top"    5
+            -attachControl  "bb_QC_tabLayout"     "left"   5  "bb_QCUI_QC1Layout"
+            -attachForm     "bb_QC_tabLayout"     "right"  5
+            -attachForm     "bb_QC_tabLayout"     "bottom" 5
+        bb_QCUI_form; 
+    showWindow bb_QCUIWindow;
+    bb_QC_setFileMenu;
+    bb_QC_setImport;
+    bb_QC_help;
+}
+
+
+

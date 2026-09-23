@@ -46,7 +46,7 @@ def load_jnts_template():
     version = cmds.about(version=True)
     jnts = cmds.ls(sl=True,shortNames=True)
     # 1. 检查插件
-    if not is_plugin_available_and_loaded('SuperRiggingEditor' + version) and not is_plugin_available_and_loaded('SuperRiggingEditor'):
+    if not is_plugin_available_and_loaded('SuperRiggingEditor' + version):
         return
 
     # 2. 检查骨骼选择

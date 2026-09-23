@@ -1,0 +1,233 @@
+//Author  :   LiuBen
+//Date    :   12/08/2016
+//Fix     :   09/10/2019   修改加载控制器名称不对的bug。
+global proc bb_softModTool()
+{
+    if (`window -q -exists bb_softModToolWindow`) deleteUI bb_softModToolWindow;
+    window -title "softMod工具" bb_softModToolWindow; 
+        tabLayout -innerMarginWidth 5 -innerMarginHeight 5 bb_softModTool_tabLayout;   
+            columnLayout -adjustableColumn true bb_softModTool_createLayout;
+                rowLayout -numberOfColumns 2 -columnWidth2 50 200 ;
+                    text -label "名称: ";
+                    textField -w 200 -text "Name" softModNameTF;
+                setParent ..;
+                rowLayout -numberOfColumns 4 -columnWidth4 50 50 50 50;
+                    text -label "个数: ";
+                    intField -w 40 -minValue 1 -value 1 softModNumIF;
+                    text -label " 序列初:";
+                    intField -w 40 -minValue 0 -value 1 softModStartIF;
+                setParent ..;
+                    rowLayout -numberOfColumns 2 -columnWidth2 127 175;
+                        optionMenu -label "影响模式:" falloffModeMenu;
+                            menuItem -label "体积";
+                            menuItem -label "面";
+                        button -l "显示/隐藏'MovCtrlEnv'" -bgc 0 0.3 0.45 -c bb_softMod_visMovCtrlEnv;
+                    setParent ..;
+                separator -height 10 -style "in";
+                button -l "创建" -w 253 -h 40 -bgc 0.1 0.1 0.1 -c bb_softMod_apply;
+            setParent ..;
+            columnLayout -adjustableColumn true bb_softModTool_addLayout;
+                rowLayout -numberOfColumns 2 -columnWidth2 80 150 ;
+                    button -l "控制器>>>" -w 80 -bgc 0 0.3 0.45 -c bb_softMod_addRig;
+                    textField -text "" -w 170 addSoftModRigTF;
+                setParent ..;
+                rowLayout -numberOfColumns 2 -columnWidth2 80 150 ;
+                    button -l "模型>>>"  -w 80 -bgc 0 0.3 0.45 -c bb_softMod_addGeo;
+                    textField -text ""  -w 170 addSoftModGeoTF;
+                setParent ..;
+                separator -height 5 -style "in";
+                button -l "添加影响" -w 253 -h 40 -bgc 0.1 0.1 0.1 -c "bb_softMod_addApply(1)";
+                button -l "删除影响" -w 253 -bgc 0.5 0.5 0.5 -c "bb_softMod_addApply(2)";
+            setParent ..;
+        tabLayout -edit -tabLabel bb_softModTool_createLayout "创建" -tabLabel bb_softModTool_addLayout "添加/删除" bb_softModTool_tabLayout;
+    showWindow bb_softModToolWindow;
+}
+bb_softModTool;
+
+global proc bb_softMod_apply()
+{
+    string $Name = `textField -q -text softModNameTF`;
+    int $start = `intField -q -value softModStartIF`;
+    int $softModNum = `intField -q -value softModNumIF`;
+    string $sel[] = `ls -sl`;
+    
+    if(size($sel)>0){
+        if($softModNum>1){
+            int $Num = $softModNum + $start;
+            string $numStr = $Num;
+            int $padding = 2;
+            if(sizeBytes($numStr)>2)
+                $padding = sizeBytes($numStr);
+            
+            for($j=0;$j<$softModNum;$j++){
+                int $n = $j + $start;
+                string $padStr = "";
+                for ($p=1; $p < $padding; ++$p){
+    				if ($n < pow(10, $p))
+    					$padStr += "0";
+    		    }
+    		    bb_softMod_createCtrl($Name+$padStr+$n);
+    		    bb_softMod_connect(($Name+$padStr+$n),$sel);
+            }    	     
+        }
+        else{
+            bb_softMod_createCtrl($Name);
+            bb_softMod_connect($Name,$sel);
+        }        
+    }
+    else{
+        warning "你不选个模型先？┑( ▔Д ▔ )┍";
+    }
+}
+
+global proc bb_softMod_createCtrl(string $Name)
+{
+    createNode "transform" -n ($Name+"_softModGrp");
+    createNode "transform" -n ($Name+"_softModNoTransforms");
+    curve -d 1 -p 0 0 -2.469723 -p 0.7 0 -1.704302 -p 0.35 0 -1.704302 -p 0.35 0 -1.345343 -p 0.432624 0 -1.33148 -p 0.8229 0 -1.132624 -p 1.132624 0 -0.8229 
+    -p 1.33148 0 -0.432624 -p 1.345343 0 -0.35 -p 1.704302 0 -0.35 -p 1.704302 0 -0.7 -p 2.469723 0 0 -p 1.704302 0 0.7 -p 1.704302 0 0.35 -p 1.345343 0 0.35 
+    -p 1.331479 0 0.432624 -p 1.132624 0 0.8229 -p 0.822899 0 1.132624 -p 0.432624 0 1.331479 -p 0.35 0 1.344283 -p 0.35 0 1.704301 -p 0.7 0 1.704301 -p 0 0 2.469723 
+    -p -0.7 0 1.704301 -p -0.35 0 1.704301 -p -0.35 0 1.344283 -p -0.432624 0 1.331479 -p -0.8229 0 1.132624 -p -1.132624 0 0.8229 -p -1.33148 0 0.432624 
+    -p -1.344283 0 0.35 -p -1.704301 0 0.35 -p -1.704301 0 0.7 -p -2.469723 0 0 -p -1.704301 0 -0.7 -p -1.704301 0 -0.35 -p -1.344283 0 -0.35 -p -1.33148 0 -0.432624 
+    -p -1.132624 0 -0.8229 -p -0.8229 0 -1.132624 -p -0.432624 0 -1.33148 -p -0.35 0 -1.345343 -p -0.35 0 -1.704302 -p -0.7 0 -1.704302 -p 0 0 -2.469723 -k 0 -k 1 -k 2 
+    -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 
+    -k 32 -k 33 -k 34 -k 35 -k 36 -k 37 -k 38 -k 39 -k 40 -k 41 -k 42 -k 43 -k 44 -n ($Name+"_softModMovCtrlEnv");
+    addAttr -ln "glocalScale"  -at double -dv 1 ($Name+"_softModMovCtrlEnv");
+    setAttr -e -keyable true ($Name+"_softModMovCtrlEnv.glocalScale");
+    createNode "transform" -n ($Name+"_softModMovCtrlDrv");
+    createNode "transform" -n ($Name+"_softModRigCtrlDrv");
+    circle -nr 0 1 0 -c 0 0 0 -constructionHistory 0 -n ($Name+"_softModMovCtrl");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModMovCtrl.v");
+    curve -d 1 -p 0 0.7 0 -p 0 0.606217 -0.35 -p 0 0.35 -0.606217 -p 0 0 -0.7 -p 0 -0.35 -0.606217 -p 0 -0.606217 -0.35 -p 0 -0.7 0 -p 0 -0.606217 0.35 -p 0 -0.35 0.606217 
+    -p 0 0 0.7 -p 0 0.35 0.606217 -p 0 0.606217 0.35 -p 0 0.7 0 -p 0.35 0.606217 0 -p 0.606217 0.35 0 -p 0.7 0 0 -p 0.606217 -0.35 0 -p 0.35 -0.606217 0 -p 0 -0.7 0 
+    -p -0.35 -0.606217 0 -p -0.606217 -0.35 0 -p -0.7 0 0 -p -0.606217 0.35 0 -p -0.35 0.606217 0 -p 0 0.7 0 -p 0.35 0.606217 0 -p 0.606217 0.35 0 -p 0.7 0 0 
+    -p 0.606217 0 0.35 -p 0.35 0 0.606217 -p 0 0 0.7 -p -0.35 0 0.606217 -p -0.606217 0 0.35 -p -0.7 0 0 -p -0.606217 0 -0.35 -p -0.35 0 -0.606217 -p 0 0 -0.7 
+    -p 0.35 0 -0.606217 -p 0.606217 0 -0.35 -p 0.7 0 0 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 
+    -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 -k 32 -k 33 -k 34 -k 35 -k 36 -k 37 -k 38 -k 39 -n ($Name+"_softModRigCtrl");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModRigCtrl.v");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModRigCtrl.rx");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModRigCtrl.ry");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModRigCtrl.rz");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModRigCtrl.sx");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModRigCtrl.sy");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModRigCtrl.sz");
+    
+    parent ($Name+"_softModMovCtrlEnv") ($Name+"_softModNoTransforms") ($Name+"_softModGrp");
+    parent ($Name+"_softModMovCtrlDrv") ($Name+"_softModMovCtrlEnv");
+    parent ($Name+"_softModMovCtrl") ($Name+"_softModMovCtrlDrv") ;
+    parent ($Name+"_softModRigCtrlDrv") ($Name+"_softModMovCtrl");
+    parent ($Name+"_softModRigCtrl") ($Name+"_softModRigCtrlDrv");
+    addAttr -ln "_______________________________________________________________________"  -at "enum" -en "extra:"  ($Name+"_softModRigCtrl");
+    setAttr -e -keyable true -lock true ($Name+"_softModRigCtrl._______________________________________________________________________");    
+    addAttr -ln "raduis" -at double  -min 0 -dv 1 ($Name+"_softModRigCtrl");
+    setAttr -e -keyable true ($Name+"_softModRigCtrl.raduis");
+    addAttr -ln "defRaduis"  -at double  -min 0 -dv 1 ($Name+"_softModRigCtrl");
+    setAttr -e -keyable true ($Name+"_softModRigCtrl.defRaduis");
+
+    createNode "transform" -n ($Name+"_softModHandGrp");
+    createNode "transform" -n ($Name+"_softModHandDrv");
+    createNode "transform" -n ($Name+"_softModTranslateDrv_env");
+    createNode "transform" -n ($Name+"_softModTranslateDrv");
+    createNode "transform" -n ($Name+"_softModPivotDrv");
+    parent ($Name+"_softModPivotDrv") ($Name+"_softModTranslateDrv_env") ($Name+"_softModHandGrp") ($Name+"_softModNoTransforms");
+    parent ($Name+"_softModTranslateDrv") ($Name+"_softModTranslateDrv_env");
+    parent ($Name+"_softModHandDrv") ($Name+"_softModHandGrp");
+    
+    pointConstraint -weight 1 ($Name+"_softModMovCtrl") ($Name+"_softModHandDrv");
+    pointConstraint -weight 1 ($Name+"_softModMovCtrl") ($Name+"_softModTranslateDrv_env");
+    pointConstraint -weight 1 ($Name+"_softModRigCtrl") ($Name+"_softModTranslateDrv");
+    pointConstraint -weight 1 ($Name+"_softModMovCtrl") ($Name+"_softModPivotDrv");
+    
+    createNode "transform" -n ($Name+"_softModSubRigCtrlEnv");
+    createNode "transform" -n ($Name+"_softModSubRigCtrlDrv");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModSubRigCtrlDrv.tx");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModSubRigCtrlDrv.ty");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModSubRigCtrlDrv.tz");
+    curve -d 1 -p 0 0.7 0 -p 0 -0.7 0 -p 0 0 0 -p 0 0 0.7 -p 0 0 -0.7 -p 0 0 0 -p -0.7 0 0 -p 0.7 0 0 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -n ($Name+"_softModSubRigCtrl");
+    string $shape[] = `listRelatives -shapes ($Name+"_softModSubRigCtrl")`;
+    setAttr ($shape[0]+".overrideEnabled") 1;
+    setAttr ($shape[0]+".overrideColor") 18;
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModSubRigCtrl.tx");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModSubRigCtrl.ty");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModSubRigCtrl.tz");
+    setAttr -lock true -keyable false -channelBox false ($Name+"_softModSubRigCtrl.v");
+    parent ($Name+"_softModSubRigCtrl") ($Name+"_softModSubRigCtrlDrv");
+    parent ($Name+"_softModSubRigCtrlDrv") ($Name+"_softModSubRigCtrlEnv");
+    parent ($Name+"_softModSubRigCtrlEnv") ($Name+"_softModNoTransforms");
+    pointConstraint -weight 1 ($Name+"_softModRigCtrl") ($Name+"_softModSubRigCtrlEnv");
+}
+
+
+global proc bb_softMod_connect(string $Name,string $sel[])
+{
+    int $falloffMode = `optionMenu -q -select falloffModeMenu`;
+    select $sel;
+    softMod -falloffRadius 1 -falloffMode ($falloffMode-1) -falloffCenter 0 0 0 -curveValue 0 -curvePoint 1 -curveInterpolation 2 -curveValue 1 -curvePoint 0 -curveInterpolation 2 
+    -falloffBasedOnX 1 -falloffBasedOnY 1 -falloffBasedOnZ 1 -falloffAroundSelection 0 -falloffMasking 1 -n ($Name+"_softMod"); 
+    setAttr ($Name+"_softModHandle.v") 0;
+    parent ($Name+"_softModHandle") ($Name+"_softModHandGrp");
+    
+    connectAttr -f ($Name+"_softModTranslateDrv.t") ($Name+"_softModHandle.t");
+    orientConstraint -weight 1 ($Name+"_softModSubRigCtrl") ($Name+"_softModHandle"); 
+    scaleConstraint -weight 1 ($Name+"_softModSubRigCtrl") ($Name+"_softModHandle"); 
+    
+    connectAttr -f ($Name+"_softModHandDrv.t") ($Name+"_softModHandle.rotatePivot");
+    connectAttr -f ($Name+"_softModHandDrv.t") ($Name+"_softModHandle.scalePivot");
+    connectAttr -f ($Name+"_softModHandDrv.t") ($Name+"_softModHandleShape.origin");
+    
+    connectAttr -f ($Name+"_softModHandDrv.t") ($Name+"_softMod.falloffCenter");
+    shadingNode -asUtility multDoubleLinear -n ($Name+"softMod_MD");
+    connectAttr -f ($Name+"_softModRigCtrl.raduis") ($Name+"softMod_MD.input1");
+    connectAttr -f ($Name+"_softModMovCtrlEnv.glocalScale") ($Name+"softMod_MD.input2");
+    connectAttr -f ($Name+"softMod_MD.output") ($Name+"_softMod.falloffRadius");
+}
+
+global proc bb_softMod_visMovCtrlEnv()
+{
+    string $movCtrlEnv[] = `ls "*softModMovCtrlEnv"`;
+    for($i=0;$i<size($movCtrlEnv);$i++){
+        string $shape[] = `listRelatives -shapes $movCtrlEnv[$i]`;
+        int $vis = `getAttr ($shape[0]+".v")`;
+        if($vis == 1)
+            setAttr ($shape[0]+".v") 0;
+        else
+            setAttr ($shape[0]+".v") 1;
+    }
+} 
+
+/*--------------------------------------------添加--------------------------------------------*/
+
+global proc bb_softMod_addRig()
+{
+    string $sel[] = `ls -sl "*Ctrl*"`;
+    string $nameArray[];
+    for($i=0;$i<size($sel);$i++){
+        string $splitName = substituteAllString($sel[$i], "_softMod", "++");
+        string $name[] = stringToStringArray($splitName, "++");
+        $nameArray[$i] = $name[0];
+    }
+    $nameArray =  stringArrayRemoveDuplicates($nameArray);
+    string $rigText = stringArrayToString($nameArray, ",");
+    textField -e -text $rigText addSoftModRigTF;
+}
+
+global proc bb_softMod_addGeo()
+{
+    string $sel[] = `ls -sl`;
+    string $geoText = stringArrayToString($sel, ",");
+    textField -e -text $geoText addSoftModGeoTF;
+}
+
+global proc bb_softMod_addApply(int $mode)
+{
+    string $rigName = `textField -q -text addSoftModRigTF`;
+    string $geoName = `textField -q -text addSoftModGeoTF`;
+    string $rigNameArray[] = stringToStringArray($rigName, ",");
+    string $geoNameArray[] = stringToStringArray($geoName, ",");
+    string $softModSet[] = `listConnections -type objectSet ($rigName+"_softMod")`;    
+    if($mode == 1)
+        sets -add $softModSet[0] $geoNameArray;
+    if($mode == 2)
+        sets -rm $softModSet[0] $geoNameArray;   
+}
+

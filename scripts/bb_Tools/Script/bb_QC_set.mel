@@ -1,0 +1,311 @@
+//添加名称应用
+//$nameType 0为全部名称，1为后缀。
+global proc bb_QC_addApply(string $shapeType,string $textFieldName,int $nameType)
+{
+    string $selTransforms[] = `ls -sl -type "transform"`;
+    string $selShapes[] = `ls -sl -type $shapeType`;
+    string $original = `textField -q -tx $textFieldName`;
+    string $add;
+    string $sel[] = stringArrayCatenate($selTransforms, $selShapes);
+
+    for($i=0;$i<size($sel);$i++){
+        if(stringArrayContains($sel[$i], $selTransforms)){
+            string $shape[] = `listRelatives -s -path $sel[$i]`;
+            if(size($shape)){
+                if(`nodeType $shape[0]` == $shapeType){
+                    string $nameArray[] = stringToStringArray($sel[$i], "_");
+                    if($nameType==1 && size($nameArray)>1){
+                        $add = $add + "_" + $nameArray[(size($nameArray)-1)] + ",";
+                    }
+                    else{
+                        $add = $add + $sel[$i] + ",";
+                    }
+                }
+            }
+        }
+        else if(stringArrayContains($sel[$i], $selShapes)){
+            string $transform[] = `listRelatives -p -path $sel[$i]`;
+            string $nameArray[] = stringToStringArray($transform[0], "_");
+            if($nameType==1 && size($nameArray)>1){
+                $add = $add + "_" + $nameArray[(size($nameArray)-1)] + ",";
+            }
+            else{
+                $add = $add + $transform[0] + ",";
+            }
+        } 
+    }
+    bb_QC_checkRule (($original+$add),$textFieldName);
+}
+
+global proc bb_QC_checkRule(string $checkContent,string $textFieldName)
+{
+    for($i=1;$i<=sizeBytes($checkContent);$i++){
+        string $checkBytes = `substring $checkContent $i $i`;
+        if(!isValidString($checkBytes, "[a-zA-Z0-9_][a-zA-Z0-9_]*")){
+            $checkContent = substituteAllString($checkContent, $checkBytes, " ");
+        }
+    }
+    string $checkArray[] = stringToStringArray($checkContent, " ");
+    $checkArray = stringArrayRemoveDuplicates($checkArray);
+    string $separate = "";
+    if(size($checkArray)) $separate = ",";
+    string $textFieldString = stringArrayToString($checkArray, ", ") + $separate;
+    textField -e -tx $textFieldString $textFieldName;   
+}
+
+global proc bb_QC_checkTextField(string $textFieldName)
+{
+    string $text = `textField -q -tx $textFieldName`;
+    bb_QC_checkRule($text,$textFieldName);   
+}
+
+//添加属性
+global proc bb_QC_addAttr(int $mode)
+{
+    string $selAttr[] = `channelBox -q -sma mainChannelBox`;
+    string $removeAttr[] = {"tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz", "v"};
+    $selAttr = stringArrayRemove($removeAttr, $selAttr);
+    string $selObj[] = `ls -sl`;
+    string $attrOutput[];
+    if(size($selAttr) && $mode == 0){
+        for($i=0;$i<size($selAttr);$i++){
+            if(!`getAttr -l ($selObj[0] + "." + $selAttr[$i])`){
+                float $attrValue = `getAttr ($selObj[0] + "." + $selAttr[$i])`;
+                $attrOutput[size($attrOutput)] = "." + $selAttr[$i] + " " + $attrValue;
+            }
+        }
+    }
+    else{
+        for($i=0;$i<size($selObj);$i++){
+            string $userDefined[] = `listAttr -userDefined $selObj[$i]`;
+            for($j=0;$j<size($userDefined);$j++){
+                if(!`getAttr -l ($selObj[$i] + "." + $userDefined[$j])`){
+                    float $attrValue = `getAttr ($selObj[$i] + "." + $userDefined[$j])`;
+                    if($mode == 0)
+                        $attrOutput[size($attrOutput)] = "." + $userDefined[$j] + " " + $attrValue;
+                    if($mode == 1)
+                        $attrOutput[size($attrOutput)] = $selObj[$i] + "." + $userDefined[$j] + " " + $attrValue;
+                }
+            }
+        }
+    }
+    $attrOutput = stringArrayRemoveDuplicates($attrOutput);
+    bb_QC_attrConfirm($attrOutput,$mode);
+}
+//确认重复名称
+global proc bb_QC_attrConfirm(string $checkContent[],int $mode)
+{
+    string $textScrollListName;
+    if($mode == 0) $textScrollListName = "bb_QC_ctrlAttrTSL";
+    if($mode == 1) $textScrollListName = "bb_QC_extraCtrlTSL";
+    string $originalItems[] = `textScrollList -q -allItems $textScrollListName`;
+    string $original[] = bb_QC_attrSeparate($originalItems);
+    string $new[] = bb_QC_attrSeparate($checkContent);
+    string $repetition;
+    for($i=0;$i<size($new);$i++){
+        if(stringArrayContains($new[$i], $original)){
+            $repetition = "\n" + $new[$i] + $repetition; 
+        }
+    }
+
+    if($repetition != ""){
+        string $message = "有以下属性已存在列表中，是否替换？" + $repetition;
+        string $confirm = `confirmDialog -title "小心的问一下下!" -message $message
+        -button "是的" -button "容朕想想" -defaultButton "是的"
+        -cancelButton "容朕想想" -dismissString "容朕想想"`;
+        if($confirm == "是的"){
+            string $deleteItems[] = stringToStringArray($repetition, "\n");
+            int $j = 0;
+            for($i=0;$i<size($originalItems);$i++){
+                string $separate[] = stringToStringArray($originalItems[$i], " ");
+                for($j=0;$j<size($deleteItems);$j++){
+                    if($deleteItems[$j] == $separate[0]){
+                        textScrollList -e -removeItem $originalItems[$i] $textScrollListName;
+                    }                    
+                }
+            } 
+            bb_QC_attrWrite($checkContent,$textScrollListName);
+        }
+    }
+    else{
+        bb_QC_attrWrite($checkContent,$textScrollListName);
+    }
+}
+
+//拆分属性名称
+global proc string[] bb_QC_attrSeparate(string $attrInput[])
+{
+    string $attrName[];
+    for($i=0;$i<size($attrInput);$i++){
+        string $separate[] = stringToStringArray($attrInput[$i], " ");
+        $attrName[$i] = $separate[0];
+    }
+    return $attrName;
+}
+
+//写入UI
+global proc bb_QC_attrWrite(string $attrInput[],string $textScrollListName)
+{
+    int $spaceSize;
+    if($textScrollListName == "bb_QC_ctrlAttrTSL") $spaceSize = 18;
+    if($textScrollListName == "bb_QC_extraCtrlTSL") $spaceSize = 40;
+    for($i=0;$i<size($attrInput);$i++){
+        string $separate[] = stringToStringArray($attrInput[$i], " ");
+        string $space = " ";
+        int $spaceNum = $spaceSize - sizeBytes($separate[0]);
+        if($spaceNum > 0){
+            for($j=0;$j<$spaceNum;$j++){
+                $space = $space + " ";
+            }
+        }
+        textScrollList -e -append ($separate[0] + $space + $separate[1]) $textScrollListName;
+    }
+}
+//删除列表
+global proc bb_QC_deleteAttr(int $mode,string $textScrollListName)
+{
+    if($mode == 0){
+        string $selItems[] = `textScrollList -q -selectItem $textScrollListName`;
+        for($i=0;$i<size($selItems);$i++){
+            textScrollList -e -removeItem $selItems[$i] $textScrollListName;
+        }
+    }
+    else if($mode == 1){
+        textScrollList -e -removeAll $textScrollListName;
+    }
+}
+//控制器列表反选
+global proc bb_QC_reverseSelAttr(string $textScrollListName)
+{
+    string $selItems[] = `textScrollList -q -selectItem $textScrollListName`;
+    string $allItems[] = `textScrollList -q -allItems $textScrollListName`;
+    for($i=0;$i<size($allItems);$i++){
+        if(stringArrayContains($allItems[$i], $selItems)){
+            textScrollList -e -deselectItem $allItems[$i] $textScrollListName;
+        }
+        else{
+            textScrollList -e -selectItem $allItems[$i] $textScrollListName;
+        }
+    }
+}
+
+//导出配置
+global proc bb_QC_setExport()
+{
+    string $file = "new";
+    if(`optionMenu -q -numberOfItems bb_QC_setPathMenu` > 0)
+        $file = `optionMenu -q -v bb_QC_setPathMenu`;
+    int $renamePly = `checkBox -q -v bb_QC_renamePlyCB`;
+    int $renameSurf = `checkBox -q -v bb_QC_renameSurfCB`;
+    int $renameCurves = `checkBox -q -v bb_QC_renameCurvesCB`;
+    int $renameJoint = `checkBox -q -v bb_QC_renameJointCB`;
+
+    string $modleSuffix = `textField -q -tx bb_QC_modleSuffixTF`;
+    int $suffixNum = `checkBox -q -v bb_QC_suffixNumCB`;
+    string $cam = `textField -q -tx bb_QC_camTF`;
+    string $smooth = `textField -q -tx bb_QC_smoothSuffixTF`;
+    int $smoothCon = `checkBox -q -v bb_QC_smoothConCB`;
+    
+    string $ctrlSuffix = `textField -q -tx bb_QC_ctrlSuffixTF`;
+    string $ctrlAttr = bb_QC_setExportTSL("bb_QC_ctrlAttrTSL");
+    string $extraCtrl = bb_QC_setExportTSL("bb_QC_extraCtrlTSL");
+    
+    string $write = "\n" +
+                    "checkBox -e -v " + $renamePly + " bb_QC_renamePlyCB;" + "\n" +
+                    "checkBox -e -v " + $renameSurf + " bb_QC_renameSurfCB;" + "\n" +
+                    "checkBox -e -v " + $renameCurves + " bb_QC_renameCurvesCB;" + "\n" +
+                    "checkBox -e -v " + $renameJoint + " bb_QC_renameJointCB;" + "\n" +
+                    "textField -e -tx \"" + $modleSuffix + "\" bb_QC_modleSuffixTF;" + "\n" +
+                    "checkBox -e -v " + $suffixNum + " bb_QC_suffixNumCB;" + "\n" +
+                    "textField -e -tx \"" + $cam + "\" bb_QC_camTF;" + "\n" +
+                    "textField -e -tx \"" + $smooth + "\" bb_QC_smoothSuffixTF;" + "\n" +
+                    "checkBox -e -v " + $smoothCon + " bb_QC_smoothConCB;" + "\n" +
+                    "textField -e -tx \"" + $ctrlSuffix + "\" bb_QC_ctrlSuffixTF;" + "\n" +
+                    $ctrlAttr + $extraCtrl;
+    string $path = `bb_QC_setFilePath` + "/QC_sets";
+    if(!`filetest -e $path`) sysFile -md $path;
+    string $saveFile[] = `fileDialog2 -dialogStyle 2 -caption "QC保存配置" -fileFilter "bb Files (*.bb)" -fileMode 0 
+                        -startingDirectory ($path + "/" + $file + ".bb")`;
+    if(size($saveFile)){
+        string $fileName = $saveFile[0];
+        int $fileId = `fopen $fileName "w"`;
+        fprint $fileId $write;
+        fclose $fileId;
+        string $newMenu = basename($saveFile[0], ".bb");
+        optionVar -stringValue bb_QC_setFileSel $newMenu;
+        bb_QC_setFileMenu;
+    }  
+}
+
+global proc string bb_QC_setExportTSL(string $textScrollListName)
+{
+    string $allItem[] = `textScrollList -q -allItems $textScrollListName`;
+    string $writeString = "textScrollList -e -removeAll " + $textScrollListName + ";" + "\n";
+    for($i=0;$i<size($allItem);$i++){
+        $writeString = $writeString + "textScrollList -e -append \"" + $allItem[$i] + "\" " + $textScrollListName + ";" + "\n";
+    }
+    return $writeString;  
+}
+//导入配置
+global proc bb_QC_loadFile()
+{
+    string $path = `bb_QC_setFilePath` + "/QC_sets";
+    string $loadFile[] = `fileDialog2 -dialogStyle 2 -caption "bb_QC保存配置" -fileFilter "bb Files (*.bb)" -fileMode 1 
+                         -startingDirectory ($path + "/")`;
+    if(size($loadFile)){
+        string $fileName = basename($loadFile[0], ".bb");
+        sysFile -copy ($path + "/" + $fileName + ".bb") $loadFile[0];
+        optionVar -stringValue bb_QC_setFileSel $fileName;
+        bb_QC_setFileMenu;
+        bb_QC_setImport;
+    }   
+}
+
+//配置档案菜单
+global proc bb_QC_setFileMenu()
+{
+    string $path = `bb_QC_setFilePath` + "/QC_sets";
+    string $allFile[] = `getFileList -folder $path -filespec "*.bb"`;
+    if(size($allFile)){
+        setParent -menu bb_QC_setPathMenu;
+        string $existsMenu[] = `optionMenu -q -itemListShort bb_QC_setPathMenu`;
+        for($i=0;$i<size($allFile);$i++){
+            string $itemLabel = basename($allFile[$i], ".bb");
+            if(!stringArrayContains(("bb_QC_setPath_"+$itemLabel), $existsMenu))
+                menuItem -label $itemLabel ("bb_QC_setPath_"+$itemLabel);
+        }
+        global string $bb_QC_setFileSel;
+        bb_QC_initialization; 
+        if(`filetest -e ($path+"/"+$bb_QC_setFileSel+".bb")`){
+            optionMenu -e -value $bb_QC_setFileSel bb_QC_setPathMenu;
+        }
+    }
+}
+
+//更换配置
+global proc bb_QC_changeSetFile()
+{
+    string $file = `optionMenu -q -v bb_QC_setPathMenu`;
+    optionVar -stringValue bb_QC_setFileSel $file;
+    bb_QC_setImport;
+}
+
+//读取配置
+global proc bb_QC_setImport()
+{
+    int $numItems = `optionMenu -q -numberOfItems bb_QC_setPathMenu`;
+    if($numItems > 0){
+        string $file = `optionMenu -q -v bb_QC_setPathMenu`;
+        string $path = `bb_QC_setFilePath` + "/QC_sets";
+        string $fileName = $path + "/" + $file + ".bb";
+        if(`filetest -e $fileName`){
+            int $fileId = `fopen $fileName "r"`;
+            string $nextWord = `fgetword $fileId "\n"`;
+            while ( size( $nextWord ) > 0 ) {
+                eval ($nextWord);
+                $nextWord = `fgetword $fileId "\n"`; 
+            }
+            fclose $fileId;
+        }
+    }
+}

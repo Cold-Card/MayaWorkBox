@@ -18,10 +18,7 @@ def get_relative_matrix(objA, objB):
     rel_mat = matA * matB_inv
     return rel_mat
 
-
-objA = "Main"
-objB = "Chest_M"
-rel_matrix = get_relative_matrix(objA, objB)
-
-
-cmds.setAttr("{}.matrixIn[0]".format('GlobalFollowMainMM_GlobalFollowMain2'), rel_matrix, type="matrix")
+if __name__ == "__main__":
+    objA = "Main"
+    objB = "Chest_M"
+    rel_matrix = get_relative_matrix(objA, objB)

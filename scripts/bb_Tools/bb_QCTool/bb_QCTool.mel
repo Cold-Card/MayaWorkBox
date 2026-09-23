@@ -1,0 +1,22 @@
+global proc bb_QCTool()
+{
+    string $melPath = `bb_QC_setFilePath`;
+    eval ("source \""+$melPath+"/bb_QC_set.mel\";");
+    eval ("source \""+$melPath+"/bb_QC_apply.mel\";");
+    eval ("source \""+$melPath+"/bb_QC_UI.mel\";");
+    eval ("source \""+$melPath+"/bb_QC_text.mel\";");
+    bb_QCUI;
+}
+bb_QCTool;
+//ÌáÈ¡Â·¾¶
+global proc string bb_QC_setFilePath()
+{
+    string $melPath = `whatIs bb_QCTool`;
+    string $melPathArray[] = stringToStringArray($melPath, "/");
+    stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
+    string $start[] = stringToStringArray($melPathArray[0], " ");
+    $melPathArray[0] = $start[size($start)-1];
+    string $path = stringArrayToString($melPathArray, "/");
+    return $path;
+}
+

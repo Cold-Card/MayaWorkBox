@@ -130,14 +130,14 @@ class sec_ctrl_build():
              
             eAdd = 0
             while True:
-                if not cmds.objExists('{}_secCtrl_{}'.format(geoName, str(eAdd).zfill(2))) or eAdd == 100:
+                if not cmds.objExists('{}_secCtrl_{}_ctrl'.format(geoName, str(eAdd).zfill(2))) or eAdd == 100:
                     #print(eAdd)
                     break
                 eAdd += 1
                 #print(eAdd)
                     
             for i,obj in enumerate(objsList):
-                name = '{}_secCtrl_{}'.format(geoName, str(i+eAdd).zfill(2))
+                name = '{}_secCtrl_{}_ctrl'.format(geoName, str(i+eAdd).zfill(2))
                 print(name)
                 vtxPosition = pm.xform(obj, q=1, ws=1, t=1)
                 ctrlReturn = self.CreateCtrl(name)

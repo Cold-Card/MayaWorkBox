@@ -1,0 +1,61 @@
+{
+    "IKFKCtrl": [
+        "FKIKLeg_R",
+        "FKIKArm_R",
+        "FKIKSpine_M"
+    ],
+    "base": [
+        "Base",
+        "Base"
+    ],
+    "label": {
+        "FKAnkle_R": "foot_r",
+        "FKChest_M": "spine_05",
+        "FKElbow_R": "lowerarm_r",
+        "FKHead_M": "head",
+        "FKHip_R": "thigh_r",
+        "FKIndexFinger0_R": "index_metacarpal_r",
+        "FKIndexFinger1_R": "index_01_r",
+        "FKIndexFinger2_R": "index_02_r",
+        "FKIndexFinger3_R": "index_03_r",
+        "FKKnee_R": "calf_r",
+        "FKMiddleFinger0_R": "middle_metacarpal_r",
+        "FKMiddleFinger1_R": "middle_01_r",
+        "FKMiddleFinger2_R": "middle_02_r",
+        "FKMiddleFinger3_R": "middle_03_r",
+        "FKNeck_M": "neck_01",
+        "FKPinkyFinger0_R": "pinky_metacarpal_r",
+        "FKPinkyFinger1_R": "pinky_01_r",
+        "FKPinkyFinger2_R": "pinky_02_r",
+        "FKPinkyFinger3_R": "pinky_03_r",
+        "FKRingFinger0_R": "ring_metacarpal_r",
+        "FKRingFinger1_R": "ring_01_r",
+        "FKRingFinger2_R": "ring_02_r",
+        "FKRingFinger3_R": "ring_03_r",
+        "FKScapula_R": "clavicle_r",
+        "FKShoulder_R": "upperarm_r",
+        "FKSpine1_M": "spine_01",
+        "FKSpine2_M": "spine_02",
+        "FKSpine3_M": "spine_03",
+        "FKSpine4_M": "spine_04",
+        "FKThumbFinger1_R": "thumb_01_r",
+        "FKThumbFinger2_R": "thumb_02_r",
+        "FKThumbFinger3_R": "thumb_03_r",
+        "FKToes_R": "ball_r",
+        "FKWrist_R": "hand_r",
+        "RootX_M": "pelvis"
+    },
+    "namespaceAS": "",
+    "namespaceMY": "",
+    "replaceStrAS": [
+        "_R",
+        "_L"
+    ],
+    "replaceStrMY": [
+        "_r",
+        "_l"
+    ],
+    "root": {
+        "RootX_M": "pelvis"
+    }
+}

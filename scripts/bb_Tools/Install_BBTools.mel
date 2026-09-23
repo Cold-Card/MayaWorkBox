@@ -1,0 +1,20 @@
+global proc Install_BBTools()
+{
+     string $BBTools = `whatIs Install_BBTools`;
+     string $tokeTmp01[];
+     int $num=`tokenize $BBTools " " $tokeTmp01`;
+     string $BBTools_Path =(`dirname $tokeTmp01[$num-1]`);
+
+     global string $gShelfTopLevel;
+     if(`layout -q -ex $gShelfTopLevel`){
+         string $currentTab=`tabLayout -q -st $gShelfTopLevel`;
+         
+         if(`shelfButton -ex QSetsPik_v_0_11`)deleteUI QSetsPik_v_0_11;
+         shelfButton -rpt true -i1 ($BBTools_Path + "/Icon/BB.png" )
+                     -c ("source \""+$BBTools_Path+"/bb_Tools.mel\";" )
+                     -p $currentTab bb_Tools_SB;
+     }else{
+         warning -noContext "请开启快捷工具栏，再重加载一次。";
+     }
+}
+Install_BBTools;

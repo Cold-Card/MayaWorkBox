@@ -1,0 +1,184 @@
+global string $bb_Tools_Path;
+
+//对应，图片，mel名，按钮名
+global string $buttonArray[];
+$buttonArray = {"Icon/Rename.png","Script/wp_rename.mel\";","bb_Tools_Rename",//重命名
+                "Icon/List.png","Script/bb_listTool.mel\";","bb_Tools_List",//批量处理
+                "Icon/Ctrl.png","Script/bb_ctrlTool.mel\";","bb_Tools_Ctrl",//控制器
+                "Icon/Attr.png","Script/bb_attributeTool.mel\";","bb_Tools_Attr",//属性
+                "Icon/CV.png","Script/bb_curveTool.mel\";","bb_Tools_CV",//CV工具
+                "Icon/BS.png","Script/bb_blendShapeTool.mel\";","bb_Tools_BS",//BS
+                "Icon/QC.png","Script/bb_QCTool.mel\";","bb_Tools_QC",//QC
+                "Icon/ADV.png","Script/bb_advFixTool/bb_advFixTool.mel\";","bb_Tools_ADV",//ADV
+                "Icon/FBX.png","Script/bb_FBXExportTool.mel\";","bb_Tools_FBX",//FBX
+                "Icon/Pose.png","Script/cgTkShapeBuilder.mel\";cgTkShapeBuilder;","bb_Tools_Pose",//Pose
+                "Icon/Mirror.png","Script/Mirror&Flip.mel\";","bb_Tools_Mirror",//对称
+                "Icon/Weight.png","Script/bb_skin2Deform.mel\";","bb_Tools_Weight",//权重转换
+                "Icon/Follicles.png","Script/bb_createFolliceTool.mel\";","bb_Tools_Follicles",//毛囊
+                "Icon/Dynamic.png","Script/cdkMakeDynamicChain.mel\";","bb_Tools_Dynamic",//动力学
+                "Icon/SoftMod.png","Script/bb_softModTool.mel\";","bb_Tools_SoftMod",//软选择
+                "Icon/Select.png","Script/bb_selectTool.mel\";","bb_Tools_Select",//选择类型
+                "Icon/History.png","Script/bb_history.mel\";bb_history;","bb_Tools_History",//历史
+                "Icon/SkinList.png","Script/bb_skinList.mel\";","bb_Tools_SkinList",//蒙皮列表
+                "Icon/AutoSkirt.png","Script/bb_autoSkirt.mel\";","bb_Tools_AutoSkirt",//自动裙子
+                "Icon/TexPath.png","Script/FileTextureManager.mel\";FileTextureManager;","bb_Tools_TexPath",//贴图路径
+                "Icon/Duplicate.png","Script/LxxBSRePlace.mel\";","bb_Tools_Duplicate",//批量复制
+                "Icon/FixError.png","Script/bb_FixError.mel\";bb_FixError;","bb_Tools_FixError"};//报错
+
+global int $bb_Tools_rowColumn,$bb_Tools_MaxControl;
+$bb_Tools_rowColumn = size($buttonArray)/3 + 1;
+$bb_Tools_MaxControl = size($buttonArray)/3 + 1;
+
+global proc bb_Tools()
+{
+    global string $bb_Tools_Path;
+    $bb_Tools_Path = `bb_Tools_FilePath`;
+    bb_Tools_Win;
+}
+bb_Tools;
+
+//提取路径
+global proc string bb_Tools_FilePath()
+{
+    string $melPath = `whatIs bb_Tools`;
+    string $melPathArray[] = stringToStringArray($melPath, "/");
+    stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
+    string $start[] = stringToStringArray($melPathArray[0], " ");
+    $melPathArray[0] = $start[size($start)-1];
+    string $path = stringArrayToString($melPathArray, "/") + "/";
+    //string $path = "D:/Script/bb_Tools/";
+    return $path;
+}
+
+global proc bb_Tools_initialization()
+{
+    global int  $bb_Tools_rowColumn;
+    if(`optionVar -exists bb_Tools_rowColumn`)
+        $bb_Tools_rowColumn = `optionVar -q bb_Tools_rowColumn`;
+}
+
+global proc bb_Tools_Win()
+{
+    global int $bb_Tools_rowColumn;
+    global int $bb_Tools_MaxControl;
+    global string $bb_Tools_Path;
+    bb_Tools_initialization;
+    if (`workspaceControl -q -exists bb_Tools_workspaceControl`) deleteUI bb_Tools_workspaceControl;
+    if (`window -q -exists bb_Tools_Window`) deleteUI bb_Tools_Window;
+        window -title "BB工具" -resizeToFitChildren 1 -toolbox 1 -sizeable 1 bb_Tools_Window;
+            rowColumnLayout -numberOfColumns $bb_Tools_rowColumn -rowSpacing 1 1 bb_Tools_RCL;
+                iconTextButton -image ($bb_Tools_Path + "Icon/BB.png") -c bb_Tools_WindowChange -dcc "bb_Tools_WindowRow" bb_Tools_Set;
+                popupMenu -mm on -b 3 -p bb_Tools_Set;
+                    //menuItem -rp "N" -l "窗口模式" -c "bb_Tools";
+                    menuItem -rp "E" -l "停靠右边" -c "bb_Tools_workspace(\"right\")";
+                    menuItem -rp "W" -l "停靠左边" -c "bb_Tools_workspace(\"left\")";
+         window -e -wh 35 35 -resizeToFitChildren 1 bb_Tools_Window;
+         bb_Tools_iconTextButton;
+    showWindow bb_Tools_Window;
+}
+
+
+global proc bb_Tools_workspace(string $dtm)
+{
+    if (`window -q -exists bb_Tools_Window`) deleteUI bb_Tools_Window;
+    if (`workspaceControl -q -exists bb_Tools_workspaceControl`) deleteUI bb_Tools_workspaceControl;
+    workspaceControl -retain false -floating true -uiScript "bb_Tools_rowColumnLayout();" bb_Tools_workspaceControl;
+    workspaceControl -e -l "bb_Tools" -dtm $dtm 1 bb_Tools_workspaceControl;
+}
+
+global proc bb_Tools_rowColumnLayout()
+{
+    global string $bb_Tools_Path;
+    $bb_Tools_Path = `bb_Tools_FilePath`;
+    global int $bb_Tools_rowColumn;
+    bb_Tools_initialization;
+        scrollLayout -w 40;
+            rowColumnLayout -numberOfColumns 1 -rowSpacing 1 1 bb_Tools_RCL;
+                iconTextButton -image ($bb_Tools_Path + "Icon/BB.png") bb_Tools_Set;
+                popupMenu -mm on -b 3 -p bb_Tools_Set;
+                    menuItem -rp "N" -l "窗口模式" -c "bb_Tools_Win";
+                    //menuItem -rp "E" -l "停靠右边" -c "bb_Tools_workspace(\"right\")";
+                    //menuItem -rp "W" -l "停靠左边" -c "bb_Tools_workspace(\"left\")";
+    bb_Tools_iconTextButton;
+}
+
+global proc bb_Tools_EditWorkspace()
+{
+    global int $bb_Tools_rowColumn;
+    global int $bb_Tools_MaxControl;
+    bb_Tools_initialization;
+    int $width = $bb_Tools_rowColumn*32;
+    float $heightFloat = ($bb_Tools_MaxControl*0.1/$bb_Tools_rowColumn)*32;
+    int $height = `ceil $heightFloat`;
+    window -e -w $width -h $height -resizeToFitChildren 1 bb_Tools_Window;
+}
+
+global proc bb_Tools_WindowChange()
+{
+    global int $bb_Tools_rowColumn;
+    bb_Tools_initialization;
+    global int $bb_Tools_MaxControl;
+    int $hight = `window -q -h bb_Tools_Window`;
+    int $width = `window -q -w bb_Tools_Window`;
+    if($hight > 40 || $width > 40){
+        bb_Tools_DeleteIconTextButton;
+        window -e -wh 35 35 -resizeToFitChildren 1 bb_Tools_Window;
+        iconTextButton -e -dcc "bb_Tools_WindowChange" bb_Tools_Set;
+    }
+    else if($hight < 40 || $width < 40){
+        int $width1 = $bb_Tools_rowColumn*32;
+        float $heightFloat = ($bb_Tools_MaxControl*0.1/$bb_Tools_rowColumn)*32;
+        int $height1 = `ceil $heightFloat`;
+        window -e -wh $width1 $height1 -resizeToFitChildren 1 bb_Tools_Window;
+        bb_Tools_iconTextButton;
+        iconTextButton -e -dcc "bb_Tools_WindowRow" bb_Tools_Set;
+    }
+    if (`window -q -exists bb_ToolsRowWindow`) deleteUI bb_ToolsRowWindow;
+}
+
+global proc bb_Tools_WindowRow()
+{
+    global int $bb_Tools_rowColumn;
+    global int $bb_Tools_MaxControl;
+    bb_Tools_initialization;
+    if (`window -q -exists bb_ToolsRowWindow`) deleteUI bb_ToolsRowWindow;
+    window -title "工具行列调整" -resizeToFitChildren 1 -toolbox 1 -sizeable 1 bb_ToolsRowWindow;
+        columnLayout ;
+            intSliderGrp -h 35 -label "行数量：" -field true -columnWidth 1 50 -columnWidth 2 50 -columnWidth 3 200 
+                         -value $bb_Tools_rowColumn -minValue 1 -maxValue $bb_Tools_MaxControl -fieldMinValue 1 
+                         -fieldMaxValue $bb_Tools_MaxControl -step 1 -dragCommand bb_Tools_rowColumnChange RowISG; 
+    showWindow bb_ToolsRowWindow;
+}
+
+global proc bb_Tools_rowColumnChange()
+{
+    int $column = `intSliderGrp -q -value RowISG`;
+    global int $bb_Tools_rowColumn;
+    global string $bb_Tools_Path;
+    $bb_Tools_Path = `bb_Tools_FilePath`;
+    optionVar -iv bb_Tools_rowColumn $column;
+    deleteUI -layout bb_Tools_RCL;
+    rowColumnLayout -p bb_Tools_Window -numberOfColumns $column -rowSpacing 1 1 bb_Tools_RCL;
+        iconTextButton -image ($bb_Tools_Path + "Icon/BB.png") -c bb_Tools_WindowChange -dcc bb_Tools_WindowRow bb_Tools_Set;
+    window -e -wh 35 35 -resizeToFitChildren 1 bb_Tools_Window;
+    bb_Tools_iconTextButton;
+}
+
+global proc bb_Tools_iconTextButton()
+{
+    global string $bb_Tools_Path;
+    $bb_Tools_Path = `bb_Tools_FilePath`;
+    global string $buttonArray[];
+    for($i=0;$i<size($buttonArray);$i+=3){
+        iconTextButton -p "bb_Tools_RCL"  -image ($bb_Tools_Path + $buttonArray[$i])
+                       -c ("source \"" + $bb_Tools_Path + $buttonArray[$i+1]) $buttonArray[$i+2];
+    }
+}
+
+global proc bb_Tools_DeleteIconTextButton()
+{
+    global string $buttonArray[];
+    for($i=0;$i<size($buttonArray);$i+=3){
+        deleteUI -control $buttonArray[$i+2];
+    }
+}

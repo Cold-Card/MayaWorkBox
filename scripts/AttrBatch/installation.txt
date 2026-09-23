@@ -1,0 +1,41 @@
+﻿Installation:
+
+1) unzip the archive somewhere on your computer (like desktop folder) and go to the AttrBatch folder
+
+2) drag and drop the "drag_and_drop_installer.py" into the Maya viewport
+
+#############
+
+OR Manual Installation:
+
+1) unzip the archive and copy the AttrBatch folder into the Maya scripts location (by default it is C:\Users\%USERPROFILE%\Documents\maya\scripts)
+
+The result should be like this: 
+
+C:\Users\your_username\Documents\maya\scripts\AttrBatch
+
+2) launch the run_this_in_maya.py in Maya's script editor in the Python tab:
+
+import sys
+
+python_version = sys.version[0]
+packages = ['AttrBatch']
+
+if python_version == "3":
+    from importlib import reload
+    modules_to_reload = []
+    for module in sys.modules.keys():
+        for pkg_name in packages:
+            if module.startswith(pkg_name):
+                modules_to_reload.append(module)
+
+for i in list(sys.modules.keys()):
+    for package in packages:
+        if i.startswith(package):
+            del(sys.modules[i])
+
+import AttrBatch.main
+AttrBatch.main.main()
+
+
+3) add the contents of the run_this_in_maya.py to the Maya shelf if necessary 

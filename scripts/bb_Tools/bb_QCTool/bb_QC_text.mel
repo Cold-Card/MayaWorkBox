@@ -1,0 +1,227 @@
+global proc bb_QC_defaultSet()
+{
+    checkBox -e -v 1 bb_QC_renamePlyCB;
+    checkBox -e -v 1 bb_QC_renameSurfCB;
+    checkBox -e -v 1 bb_QC_renameCurvesCB;
+    checkBox -e -v 1 bb_QC_renameJointCB;
+    textField -e -tx "_SDM, _sdm, _PLY, _ply, _geo, _Geo, _mesh," bb_QC_modleSuffixTF;
+    checkBox -e -v 1 bb_QC_suffixNumCB;
+    textField -e -tx "facialCam," bb_QC_camTF;
+    textField -e -tx "_SDM, _sdm," bb_QC_smoothSuffixTF;
+    checkBox -e -v 0 bb_QC_smoothConCB;
+    textField -e -tx "_ctrl, _Ctrl, _Ctl, _L, _R, _M, Main," bb_QC_ctrlSuffixTF;
+    textScrollList -e -removeAll bb_QC_ctrlAttrTSL;
+    textScrollList -e -append ".geoVis            1" bb_QC_ctrlAttrTSL;
+    textScrollList -e -removeAll bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_R.indexCurl                      0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_R.middleCurl                     0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_R.ringCurl                       0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_R.pinkyCurl                      0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_R.thumbCurl                      0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_R.spread                         0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_R.cup                            0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.fkVis                               1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.ikVis                               1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.fkIkVis                             1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.aimVis                              1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.aimFKVis                            1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.aimLRVis                            1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.fingerVis                           1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.arrowVis                            1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Main.drvSysVis                           1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKArm_R.FKIKBlend                      0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKArm_R.autoVis                        1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKArm_R.FKVis                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKArm_R.IKVis                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKLeg_R.FKIKBlend                      10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKLeg_R.autoVis                        1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKLeg_R.FKVis                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKLeg_R.IKVis                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKArm_L.FKIKBlend                      0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKArm_L.autoVis                        1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKArm_L.FKVis                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKArm_L.IKVis                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKLeg_L.FKIKBlend                      10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKLeg_L.autoVis                        1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKLeg_L.FKVis                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKLeg_L.IKVis                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKSpine_M.FKIKBlend                    0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKSpine_M.autoVis                      1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKSpine_M.FKVis                        1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKIKSpine_M.IKVis                        1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "PoleLeg_L.follow                         10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "PoleLeg_L.lock                           0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.swivel                           0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.toe                              0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.roll                             0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.rollAngle                        25" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.stretchy                         0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.antiPop                          0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.Lenght1                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.Lenght2                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_L.volume                           10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_L.indexCurl                      0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_L.middleCurl                     0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_L.ringCurl                       0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_L.pinkyCurl                      0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_L.thumbCurl                      0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_L.spread                         0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "Fingers_L.cup                            0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "AimEye_M.follow                          10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "PoleLeg_R.follow                         10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "PoleLeg_R.lock                           0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.swivel                           0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.toe                              0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.roll                             0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.rollAngle                        25" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.stretchy                         0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.antiPop                          0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.Lenght1                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.Lenght2                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKLeg_R.volume                           10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "RootX_M.legLock                          0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "RootX_M.CenterBtwFeet                    0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKSpine1_M.stiff                         5" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKSpine2_M.stretchy                      10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKSpine2_M.stiff                         5" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKSpine2_M.volume                        10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "PoleArm_L.follow                         0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "PoleArm_L.lock                           0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_L.follow                           0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_L.stretchy                         0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_L.antiPop                          0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_L.Lenght1                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_L.Lenght2                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_L.volume                           10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "PoleArm_R.follow                         0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "PoleArm_R.lock                           0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_R.follow                           0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_R.stretchy                         0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_R.antiPop                          0" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_R.Lenght1                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_R.Lenght2                          1" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "IKArm_R.volume                           10" bb_QC_extraCtrlTSL;
+    textScrollList -e -append "FKHead_M.Global                          10" bb_QC_extraCtrlTSL;
+}
+
+global proc bb_QC_help()
+{
+    string $text = "谢谢查看帮助，本工具是针对制作asset环节，出现的一些常见问题进行检查。" +
+"\n还有对制作流程规范的检查。"+
+"\n"+
+"\n"+
+"\n功能介绍"+
+"\n（注：以下介绍中，如无特别说明，修改方式即为“删除”）"+
+"\n"+
+"\n-----------------------------------"+
+"\n“通用”，这4点是必须QC的。"+
+"\n"+
+"\n1，unkonw节点"+
+"\n理由：场景里存在unkonw节点，无法从mb格式转存成ma格式"+
+"\n注意：可能是上个制作环节使用了插件，而你的机器上没有装这个插件。请确保删除unkown节点不会对之后的环节造成影响。"+
+"\n"+
+"\n"+
+"\n2，intermedia OBJ"+
+"\n理由：对模型添加变形历史后，会生成一个媒介OBJ(通常以“Orig”后缀结尾)。如果复制带有变形历史的模型，会连媒介OBJ一起复制出来，但是复制出来的这个媒介OBJ并没有什么卵用，只会让档案更大。"+
+"\n说明：因为媒介Obj节点在outline里是默认不显示的，所以QC出来之后只会有1个set。通过节点编辑器等展开连接关系才可以看到具体信息。"+
+"\n"+
+"\n3，无顶点模型"+
+"\n理由：在制作时的某些操作（比如布尔运算），会生出一些，没有顶点的模型节点。这种模型是不合法的。"+
+"\n"+
+"\n4，声音"+
+"\n理由：在asset制作阶段，场景里不应该存在声音这种鬼东西。"+
+"\n"+
+"\n-----------------------------------"+
+"\nrigging相关，这11点则据项目要求来选择。"+
+"\n"+
+"\n1，重命名"+
+"\n理由：项目要求"+
+"\n修改规则：直接在名称后面加数字来区分。简单粗暴。"+
+"\n设置相关：可以选择QC，poly,surf,curve,joint这4种物体的重命名。"+
+"\n"+
+"\n2，模型后缀"+
+"\n理由：项目要求"+
+"\n设置相关：以“,”为分隔符，不符合列表里后缀的模型会被视为不合法；"+
+"\n	      忽略后缀数字，如果不勾选，后缀后面跟数字（如“name_SDM12”)会被视为合法。"+
+"\n"+
+"\n"+
+"\n3，模型锁属性"+
+"\n理由：为避免动画动到模型。"+
+"\n设置相关：符合模型后缀的模型才会被检查。"+
+"\n"+
+"\n"+
+"\n4，模型显示"+
+"\n理由：可能制作过程中隐藏了渲染模型。另外，模型的vis属性被连接，也会被视为不合法。理论上如果要制作模型的显示切换，请在模型的上层组制作。"+
+"\n修改规则：显示出渲染模型，被连接的模型会直接断掉连接。"+
+"\n设置相关：符合模型后缀的模型会被视为渲染模型。"+
+"\n"+
+"\n5，灯光"+
+"\n理由：贴图制作的时候，可能会有灯光节点留在场景里"+
+"\n"+
+"\n6，摄像机"+
+"\n理由：可能遗留制作时新建的摄像机。"+
+"\n设置相关：以“,”为分隔符，符合列表里名称的摄像机会被过滤；"+
+"\n"+
+"\n7，控制器数值"+
+"\n理由：控制器数值归0，这没必要说了吧。很重要的"+
+"\n检查规则：检查命名符合控制器后缀的cv曲线，"+
+"\n         把位移/旋转不为0，缩放/显示不为1，（如果这些属性没有被锁定或者隐藏的话）。"+
+"\n         如果有“控制器属性”里面存在的属性，如果数值与设定的不一样，会被视为不合法。"+
+"\n         “其他控制器”如果此控制以及属性存在的话，如果数值与设定的不一样，会被视为不合法。"+
+"\n修改规则：位移/旋转归0，缩放/显示归1。“控制器属性”与“其他控制器”里面的设置，如果该属性存在的话，会被改为相应数值。"+
+"\n"+
+"\n8，选面贴"+
+"\n理由：项目要求"+
+"\n"+
+"\n9，动画帧"+
+"\n理由：制作时遗留的动画帧。"+
+"\n"+
+"\n10，显示层"+
+"\n理由：过多的显示层会给后续组别的制作带来麻烦。"+
+"\n"+
+"\n11，smooth"+
+"\n理由：项目要求，制作时遗忘。"+
+"\n检查规则：smooth添加，符合smooth后缀的模型，没有添加smooth，或者smooth历史超过1个的。不符合smooth后缀的模型有添加smooth历史的。"+
+"\n         smooth位置，符合smooth后缀的并添加有smooth历史的模型，smooth历史不在最上层的。"+
+"\n         smooth连接，smooth节点的“.divisions”属性没有被连接的。（勾选相应设置才会检查）"+
+"\n修改规则：smooth添加，符合添加smooth的模型添加或删除到只有1个smooth节点。不符合添加的模型，删除smooth节点。"+
+"\n         smooth位置，符合添加smooth的模型，删除smooth节点，重新添加smooth节点。"+
+"\n         smooth连接，没有写，摊手，自己连去吧。"+
+"\n"+
+"\n12，无影响骨骼"+
+"\n理由：多余的蒙皮骨骼会增加重量，也会给后续修改带来麻烦。"+
+"\n修改规则：去除没有权重骨骼对物体的影响。"+
+"\n"+
+"\n"+
+"\n"+
+"\n"+
+"\n-----------------------------------"+
+"\n设置说明"+
+"\n配置档案：根据项目不同，来调整规则。导出以后，能在这里选择。也可以由组长进行设置以后导出配置档案，然后分给组员直接导入即可。"+
+"\n"+
+"\n"+
+"\n“添加”按钮规则说明："+
+"\n选中物体，点击添加，会自动识别后缀或名称进行添加进文本框，后缀的识别方式是以命名中最后一个“_”来识别。"+
+"\n也可手动输入，为了方便，只要输入“后缀”，以“空格”或者其他分隔符（比如$,%,/）区分开即可，输入完成后会自动调整格式。（不要夸我机智，脸红）"+
+"\n"+
+"\n"+
+"\n“控制器属性”及“其他控制器”按钮说明："+
+"\n选中物体，如选中属性，则添加该属性及当前数值。如未选中属性，则添加选中物体的所有未锁定的自定义属性。"+
+"\n"+
+"\n"+
+"\n恢复默认设置，算是举个例子，其中控制器部分是根据现在网上流行的绑定插件AdvancedSkeleton5来设定的。就算误点了，也不要方，不会覆盖配置，重新选择一下配置就好。"+
+"\n"+
+"\n"+          
+"\n\n\n\n\n\n\n\n\n\n\n\n"+
+"\n                   . ."+
+"\n                 '.-:-.`"+
+"\n                 '  :  `"+
+"\n              .-----:"+
+"\n            .'       `."+
+"\n      ,    /       (o) \\"+
+"\n      \\`._/          ,__)"+
+"\n  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
+    scrollField -e -text $text bb_QC_helpSF;
+}
+
+

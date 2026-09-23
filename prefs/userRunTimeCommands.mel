@@ -1,4 +1,4 @@
-//Maya Preference 2022 (Release 1)
+//Maya Preference 2026 (Release 1)
 //
 //
 
@@ -17,3 +17,17 @@ runTimeCommand
 	-command ("import maya.cmds as cmds\nobjs = cmds.ls(sl=True)\nfor obj in objs:\n    cmds.xform(obj,t=[0,0,0],ro=[0,0,0],s=[1,1,1])")
 	RestRTS;
 
+runTimeCommand
+	-label ""
+	-annotation ""
+	-longAnnotation ""
+	-category "Custom Scripts"
+	-image ""
+	-tags ""
+	-keywords ""
+	-plugin ""
+	-helpUrl ""
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("import sys\nPATH = '/home/wangruilong/maya/workBox/scripts/oneLiner-main/script/'\nif PATH not in sys.path:\n    sys.path.append(PATH)\nimport MainWindow\nif(sys.version_info.major>=3):\n    def reload(MODULE): \n        import importlib\n        importlib.reload(MODULE)\nreload(MainWindow)\n\nif __name__ == \"__main__\":\n    try:\n        olUI.close()\n        olUI.deleteLater()\n    except:\n        pass\n    olUI = MainWindow.oneLinerUI()\n    olUI.show()")
+	oneLiner;

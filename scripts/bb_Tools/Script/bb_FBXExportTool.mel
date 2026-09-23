@@ -1,0 +1,315 @@
+//Author  :   LiuBen
+//Date    :   01/29/2019
+//Fix     :   02/13/2019   增加当前轴向的显示功能。
+//Fix     :   03/23/2019   改掉导出功能为导入ref并去掉ref前缀，修改选择骨骼功能,。
+//Fix     :   04/09/2019   修改“快速选择”，添加reference进入规则。
+//Fix     :   11/22/2019   增加loc类型的烘焙和断开。
+//Fix     :   12/11/2019   增加数据转移功能。
+//Fix     :   01/02/2020   修改数据转移功能BUG。
+global proc bb_FBXExportTool()
+{
+    if (`window -q -exists bb_FBXExportToolWindow`) deleteUI bb_FBXExportToolWindow;
+    window -title "FBX工具" bb_FBXExportToolWindow;    
+        columnLayout -adjustableColumn true -columnAttach "both" 3;
+            frameLayout -label "断开/烘焙";
+                columnLayout -rowSpacing 3;
+                    rowLayout -numberOfColumns 3 -columnWidth3 90 50 50;
+                        checkBox -label "BlendShape" -value 1 bb_FBXExport_blendShapeCB;
+                        checkBox -label "Joint" -value 1 bb_FBXExport_jointCB;
+                        checkBox -label "Locator" -value 1 bb_FBXExport_LocatorCB;
+                    setParent ..;
+                    rowLayout -numberOfColumns 2 -columnWidth2 100 100 ;
+                        button -l "断开" -w 102 -h 40 -bgc 0.9 0.9 0.9 -c bb_FBXExport_DisConApply;
+                        button -l "烘焙" -w 102 -h 40 -bgc 0.5 0.1 0.1 -c bb_FBXExport_BakeApply;
+                    setParent ..;
+                setParent ..;
+            frameLayout -label "导出FBX";
+                rowLayout -numberOfColumns 3 -columnWidth3 80 60 60;
+                    text -l "  当前轴向：";
+                    radioCollection bb_FBXExport_UpAxis;
+                        radioButton -label "Y" bb_FBXExport_UpAxisY;
+                        radioButton -label "Z" bb_FBXExport_UpAxisZ;
+                setParent ..;
+                rowLayout -numberOfColumns 2 -columnWidth2 80 120;
+                    button -l "Z轴朝上" -w 125  -c bb_FBXExport_ZUp;
+                    button -l "还原mayaY轴" -w 80  -c ("setUpAxis \"y\";bb_FBXExport_UpAxisDisplay;");
+                setParent ..;
+                rowLayout -numberOfColumns 2 -columnWidth2 80 120 ;
+                    button -l "快速选择" -w 80 -h 40 -bgc 0.1 0.1 0.1 -c bb_FBXExport_Selcet;
+                    button -l "导入+去前缀" -w 125 -h 40 -bgc 0 0.3 0.45 -c bb_FBXExport_importRename;
+                setParent ..;
+            frameLayout -label "数据转移（保持Reference状态）";
+                rowLayout -numberOfColumns 2 -columnWidth2 100 110 ;
+                    button -l "载入数据前缀>>>" -w 100 -bgc 0.5 0.5 0.5 -c bb_FBXExport_loadRef;
+                    textField -w 110 -text "选择数据的任一物件，载入" bb_FBXExport_sourceTF;
+                setParent ..;
+                button -l "执行" -h 40 -bgc 0.0 0.5 0.45 -c bb_FBXExport_data2FBX;
+    showWindow bb_FBXExportToolWindow;
+    bb_FBXExport_UpAxisDisplay;
+}
+bb_FBXExportTool;
+
+global string $bb_FBXExport_sourceRef;
+
+global proc bb_FBXExport_loadRef() //ref读取
+{
+    global string $bb_FBXExport_sourceRef;
+    string $sel[] = `ls -sl`;
+    if(size($sel) == 0){
+        confirmDialog -title "去你大爷" -message "你说你啥都不选，我咋执行？\n   Σ(っ°Д°;)っ？？？" -button "我错了！~";
+    }
+    else{
+        if(`referenceQuery -isNodeReferenced $sel[0]`){
+            string $sourceNamespace = `referenceQuery -namespace -shortName $sel[0]`+":";
+            $bb_FBXExport_sourceRef = `referenceQuery -filename $sel[0]`;
+            textField -e -text $sourceNamespace bb_FBXExport_sourceTF;
+        }
+        else{
+            confirmDialog -title "去你大爷" -message "你选的不是Reference的物件吖？\n   凸ˋ_ˊ#？？？" -button "我~我手抖了！~";
+        }
+    } 
+}
+
+global string $maJoint[],$fbxJoint[],$copyBS[],$pasteBS[];
+
+global proc bb_FBXExport_data2FBX()
+{
+    global string $bb_FBXExport_sourceRef;
+    global string $maJoint[],$fbxJoint[],$copyBS[],$pasteBS[];
+    string $namespace = `textField -q -text bb_FBXExport_sourceTF`;
+    string $YupFBX = substituteAllString($bb_FBXExport_sourceRef, ".ma", "_Yup.fbx");
+    string $newNamespace = substituteAllString($namespace, ":", "_Yup");
+    int $minTime = `playbackOptions -q -minTime`;
+    int $maxTime = `playbackOptions -q -maxTime`;
+    file -r -type "FBX"  -ignoreVersion -gl -mergeNamespacesOnClash false -namespace $newNamespace -options "fbx" $YupFBX;
+    playbackOptions -min $minTime -max $maxTime ;
+    
+    $maJoint = `ls -dag -l ($namespace + "Reference")`;
+    $fbxJoint = `ls -dag -l ($newNamespace + ":Reference")`;
+    
+    string $allBS[] = `ls -type "blendShape"`;
+    
+    for($i=0;$i<size($allBS);$i++){
+        string $BSNamespace = `referenceQuery -namespace -shortName $allBS[$i]`+":";
+        if($BSNamespace == $namespace){
+            string $fbxBS = substituteAllString($allBS[$i], ":", "_Yup:");
+            if(`objExists $fbxBS`){
+                $copyBS[size($copyBS)] = $allBS[$i];
+                $pasteBS[size($pasteBS)] = substituteAllString($allBS[$i], ":", "_Yup:");
+            }
+            
+        }
+    }
+    eval ("copyKey -time \""+$minTime+":"+$maxTime+"\" -option curve $maJoint;");
+    pasteKey $fbxJoint;
+    eval ("copyKey -time \""+$minTime+":"+$maxTime+"\" -option curve $copyBS;");
+    pasteKey $pasteBS;
+    
+    file -removeReference $bb_FBXExport_sourceRef;
+    select -r ($newNamespace + ":Reference");
+    bb_FBXExport_importRename;  
+}
+
+global proc bb_FBXExport_importRename()
+{
+    string $sel[] = `ls -sl`;
+    string $refNode = `referenceQuery -referenceNode $sel[0]`;
+    string $allNode[] = `referenceQuery -nodes -showDagPath 1 $refNode`;
+    file -importReference -referenceNode $refNode;
+    for($i=0;$i<size($allNode);$i++){
+        if(`objExists $allNode[$i]`){
+            string $newName[] = stringToStringArray($allNode[$i], ":");
+            string $longName[] = `ls -long $allNode[$i]`;
+            rename $longName[0] $newName[size($newName)-1];
+        }
+    }
+}
+
+global proc bb_FBXExport_UpAxisDisplay()
+{
+    string $Axis = `upAxis -q -axis`;
+    if($Axis == "y"){
+        radioCollection -edit -select "bb_FBXExport_UpAxisY" bb_FBXExport_UpAxis;
+    }
+    else if($Axis == "z"){
+        radioCollection -edit -select "bb_FBXExport_UpAxisZ" bb_FBXExport_UpAxis;
+    }
+}
+
+global proc bb_FBXExport_Selcet()
+{
+    string $RefGeo[] = `ls -type "transform" "*SK*GEO*"`;
+    string $ImpGeo[] = `ls -type "transform" "*:SK*GEO*"`;
+    string $Geo[] = stringArrayCatenate($RefGeo, $ImpGeo);
+    string $select[];
+    for($i=0;$i<size($Geo);$i++){
+        string $geometry[] = `ls -dag -geometry $Geo[$i]`;
+        $select = stringArrayCatenate($geometry, $select);
+    }
+    string $RefLoc[] = `ls -type "transform" "*Reference*"`;
+    string $ImpLoc[] = `ls -type "transform" "*:Reference*"`;
+    string $Loc[] = stringArrayCatenate($RefLoc, $ImpLoc);
+    if(size($Loc)){
+        for($i=0;$i<size($Loc);$i++){
+            string $parent[] = `listRelatives -allParents $Loc[$i]`;
+            if(!size($parent)){
+                $select[size($select)-1] = $Loc[$i];
+            }
+        }    
+    }
+    select -r $select;
+}
+
+global proc bb_FBXExport_ZUp()
+{
+    if(`objExists "Reference"`){
+        setUpAxis "z";
+        setAttr "Reference.rotateX" 90;
+        string $children[] = `listRelatives -children "Reference"`;
+        string $joint[];
+        for($i=0;$i<size($children);$i++){
+            if(`nodeType $children[$i]` == "joint"){
+                parent -w $children[$i];
+                $joint[size($joint)] = $children[$i];
+            }
+        }
+        setAttr "Reference.rotateX" 0;
+        parent $joint "Reference";
+    }
+    bb_FBXExport_UpAxisDisplay;
+}
+
+//断开
+global proc bb_FBXExport_DisConApply()
+{
+    int $blendValue = `checkBox -q -value bb_FBXExport_blendShapeCB`;
+    int $jointValue = `checkBox -q -value bb_FBXExport_jointCB`;
+    int $locValue = `checkBox -q -value bb_FBXExport_LocatorCB`;
+    if($blendValue){
+        string $blendshapes[] = `ls -type "blendShape"`;
+        for($i=0;$i<size($blendshapes);$i++){
+            string $attrs[] = `aliasAttr -q $blendshapes[$i]`;
+            for ($j=0; $j<size($attrs); ++$j){
+                if ($j%2 == 0){
+                    bb_FBXExport_disconnect($blendshapes[$i] + "." + $attrs[$j]);
+                }
+            }
+        }
+    }
+    if($jointValue){
+        string $RefLoc[] = `ls -type "transform" "*Reference*"`;
+        string $ImpLoc[] = `ls -type "transform" "*:Reference*"`;
+        string $Loc[] = stringArrayCatenate($RefLoc, $ImpLoc);
+        string $joint[];
+        if(size($Loc)){
+            for($i=0;$i<size($Loc);$i++){
+                string $parent[] = `listRelatives -allParents $Loc[$i]`;
+                if(!size($parent)){
+                    string $locDag[] = `ls -type "joint" -dag $Loc[$i]`;
+                    $joint[size($joint)] = $Loc[$i];
+                    $joint = stringArrayCatenate($joint, $locDag);
+                }
+            }
+        }
+        else{
+            $joint = `ls -type "joint"`;
+        }
+        for($i=0;$i<size($joint);$i++){
+            string $attrs[] = {"translateX","translateY","translateZ","rotateX","rotateY","rotateZ","scaleX","scaleY","scaleZ","visibility"};
+            for ($j=0; $j<size($attrs); ++$j){
+                bb_FBXExport_disconnect($joint[$i] + "." + $attrs[$j]);
+            }
+        }
+    }
+    if($locValue){
+        string $Loc[] = `ls -type "locator"`;
+        string $mainAttrs[] = {"translateX","translateY","translateZ","rotateX","rotateY","rotateZ","scaleX","scaleY","scaleZ","visibility"};
+        for($i=0;$i<size($Loc);$i++){
+           string $transforms[] = `listRelatives -parent $Loc[$i]`;
+           string $userAttr[] = `listAttr -userDefined $transforms[0]`;
+           string $attrs[] = stringArrayCatenate($mainAttrs, $userAttr);
+           for ($j=0; $j<size($attrs); ++$j){
+                bb_FBXExport_disconnect($transforms[0] + "." + $attrs[$j]);
+           }
+        }
+    }
+}
+
+global proc bb_FBXExport_disconnect( string $attr )
+{
+    /*string $src = `connectionInfo -sourceFromDestination ($attr)`;
+    if(size($src))
+        disconnectAttr $src $attr;*/
+    string $destination = `connectionInfo -getExactDestination $attr`;
+    if(size($destination))
+        delete -icn $destination;
+}
+//烘焙
+global proc bb_FBXExport_BakeApply()
+{
+    int $blendValue = `checkBox -q -value bb_FBXExport_blendShapeCB`;
+    int $jointValue = `checkBox -q -value bb_FBXExport_jointCB`;
+    int $locValue = `checkBox -q -value bb_FBXExport_LocatorCB`;
+    global string $aaaa;
+    string $bakeAttribute;
+    string $bakeObj;
+    if($blendValue){
+        string $blendshapes[] = `ls -type "blendShape"`;
+        for($i=0;$i<size($blendshapes);$i++){
+            $bakeObj = $blendshapes[$i] + " " + $bakeObj;
+            string $attrs[] = `aliasAttr -q $blendshapes[$i]`;
+            for ($j=0; $j<size($attrs); ++$j){
+                if ($j%2 == 0){
+                    $bakeAttribute = " -at \"" + $attrs[$j] + "\"" + $bakeAttribute;
+                }
+            }
+        }
+    }
+    
+    if($jointValue){
+        string $RefLoc[] = `ls -type "transform" "*Reference*"`;
+        string $ImpLoc[] = `ls -type "transform" "*:Reference*"`;
+        string $Loc[] = stringArrayCatenate($RefLoc, $ImpLoc);
+        string $joint[];
+        if(size($Loc)){
+            for($i=0;$i<size($Loc);$i++){
+                string $parent[] = `listRelatives -allParents $Loc[$i]`;
+                if(!size($parent)){
+                    string $locDag[] = `ls -type "joint" -dag $Loc[$i]`;
+                    $joint[size($joint)] = $Loc[$i];
+                    $joint = stringArrayCatenate($joint, $locDag);
+                }
+            }
+        }
+        else{
+            $joint = `ls -type "joint"`;
+        }
+        
+        string $jointString = stringArrayToString($joint, " ");
+        $bakeObj = $jointString + " " + $bakeObj;
+        $bakeAttribute =  " -at \"tx\" -at \"ty\" -at \"tz\" -at \"rx\" -at \"ry\" -at \"rz\" -at \"sx\" -at \"sy\" -at \"sz\" -at \"v\"" + $bakeAttribute;
+    }
+    
+    if($locValue){
+        string $Loc[] = `ls -type "locator"`;
+        if(size($Loc)){
+            for($i=0;$i<size($Loc);$i++){
+                string $transforms[] = `listRelatives -parent $Loc[$i]`;
+                $bakeObj = $transforms[0] + " " + $bakeObj;
+                string $userAttr[] = `listAttr -userDefined $transforms[0]`;
+                for ($j=0; $j<size($userAttr); ++$j){
+                    if(!`gmatch $bakeAttribute (" *-at \"" + $userAttr[$j] + "\"*")`){
+                        $bakeAttribute = " -at \"" + $userAttr[$j] + "\"" + $bakeAttribute;
+                    }
+                }
+            }
+        }
+    }
+    int $minTime = `playbackOptions -q -minTime`;
+    int $maxTime = `playbackOptions -q -maxTime`;
+
+    eval ("bakeResults -simulation true -t \"" + $minTime + ":" + $maxTime + "\" -sampleBy 1 -disableImplicitControl true " + 
+          "-preserveOutsideKeys true -sparseAnimCurveBake false -removeBakedAttributeFromLayer false " + 
+          "-removeBakedAnimFromLayer false -bakeOnOverrideLayer false -minimizeRotation true " + $bakeAttribute + " " + $bakeObj);
+}
+

@@ -1,0 +1,514 @@
+/*                  @@@  CDK - Maya Character Development KIT   @@@
+
+                                             -scripted by - Nilesh Jadhav
+                                                   last updated  3-02-2014
+
+   scripted in Maya version - 2013 (MEL)
+   
+                       script name - cdkMakeDynamicChain.mel
+   
+   This script creates dynamic chain with fk and dynamic controls 
+*/
+
+global proc cdkMakeDynamicChainUI()
+{
+    if (`window -exists "cdkMakeDynamicUI"`) deleteUI cdkMakeDynamicUI;
+  
+     window -t "CDK Make Dynamic Chain" -wh 300 150 -s 1 cdkMakeDynamicUI;
+     columnLayout -adj 1 -rs 5 ;
+         text -l "select the joint chain";
+         textField -tx "name_" -w 100 dynamicsName;
+         checkBox -label "不约束目标骨骼" -value 0 cdkFKJointConstrainCB;
+         button -l "<<-- Make Dynamic -->>" -c ("cdkMakeDynamicChainUserInput") -h 30 -bgc 0.1 0.3 0.5 makeDynBut;
+         separator;
+         text -l "选择相应的动力学属性控制器";
+         button -l "$$  Bake dynamics  $$" -c ("cdkJointBake(0)");
+         button -l "$$  UnBake dynamics  $$" -c ("cdkJointBake(1)")-bgc 0.5 0.5 0.5;
+     showWindow cdkMakeDynamicUI;
+     //window -e -wh 265 150 cdkMakeDynamicUI;
+}
+cdkMakeDynamicChainUI;
+proc autherOn()
+{
+   int $textVis= `text -q -vis cdkText`;
+     if ($textVis==0)
+     {
+       text -e -vis 1 cdkText; 
+     } 
+      if ($textVis==1)
+     {
+       text -e -vis 0 cdkText; 
+     } 
+   int $AuthertextVis= `text -q -vis autherText`;
+     if ($AuthertextVis==0)
+     {
+       text -e -vis 1 autherText; 
+     } 
+      if ($AuthertextVis==1)
+     {
+       text -e -vis 0 autherText; 
+     }  
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+global proc cdkMakeDynamicChainUserInput()
+{
+    string $textName = `textField -q -tx dynamicsName`;
+    string $name =`strip $textName`;
+    int $sizeOfText = size($name);
+ 
+    if ($sizeOfText ==0){
+        print "CDK - please name the Dynamics system !!";
+    }
+    else{
+        string $hairSystems[]=`ls -type "hairSystem"`;
+        int $hairSystemNumber = size ($hairSystems);
+        if ($hairSystemNumber >=1){ 
+            if (`window -exists "hairSystems"`) deleteUI hairSystems;
+                window -t "CDK-Please select the Hair system to assign" -s 0 -mxb 0 -mnb 0 -w 300 -h 80 hairSystems; 
+                columnLayout -adj 1;
+                    textScrollList -h 100 -w 300 hairSystemsScroll;
+                    textScrollList -e -ra hairSystemsScroll;
+                    for ($eachItem in $hairSystems ){
+                        textScrollList -e -a $eachItem hairSystemsScroll ;
+                    }
+                    button -l "Use Selected Hair System" -c ("assignExistingDynamics");
+                    button -l "Assign new Hair System" -c ("cdkAssignNewHairSystem");
+             showWindow hairSystems;
+             window -e -wh 350 150 hairSystems;
+        } 
+        else{
+            cdkAssignNewHairSystem; 
+        }
+    }
+}
+ 
+global proc assignExistingDynamics ()
+{ 
+     cdkAssignExistingHairSystem;
+     deleteUI hairSystems;
+}
+ 
+//////////////////////////////////////////////////////////////////////////// 
+ 
+global proc cdkAssignNewHairSystem()
+{
+    string $textName = `textField -q -tx dynamicsName`;
+    string $name =`strip $textName`;
+    int $sizeOfText = size($name);
+    string $selection []=`ls -sl -type "joint"`;
+    int $numberOfSel = size ($selection);     
+    if ($numberOfSel ==0){
+        print "CDK DYNAMICS - Please select the joint chain  !!";
+    }
+    else
+    {
+        if ($sizeOfText==0){
+            print " please Name the Dynamics system !!";
+        }
+        else{  
+            $selection = `ls -sl`;
+            string $chain = $selection [0] ;  
+            select $chain; select -hi;
+            string $chainHierarchy[]=`ls -sl -type "joint"`;
+            int $numberOfChain=size ($chainHierarchy);
+            string $startJoint =$chainHierarchy[0];
+            string $endJoint=$chainHierarchy[$numberOfChain-1];
+         
+            ikHandle -sj $startJoint -ee $endJoint -ns $numberOfChain -pcv 0 -sol "ikSplineSolver" -n($name+"ikHandle");   
+            pickWalk -d right;
+            string $follicleCrv []=`ls -sl`; 
+            rename ($name +"FollicleCrv");
+            delete ($name+"ikHandle");
+            select ($name +"FollicleCrv");
+         
+            //--------- genearating dynamics system and grouping it  ----------------------------      
+            makeCurvesDynamic 2 { "1", "0", "1", "1", "0"};  //--- making selected curve dynamic
+             
+            select ($name +"FollicleCrv");
+            pickWalk -d up;
+            rename ($name +"Follicle");
+            pickWalk -d up;
+            rename ($name +"HairSystemfollicles");
+            pickWalk -d right;
+            rename ($name +"HairSystemOutputCurves");
+            pickWalk -d down;
+            rename ($name +"DynamicCrv");
+            select ($name +"HairSystemfollicles");
+            pickWalk -d left;
+            rename ($name +"Nucleus");
+            pickWalk -d left;
+            rename ($name +"DynamicsSystem");
+
+            select ($name +"Nucleus");
+            select -add ($name +"DynamicsSystem");
+            select -add ($name +"HairSystemOutputCurves");
+            
+            group -n ("nonScale_"+$name+"DynamicsGrp");
+            setAttr ("nonScale_"+$name+"DynamicsGrp"+".visibility") 0;
+            
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".tx");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".ty");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".tz");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".rx");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".ry");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".rz");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".sx");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".sy");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".sz");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".v");
+            
+            setAttr ($name +"FollicleShape"+".pointLock") 1;
+            setAttr ($name +"HairSystemfollicles"+".visibility") 0;
+            setAttr -lock true ($name +"HairSystemfollicles"+".v");
+            
+            select -cl;
+            createNode "transform" -n ($name+"ParentGrp");
+            //--------------- creating a IK control system for Dynamic chain -----------------------------       
+            select  $startJoint;
+            duplicate ; select -hi;
+     
+            string $duplHierarchy[]=`ls -sl -type "joint"`;
+            int $totalDupl = size ($duplHierarchy);
+            select $duplHierarchy[0];
+          
+            for ($i=0; $i<$totalDupl ; $i++){
+                string $sel[]=`ls -sl`;
+                setAttr ($sel[0]+".radius")1;
+                rename ($name +"DynJnt"+"#");
+                pickWalk -d down;
+            }
+            
+           ikHandle -fj true -sj ($name +"DynJnt1") -ee ($name +"DynJnt"+$totalDupl) -c ($name+"DynamicCrv") -sol "ikSplineSolver" -ns $totalDupl -ccv 0 -pcv 0 -n($name+"ikHandle");   
+
+           setAttr ($name+"ikHandle"+".visibility") 0;
+           setAttr -lock true ($name+"ikHandle"+".v");
+           
+           //----------- creating a FK control system ------------------
+           int $JointConstraint = `checkBox -q -value cdkFKJointConstrainCB`;
+           for ($i=0; $i<$totalDupl-1; $i++){  
+               string $control []=`circle -r 0.5 -ch 0 -nr 1 0 0 -n ($name+"DynJnt"+($i+1)+"FKctrl")`;
+
+               group -n ($control [0]+"DrvGrp");
+               group -n ($control [0]+"OffsetGrp");      
+               group -n ($control [0]+"Grp");       
+               string $constraint[] =`parentConstraint  ($name+"DynJnt"+($i+1)) ($control [0]+"Grp")`;           
+               delete $constraint[0] ;      
+               catch (`parent ($control [0]+"Grp") ($name+"DynJnt"+($i)+"FKctrl") `);
+               if(!$JointConstraint)
+                   catch (`parentConstraint  ($control [0])  $chainHierarchy[$i] `);
+           }
+           
+           parent ($name+"ikHandle")($name+"ParentGrp");
+           parent ($name+"HairSystemfollicles")($name+"ParentGrp");
+           parent ($name+"DynJnt1FKctrlGrp")($name+"ParentGrp");
+           parent ($name+"DynJnt1")($name+"ParentGrp");
+            
+           select -cl;      
+           setAttr($name+"DynJnt1"+".visibility")0;
+           setAttr -lock true -keyable false -channelBox false ($name+"DynJnt1"+".visibility");
+
+           //-------------------- creating a dynamic control----------------------------
+           string $dynControl=`curve -d 1 
+                               -p 2.260051 1.986844 0 
+                               -p 2.715852 1.986844 0 
+                               -p 2.999902 1.610313 0 
+                               -p 2.471437 0.989366 0 
+                               -p 2.002424 1.623524 0 
+                               -p 2.260051 1.986844 0 
+                               -p 2.002424 1.623524 0 
+                               -p 2.21381 1.339474 0 
+                               -p 2.260051 1.986844 0 
+                               -p 2.795122 1.352686 0 
+                               -p 2.715852 1.986844 0 
+                               -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -n($name +"Ctrl")`;
+
+            CenterPivot;
+            move -rpr 0 0 0 ;          
+            FreezeTransformations;
+            group -n ($name +"CtrlGrp");
+
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".tx");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".ty");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".tz");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".rx");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".ry");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".rz");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".sx");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".sy");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".sz");
+            setAttr -lock true -keyable false -channelBox false ($dynControl+".v");
+
+            addAttr -ln "dynamicsOpen"  -at long  -min 0 -max 1 -dv 1 -keyable true ($name +"Ctrl");
+            addAttr -ln "dynamicsSwitch"  -at double  -min 0 -max 1 -dv 1 -keyable true ($name +"Ctrl");
+            addAttr -ln "startFrame"  -at long  -dv 1 -keyable true ($name +"Ctrl");
+            addAttr -ln "pointLock"  -at long  -min 0 -max 3 -dv 1 -keyable true ($name +"Ctrl");
+            
+            addAttr -ln "_____________________________________________"  -at "enum" -en "Forces:" -keyable true ($name +"Ctrl");
+            addAttr -ln "damp"  -at double  -min 0 -max 1 -dv 0 -keyable true ($name +"Ctrl");
+            addAttr -ln "drag"  -at double  -min 0 -max 5 -dv 0.05 -keyable true ($name +"Ctrl");
+            addAttr -ln "Mass"  -at double  -min 0 -max 100 -dv 1 -keyable true ($name +"Ctrl");
+            addAttr -ln "Gravity"  -at double  -min -20 -max 20 -dv 0.98 -keyable true ($name +"Ctrl");
+            addAttr -ln "startCurveAttract"  -at double  -min 0 -max 1 -dv 0.01 -keyable true ($name +"Ctrl");
+            
+            addAttr -ln "______________________________________________"  -at "enum" -en "Collide:" -keyable true ($name +"Ctrl");
+            addAttr -ln "collide"  -at double  -min 0 -max 1 -dv 1 -keyable true ($name +"Ctrl");
+            addAttr -ln "selfCollide"  -at double  -min 0 -max 1 -dv 0 -keyable true ($name +"Ctrl");
+            addAttr -ln "GroundCollide"  -at double  -min 0 -max 1 -dv 0 -keyable true ($name +"Ctrl");
+            addAttr -ln "collideOffset"  -at double  -min 0 -max 10 -dv 0 -keyable true ($name +"Ctrl");
+            addAttr -ln "selfCollideWidth"  -at double  -min 0 -max 10 -dv 0 -keyable true ($name +"Ctrl");
+            addAttr -ln "Iterations"  -at double  -min 0 -max 100 -dv 10 -keyable true ($name +"Ctrl");
+            addAttr -ln "stiffness"  -at double  -min 0 -max 1 -dv 0 -keyable true ($name +"Ctrl");
+            addAttr -ln "collideOverSamples"  -at double  -min 0 -max 100 -dv 0 -keyable true ($name +"Ctrl");
+            addAttr -ln "collideStrenght"  -at double  -min 0 -max 100 -dv 1 -keyable true ($name +"Ctrl");
+            addAttr -ln "friction"  -at double  -min 0 -max 5 -dv 0.5 -keyable true ($name +"Ctrl");
+            addAttr -ln "hairWidth"  -at double  -min 0 -max 50 -dv 0.1 -keyable true ($name +"Ctrl");
+            
+            addAttr -ln "_______________________________________________"  -at "enum" -en "Turbulance:" -keyable true ($name +"Ctrl");
+            addAttr -ln "Strength"  -at double  -min 0 -max 50 -dv 0 -keyable true ($name +"Ctrl");
+            addAttr -ln "Frequency"  -at double  -min 0 -max 50 -dv 0.2 -keyable true ($name +"Ctrl");
+            addAttr -ln "Speed"  -at double  -min 0 -max 50 -dv 0.2 -keyable true ($name +"Ctrl");
+            
+            addAttr -ln "DynName"  -at "enum" -en ($name+":") -keyable true ($name +"Ctrl");
+            
+            shadingNode -asUtility setRange -n ($name +"Dynamics_setRange");
+            setAttr ($name +"Dynamics_setRange.maxX") 3;
+            setAttr ($name +"Dynamics_setRange.oldMaxX") 1;
+            connectAttr -f ($name +"Ctrl"+".dynamicsOpen") ($name+"Dynamics_setRange"+".valueX");
+            connectAttr -f ($name+"Dynamics_setRange"+".outValue.outValueX") ($name+"DynamicsSystem"+".simulationMethod");
+            connectAttr -f ($name +"Ctrl"+".startFrame") ($name+"Nucleus"+".startFrame");          
+            connectAttr -f ($name +"Ctrl"+".pointLock") ($name+"FollicleShape"+".pointLock");
+            connectAttr -f ($name +"Ctrl"+".collide") ($name+"DynamicsSystem"+".collide");
+            connectAttr -f ($name +"Ctrl"+".selfCollide")($name+"DynamicsSystem"+".selfCollide");
+            connectAttr -f ($name +"Ctrl"+".GroundCollide") ($name+"DynamicsSystem"+".collideGround");
+            connectAttr -f ($name +"Ctrl"+".collideOffset") ($name+"DynamicsSystem"+".collideWidthOffset");
+            connectAttr -f ($name +"Ctrl"+".selfCollideWidth") ($name+"DynamicsSystem"+".selfCollideWidthScale");
+            connectAttr -f ($name +"Ctrl"+".Iterations") ($name+"DynamicsSystem"+".iterations");
+            connectAttr -f ($name +"Ctrl"+".stiffness") ($name+"DynamicsSystem"+".stiffness");
+            connectAttr -f ($name +"Ctrl"+".collideOverSamples") ($name+"DynamicsSystem"+".collideOverSample");
+            connectAttr -f ($name +"Ctrl"+".collideStrenght") ($name+"DynamicsSystem"+".collideStrength");
+            connectAttr -f ($name +"Ctrl"+".damp") ($name+"DynamicsSystem"+".damp");
+            connectAttr -f ($name +"Ctrl"+".drag") ($name+"DynamicsSystem"+".drag");
+            connectAttr -f ($name +"Ctrl"+".friction")($name+"DynamicsSystem"+".friction");
+            connectAttr -f ($name +"Ctrl"+".Mass") ($name+"DynamicsSystem"+".mass");
+            connectAttr -f ($name +"Ctrl"+".Gravity")($name+"DynamicsSystem"+".gravity");
+            connectAttr -f ($name +"Ctrl"+".startCurveAttract") ($name+"DynamicsSystem"+".startCurveAttract");
+            connectAttr -f ($name +"Ctrl"+".hairWidth") ($name+"DynamicsSystem"+".hairWidth");
+            connectAttr -f ($name +"Ctrl"+".Strength") ($name+"DynamicsSystem"+".turbulenceStrength");
+            connectAttr -f ($name +"Ctrl"+".Frequency") ($name+"DynamicsSystem"+".turbulenceFrequency");
+            connectAttr -f ($name +"Ctrl"+".Speed") ($name+"DynamicsSystem"+".turbulenceSpeed");
+            
+      
+            for ($i=1 ; $i<$totalDupl; $i++){
+                shadingNode -asUtility blendColors -n ($name + $i + "Dynamics_blendColors");
+                setAttr ($name + $i + "Dynamics_blendColors.color2") 0 0 0;
+                connectAttr -f ($name +"Ctrl"+".dynamicsSwitch") ($name + $i + "Dynamics_blendColors.blender");
+                connectAttr -f ($name+"DynJnt"+$i+".rotate") ($name + $i + "Dynamics_blendColors.color1");
+                connectAttr -f ($name + $i + "Dynamics_blendColors.output") ($name+"DynJnt"+$i+"FKctrlOffsetGrp"+".rotate");
+                // orientConstraint -mo ($name+"DynJnt"+$i) ($name+"DynJnt"+$i+"FKctrlOffsetGrp") ;
+            }
+
+            catch (`deleteUI hairSystems`);
+            select -cl;
+            print "CDK dynamic chain Created Successfully !!"; 
+        }
+    } 
+}
+////////////////////////////////////////////////////////////////////////////
+
+global proc cdkAssignExistingHairSystem()
+{
+    string $textName = `textField -q -tx dynamicsName`;
+    string $name =`strip $textName`;
+    int $sizeOfText = size($name);
+    string $selection []=`ls -sl -type "joint"`;
+     
+    int $numberOfSel = size ($selection);     
+    
+    if ($numberOfSel ==0){
+        print "CDK DYNAMICS - Please select the joint chain  !!";
+    }
+    else{
+        if ($sizeOfText==0){
+            print " please Name the Dynamics system !!";
+        }    
+        else{    
+            string $chain = $selection [0] ;  
+            select $chain; select -hi;
+            string $chainHierarchy[]=`ls -sl -type "joint"`;
+            int $numberOfChain=size ($chainHierarchy);
+            string $startJoint =$chainHierarchy[0];
+            string $endJoint=$chainHierarchy[$numberOfChain-1];
+         
+            ikHandle -sj $startJoint -ee $endJoint -ns $numberOfChain -pcv 0 -sol "ikSplineSolver" -n($name+"ikHandle");   
+            pickWalk -d right;
+            string $follicleCrv []=`ls -sl`; 
+            rename ($name +"FollicleCrv");
+            delete ($name+"ikHandle");
+            select ($name +"FollicleCrv");
+         
+            //--------- genearating dynamics system and grouping it  ----------------------------      
+   
+            string $selectedHairSystem []=`textScrollList  -q -si hairSystemsScroll`;
+            assignHairSystem $selectedHairSystem [0];
+            
+            string $DynCtrl = substituteAllString($selectedHairSystem [0], "DynamicsSystemShape", "Ctrl");
+            string $enum[] = `attributeQuery -node $DynCtrl -listEnum "DynName"`;
+            string $NewEnum = $enum[0] + ":" + $name + ":";
+            addAttr -e -enumName $NewEnum ($DynCtrl + ".DynName");
+
+            select ($name +"FollicleCrv");
+            pickWalk -d up;
+            rename ($name +"Follicle");
+            pickWalk -d up;
+            rename ($name +"HairSystemfollicles");
+            pickWalk -d right;
+            rename ($name +"HairSystemOutputCurves");
+            pickWalk -d down;
+            rename ($name +"DynamicCrv");
+            select  ($name +"HairSystemfollicles");
+            //pickWalk -d left;
+            //rename ($name +"Nucleus");
+            //pickWalk -d left;
+            //rename ($name +"DynamicsSystem");
+
+            //select ($name +"Nucleus");
+            //select -add ($name +"DynamicsSystem");
+            select($name +"HairSystemOutputCurves");
+            
+            group -n ("nonScale_"+$name+"DynamicsGrp");
+            
+            setAttr ("nonScale_"+$name+"DynamicsGrp"+".visibility") 0;
+            
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".tx");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".ty");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".tz");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".rx");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".ry");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".rz");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".sx");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".sy");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".sz");
+            setAttr -lock true ("nonScale_"+$name+"DynamicsGrp"+".v");
+
+            setAttr ($name +"FollicleShape"+".pointLock") 1;
+
+            setAttr ($name +"HairSystemfollicles"+".visibility") 0;
+            setAttr -lock true ($name +"HairSystemfollicles"+".v");
+            select -cl;
+            createNode "transform" -n ($name+"ParentGrp");
+            //--------------- creating a IK control system for Dynamic chain -----------------------------
+            select  $startJoint;      
+            duplicate ; select -hi;
+
+            string $duplHierarchy[]=`ls -sl -type "joint"`;
+            int $totalDupl = size ($duplHierarchy);
+            select $duplHierarchy[0];
+            for ($i=0; $i<$totalDupl ; $i++){
+                string $sel[]=`ls -sl`;
+                setAttr ($sel[0]+".radius")1;
+                rename ($name +"DynJnt"+"#");
+                pickWalk -d down;
+            }
+            ikHandle -fj true -sj ($name +"DynJnt1") -ee ($name +"DynJnt"+$totalDupl) 
+            -c ($name+"DynamicCrv") -sol "ikSplineSolver" -ns $totalDupl -ccv 0 -pcv 0 -n($name+"ikHandle");
+               
+            setAttr ($name+"ikHandle"+".visibility") 0;
+            setAttr -lock true ($name+"ikHandle"+".v");          
+            
+            //----------- creating a FK control system ------------------
+            int $JointConstraint = `checkBox -q -value cdkFKJointConstrainCB`;
+            for ($i=0; $i<$totalDupl-1; $i++){    
+                string $control []=`circle -r 0.5 -ch 0 -nr 1 0 0 -n ($name+"DynJnt"+($i+1)+"FKctrl")`;   
+                group -n ($control [0]+"DrvGrp");
+                group -n ($control [0]+"OffsetGrp");      
+                group -n ($control [0]+"Grp");      
+
+                string $constraint[] =`parentConstraint  ($name+"DynJnt"+($i+1)) ($control [0]+"Grp")`;           
+                delete $constraint[0] ;    
+
+                catch (`parent ($control [0]+"Grp") ($name+"DynJnt"+($i)+"FKctrl") `);
+                if(!$JointConstraint)
+                   catch (`parentConstraint  ($control [0])  $chainHierarchy[$i] `);    
+            }   
+            for ($i=1 ; $i<$totalDupl; $i++){
+                shadingNode -asUtility blendColors -n ($name + $i + "Dynamics_blendColors");
+                setAttr ($name + $i + "Dynamics_blendColors.color2") 0 0 0;
+                connectAttr -f ($DynCtrl+".dynamicsSwitch") ($name + $i + "Dynamics_blendColors.blender");
+                connectAttr -f ($name+"DynJnt"+$i+".rotate") ($name + $i + "Dynamics_blendColors.color1");
+                connectAttr -f ($name + $i + "Dynamics_blendColors.output") ($name+"DynJnt"+$i+"FKctrlOffsetGrp"+".rotate");
+                // orientConstraint -mo ($name+"DynJnt"+$i) ($name+"DynJnt"+$i+"FKctrlOffsetGrp") ;
+            }
+            
+            parent ($name+"ikHandle")($name+"ParentGrp");
+            parent ($name+"HairSystemfollicles")($name+"ParentGrp");
+            parent ($name+"DynJnt1FKctrlGrp")($name+"ParentGrp");
+            parent ($name+"DynJnt1")($name+"ParentGrp");
+
+            select -cl;      
+            
+            setAttr($name+"DynJnt1"+".visibility")0;
+            setAttr -lock true -keyable false -channelBox false ($name+"DynJnt1"+".visibility");
+            select -cl;
+            print "CDK dynamic chain Created Successfully !!"; 
+        }
+    } 
+}
+
+////////////////////////////////////////////////////////////////////////
+
+global proc cdkJointBake(int $mod)
+{
+    string $sel[] = `ls -sl`;
+    string $Offset[];
+    for($i=0;$i<size($sel);$i++){
+        string $enum[] = `attributeQuery -node $sel[$i] -listEnum "DynName"`;
+        string $EnumArray[] = stringToStringArray($enum[0], ":");
+        for($j=0;$j<size($EnumArray);$j++){
+            int $IsRef = `referenceQuery -isNodeReferenced $sel[$i]`;
+            if($IsRef){
+                string $namespace = `referenceQuery -namespace -shortName $sel[$i]`;
+                string $bakeGrp[] = `ls ($namespace + ":" + $EnumArray[$j] + "DynJnt*FKctrlOffsetGrp")`;
+                $Offset = stringArrayCatenate($Offset, $bakeGrp);
+            }
+            else{
+                string $bakeGrp[] = `ls ($EnumArray[$j] + "DynJnt*FKctrlOffsetGrp")`;
+                $Offset = stringArrayCatenate($Offset, $bakeGrp);
+            }
+        }
+    }
+    select $Offset;
+    if($mod == 0)
+        cdkJointBakeApply;
+    else if($mod == 1)
+        cdkJointUnBakeApply;
+    for($i=0;$i<size($sel);$i++){
+        if(`objExists ($sel[$i] + ".dynamicsOpen")`)
+            setAttr ($sel[$i] + ".dynamicsOpen") $mod;
+    }   
+}
+
+global proc cdkJointBakeApply()
+{
+    catch (`doBakeSimulationArgList 3 {"1","0","10","1","0","1","1","1","0","0","animation4nList","0"}`);  
+    select -cl;
+}
+
+global proc cdkJointUnBakeApply()
+{ 
+    string $groups []=`ls -sl -tr`;
+    for ($eachGrp in $groups){
+        cutKey -cl -t ":" -f ":" -at "tx" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "ty" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "tz" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "rx" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "ry" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "rz" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "sx" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "sy" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "sz" $eachGrp;
+        cutKey -cl -t ":" -f ":" -at "v" $eachGrp;
+    }
+    select -cl;
+}

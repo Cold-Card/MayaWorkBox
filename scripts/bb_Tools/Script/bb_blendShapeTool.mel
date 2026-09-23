@@ -1,0 +1,269 @@
+//Author  :   LiuBen
+//Date    :   03/21/2019
+//Fix     :   02/21/2020   修正多个target添加时，添加不上去的BUG。
+//Fix     :   07/25/2020   改窗口，可以最小化。
+//Fix     :   10/10/2020   修正BS序列不连续时，造成的各种bug。
+global proc bb_blendShapeTool()
+{    
+    if (`window -q -exists bb_blendShapeToolWindow`) deleteUI bb_blendShapeToolWindow;
+    window -title "blendShape工具" bb_blendShapeToolWindow; 
+        formLayout bb_BS_form;
+            columnLayout -adjustableColumn true bb_BS_nameLayout;
+                button -l "加载模型" -bgc 0.9 0.9 0.5 -c bb_BS_reloadBlendShape bb_BS_name;
+            setParent ..;
+            treeView -abr false bb_BS_TV;
+            button -l "添加In-between" -bgc 0.44 0.93 0.44 -c bb_BS_inBetween bb_BS_inBetweenAdd;
+            floatSliderGrp -columnWidth2 40 80 -field true -minValue 0.0 -maxValue 1.0 -value 0.5 -step 0.001 bb_BS_FSG;
+            button -l "添加" -h 40 -bgc 0.1 0.1 0.1 -c bb_BS_apply  bb_BS_Add;
+            
+            formLayout -edit
+            -attachForm     "bb_BS_nameLayout"     "top"    5
+            -attachForm     "bb_BS_nameLayout"     "left"   5
+            -attachForm     "bb_BS_nameLayout"     "right"  5
+
+            -attachControl  "bb_BS_TV"     "top"    5  "bb_BS_nameLayout"
+            -attachForm     "bb_BS_TV"     "left"   5
+            -attachForm     "bb_BS_TV"     "right"  5
+            -attachControl  "bb_BS_TV"     "bottom" 5  "bb_BS_FSG"
+
+            //-attachControl  "bb_BS_FSG"     "top"    5  "bb_BS_TV"
+            -attachForm     "bb_BS_FSG"     "left"   5  
+            -attachForm     "bb_BS_FSG"     "right"  100
+            -attachControl  "bb_BS_FSG"     "bottom" 5  "bb_BS_Add"
+
+            //-attachControl  "bb_BS_inBetweenAdd"     "top"    5  "bb_BS_TV"
+            -attachControl  "bb_BS_inBetweenAdd"     "left"   5  "bb_BS_FSG"
+            -attachForm     "bb_BS_inBetweenAdd"     "right"  5
+            -attachControl  "bb_BS_inBetweenAdd"     "bottom" 5  "bb_BS_Add"
+            
+            -attachForm     "bb_BS_Add"     "left"   5  
+            -attachForm     "bb_BS_Add"     "bottom" 5
+            -attachForm     "bb_BS_Add"     "right"  5
+            bb_BS_form;
+            popupMenu -p "bb_BS_TV";
+                menuItem -label "导出" -c "bb_BS_regenerate(0)";
+                menuItem -label "导出全部" -c "bb_BS_regenerate(1)";
+                menuItem -divider true;
+                menuItem -label "删除" -c bb_BS_delete;
+                menuItem -divider true;
+                menuItem -label "全部展开" -c "bb_BS_expandItem(1)";
+                menuItem -label "全部收起" -c "bb_BS_expandItem(0)";
+    showWindow bb_blendShapeToolWindow;
+}
+bb_blendShapeTool;
+
+global string $bb_BS_targetList[];
+global string $bb_BS_baseObject;
+global proc bb_BS_reloadBlendShape()
+{
+    global string $bb_BS_baseObject;  
+	string $getSelection[] = `ls -sl`;
+	if (size($getSelection)>0 && (`nodeType $getSelection[0]` == "transform")){
+	    $bb_BS_baseObject = $getSelection[0];
+	    string $bindListHs[] = `listHistory -gl 1 -pdo 1 $getSelection[0]`;
+	    for($i=0;$i<size($bindListHs);$i++){
+	        if(`nodeType $bindListHs[$i]`=="blendShape"){
+	            button -e -l $bindListHs[$i] bb_BS_name;
+                bb_BS_blendShapeList($bindListHs[$i]);
+                bb_BS_inBetweenList($bindListHs[$i]);
+                break;
+            }
+	    }
+	}
+}
+
+global proc bb_BS_blendShapeList(string $blendShape)
+{
+    global string $bb_BS_targetList[];
+    clear $bb_BS_targetList;
+    treeView -edit -removeAll bb_BS_TV;
+    string $attrs[] = `aliasAttr -q $blendShape`;
+    for ($i=0; $i<size($attrs); ++$i){
+        if ($i%2 == 0){
+            int $wordSize = sizeBytes($attrs[$i+1]);
+            string $listStr = `substring $attrs[$i+1] 8 ($wordSize-1)`;
+            int $list = $listStr;
+            $bb_BS_targetList[$list] = $attrs[$i];
+        }
+    }
+    for ($i=0; $i<size($bb_BS_targetList); ++$i){
+        if($bb_BS_targetList[$i] != ""){
+            treeView -edit -addItem $bb_BS_targetList[$i] "" bb_BS_TV;
+        }
+    }
+}
+
+global proc bb_BS_inBetweenList(string $blendShape)
+{
+    global string $bb_BS_targetList[];
+    string $inputGeomTarget[] = `listAttr -multi -string "inputGeomTarget" $blendShape`;
+    for($i=0;$i<size($inputGeomTarget);$i++){
+        string $inputConstitute[] = stringToStringArray($inputGeomTarget[$i], ".");
+        int $wordSize = sizeBytes($inputConstitute[2]);
+        string $TargetItemStr = `substring $inputConstitute[2] 17 ($wordSize-1)`;
+        int $TargetItem = $TargetItemStr;
+        if($TargetItem < 6000){
+            $wordSize = sizeBytes($inputConstitute[1]);
+            string $TargetGroupStr = `substring $inputConstitute[1] 18 ($wordSize-1)`;
+            int $TargetGroup = $TargetGroupStr;
+            float $inBetween = ($TargetItem-5000)/1000.00;
+            string $inBetweenStr = $inBetween;
+            treeView -edit -addItem ($bb_BS_targetList[$TargetGroup] + "_" + $inBetween )$bb_BS_targetList[$TargetGroup] bb_BS_TV;
+        }    
+    }
+}
+
+global proc bb_BS_apply()
+{
+    global string $bb_BS_baseObject;
+    global string $bb_BS_targetList[];
+    string $blendshape = `button -q -l bb_BS_name`;
+    string $sel[] = `ls -sl`;
+    int $num = 0;
+    for($i=0;$i<size($sel);$i++){
+        string $name[] = stringToStringArray($sel[$i], "|");
+        if(stringArrayContains($name[size($name)-1], $bb_BS_targetList)){
+            string $shape[] = `listRelatives -s -path $sel[$i]`;
+            string $inputTargetGroup = `treeView -q -itemIndex $name[size($name)-1] bb_BS_TV`;
+            connectAttr -f ($shape[0]+".worldMesh[0]") ($blendshape+".inputTarget[0].inputTargetGroup["+$inputTargetGroup+"].inputTargetItem[6000].inputGeomTarget");
+        }
+        else{
+            $num += 1;
+            int $index = size($bb_BS_targetList) + $num;
+            blendShape -e -t $bb_BS_baseObject $index $sel[$i] 1 $blendshape;
+        }
+    }
+    bb_BS_blendShapeList($blendshape);
+    bb_BS_inBetweenList($blendshape);
+}
+
+global proc bb_BS_inBetween()
+{
+    global string $bb_BS_baseObject;
+    global string $bb_BS_targetList[];
+    string $blendshape = `button -q -l bb_BS_name`;
+    string $sel[] = `ls -sl`;
+    string $item[] = `treeView -q -selectItem bb_BS_TV`;
+    float $inBetweenWeight = `floatSliderGrp -q -value bb_BS_FSG`;
+    if(size($item)){
+        if(`treeView -q -itemParent $item[0] bb_BS_TV` == ""){
+            for($i=0;$i<size($bb_BS_targetList);$i++){
+                if($item[0] == $bb_BS_targetList[$i]){
+                    blendShape -e -ib -t $bb_BS_baseObject $i $sel[0] $inBetweenWeight $blendshape;
+                    break;
+                }
+            }
+        }
+    }
+    bb_BS_blendShapeList($blendshape);
+    bb_BS_inBetweenList($blendshape);
+}
+
+global proc bb_BS_delete()
+{
+    global string $bb_BS_targetList[];
+    string $blendshape = `button -q -l bb_BS_name`;
+    string $item[] = `treeView -q -selectItem  bb_BS_TV`;
+    for($i=0;$i<size($item);$i++){
+        for($j=0;$j<size($bb_BS_targetList);$j++){
+            string $parent = `treeView -q -itemParent $item[$i] bb_BS_TV`;
+            float $inBetween;
+            if($parent == ""){
+                if($item[$i] == $bb_BS_targetList[$j]){
+                    blendShapeDeleteTargetGroup $blendshape $j;
+                }
+            }
+            else{
+                string $inBetweenTarget[] = stringToStringArray($item[$i], "_");
+                float $inbetweenWeight = $inBetweenTarget[size($inBetweenTarget)-1];
+                $inBetween = $inbetweenWeight*1000+5000;
+                if($parent == $bb_BS_targetList[$j]){
+                   blendShapeDeleteInBetweenTarget $blendshape $j $inBetween;
+                }
+            }
+        }
+    }
+    bb_BS_blendShapeList($blendshape);
+    bb_BS_inBetweenList($blendshape);
+}
+
+global proc bb_BS_expandItem(int $mode)
+{
+    global string $bb_BS_targetList[];
+    string $null[] = {""};
+    string $targetListFix[] = stringArrayRemove($null, $bb_BS_targetList);
+    for($i=0;$i<size($targetListFix);$i++){
+        treeView -edit -expandItem $targetListFix[$i] $mode bb_BS_TV;
+    } 
+}
+
+
+global proc bb_BS_regenerate(int $mode)
+{
+    global string $bb_BS_targetList[];
+    string $blendshape = `button -q -l bb_BS_name`;
+    if(!`objExists ($blendshape+"_targetGrp")`){
+        createNode "transform" -n ($blendshape+"_targetGrp");
+    }
+    if($mode == 0){
+        string $selItem[] = `treeView -q -selectItem bb_BS_TV`;
+        for($i=0;$i<size($selItem);$i++){
+            for($j=0;$j<size($bb_BS_targetList);$j++){
+                string $parent = `treeView -q -itemParent $selItem[$i] bb_BS_TV`;
+                string $targetName;
+                float $inBetween;
+                if($parent == ""){
+                    $targetName = $selItem[$i];
+                    $inBetween = 6000;
+                }
+                else{
+                    $targetName = $parent;
+                    string $inBetweenTarget[] = stringToStringArray($selItem[$i], "_");
+                    float $inbetweenWeight = $inBetweenTarget[size($inBetweenTarget)-1];
+                    $inBetween = $inbetweenWeight*1000+5000;
+                }
+                if($targetName == $bb_BS_targetList[$j]){
+                    bb_BS_regenerateApply($j,$inBetween,$blendshape,$selItem[$i]);
+                }
+            }
+        }
+    }
+    else if($mode == 1){
+        for($i=0;$i<size($bb_BS_targetList);$i++){
+            if(size($bb_BS_targetList[$i])){
+                string $inBetweenTarget[] = `treeView -q -children $bb_BS_targetList[$i] bb_BS_TV`;
+                bb_BS_regenerateApply($i,6000,$blendshape,$bb_BS_targetList[$i]);
+                if(size($inBetweenTarget)>1){
+                    for($j=1;$j<size($inBetweenTarget);$j++){
+                        string $inBetweenTargetArray[] = stringToStringArray($inBetweenTarget[$j], "_");
+                        float $inbetweenWeight = $inBetweenTargetArray[size($inBetweenTargetArray)-1];
+                        bb_BS_regenerateApply($i,($inbetweenWeight*1000+5000),$blendshape,$inBetweenTarget[$j]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+global proc bb_BS_regenerateApply(int $index,int $inputTargetItem,string $blendshape,string $targetName)
+{
+    string $conAttr = $blendshape + ".inputTarget[0].inputTargetGroup["+$index+"].inputTargetItem["+$inputTargetItem+"].inputGeomTarget";
+    string $targetExists[] = `listConnections -d off -s on $conAttr`;
+    if(!size($targetExists)){
+        if($inputTargetItem == 6000){
+            string $reTarget[] = `sculptTarget -e -regenerate true -target $index $blendshape`;
+            parent $reTarget[0] ($blendshape+"_targetGrp");
+            rename $reTarget[0] $targetName;
+        }
+        else{
+            string $inbetweenName = substituteAllString($targetName, "0.", "");
+            float $inbetweenWeight = ($inputTargetItem-5000)/1000.00;
+            string $reTarget[] = `sculptTarget -e -regenerate true -target $index -inbetweenWeight $inbetweenWeight $blendshape`;
+            parent $reTarget[0] ($blendshape+"_targetGrp");
+            rename $reTarget[0] $inbetweenName;
+        }
+    }
+    else{
+        select -r $targetExists;
+    }
+}

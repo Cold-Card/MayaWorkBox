@@ -1,0 +1,327 @@
+{
+    "cEyeA": [
+        "L_eyeild_joint1",
+        "L_eyeild_joint2",
+        "L_eyeild_joint3",
+        "L_eyeild_joint4"
+    ],
+    "cEyeB": [
+        "in_L_eyeild_joint1",
+        "in_L_eyeild_joint2",
+        "in_L_eyeild_joint3",
+        "in_L_eyeild_joint4"
+    ],
+    "cEyebrows": [
+        "L_eyebrow_joint6"
+    ],
+    "dnEyeA": [
+        "L_dn_eyeild_joint1",
+        "L_dn_eyeild_joint2",
+        "L_dn_eyeild_joint3"
+    ],
+    "dnEyeB": [
+        "in_L_dn_eyeild_joint1",
+        "in_L_dn_eyeild_joint2",
+        "in_L_dn_eyeild_joint3"
+    ],
+    "dnMain": "dn_face_main_joint",
+    "dnMainCheek": [
+        "L_cheek_joint8",
+        "L_cheek_joint9",
+        "L_cheek_joint10",
+        "L_cheek_joint15",
+        "C_cheek_joint1",
+        "L_cheek_joint16",
+        "C_cheek_joint2"
+    ],
+    "dnMainEyeA": "L_dn_eyeild_main_joint",
+    "dnMainEyeB": "in_L_dn_eyeild_main_joint",
+    "dnOralCavity": [
+        "C_dn_oralCavity_joint2",
+        "L_dn_oralCavity_joint2",
+        "L_dn_oralCavity_joint6"
+    ],
+    "dnTeeth": "dn_teeth_joint",
+    "eyebrows": [
+        "L_eyebrow_joint1",
+        "L_eyebrow_joint2",
+        "L_eyebrow_joint3"
+    ],
+    "jawCtrl": "jaw_ctrl",
+    "main": "face_main_joint",
+    "mainCheek": [
+        "L_cheek_joint11",
+        "L_cheek_joint12",
+        "L_cheek_joint2",
+        "L_cheek_joint1",
+        "L_cheek_joint5",
+        "L_cheek_joint14",
+        "C_cheek_joint"
+    ],
+    "mainEye": "L_eyeild_main_joint",
+    "mainEyebrow": "L_eyebrow_main_joint",
+    "mainNose": "nose_main_joint",
+    "mirror": [
+        "L_cheek_joint10",
+        "L_cheek_joint15",
+        "L_up_mouth_joint10",
+        "L_dn_oralCavity_joint6",
+        "L_cheek_main_joint",
+        "L_up_oralCavity_joint4",
+        "L_main_up_mouth_joint2",
+        "L_cheek_joint7",
+        "L_cheek_joint16",
+        "L_main_mouth_joint",
+        "L_eyebrow_joint6",
+        "L_cheek_joint8",
+        "L_up_mouth_joint9",
+        "L_dn_mouth_joint10",
+        "L_up_mouth_joint8",
+        "L_cheek_joint9",
+        "L_nose_joint4",
+        "L_dn_mouth_joint11",
+        "L_main_dn_mouth_joint2",
+        "L_dn_mouth_joint9",
+        "L_up_mouth_joint11",
+        "L_main_up_mouth_joint1",
+        "L_dn_mouth_joint8",
+        "L_main_dn_mouth_joint1",
+        "L_eyeild_main_joint",
+        "L_up_oralCavity_joint8",
+        "L_dn_oralCavity_joint2",
+        "L_eyebrow_main_joint",
+        "L_eye_joint"
+    ],
+    "noses": [
+        "C_nose_joint4",
+        "L_nose_joint4",
+        "C_nose_joint1",
+        "C_none_joint2",
+        "L_nose_joint5",
+        "L_nose_joint6"
+    ],
+    "replaceStr": [
+        "L_",
+        "R_"
+    ],
+    "select": {
+        "dn cheek": [
+            "C_cheek_joint2",
+            "C_cheek_joint1",
+            "L_cheek_joint8",
+            "L_cheek_joint10",
+            "L_cheek_joint15",
+            "L_cheek_joint7",
+            "L_cheek_joint16",
+            "L_cheek_joint9",
+            "R_cheek_joint8",
+            "R_cheek_joint10",
+            "R_cheek_joint15",
+            "R_cheek_joint7",
+            "R_cheek_joint16",
+            "R_cheek_joint9"
+        ],
+        "dn mouth": [
+            "L_dn_mouth_joint11",
+            "L_dn_mouth_joint10",
+            "L_dn_mouth_joint9",
+            "L_dn_mouth_joint8",
+            "C_dn_mouth_joint1",
+            "R_dn_mouth_joint8",
+            "R_dn_mouth_joint9",
+            "R_dn_mouth_joint10",
+            "R_dn_mouth_joint11"
+        ],
+        "dn oralCavity": [
+            "L_dn_oralCavity_joint6",
+            "L_dn_oralCavity_joint2",
+            "C_dn_oralCavity_joint2",
+            "R_dn_oralCavity_joint2",
+            "R_dn_oralCavity_joint6"
+        ],
+        "eye": [
+            "L_eye_joint",
+            "R_eye_joint"
+        ],
+        "eyebrow": [
+            "L_eyebrow_joint3",
+            "L_eyebrow_joint2",
+            "L_eyebrow_joint1",
+            "L_eyebrow_joint6",
+            "R_eyebrow_joint6",
+            "R_eyebrow_joint1",
+            "R_eyebrow_joint2",
+            "R_eyebrow_joint3",
+            "C_none_joint3"
+        ],
+        "eyeild": [
+            "L_eyeild_joint3",
+            "L_up_eyeild_joint3",
+            "L_up_eyeild_joint2",
+            "L_up_eyeild_joint1",
+            "L_eyeild_joint4",
+            "L_eyeild_joint1",
+            "L_dn_eyeild_joint1",
+            "L_dn_eyeild_joint2",
+            "L_dn_eyeild_joint3",
+            "L_eyeild_joint2"
+        ],
+        "in eyeild": [
+            "in_L_eyeild_joint3",
+            "in_L_up_eyeild_joint3",
+            "in_L_up_eyeild_joint2",
+            "in_L_up_eyeild_joint1",
+            "in_L_eyeild_joint4",
+            "in_L_eyeild_joint1",
+            "in_L_dn_eyeild_joint1",
+            "in_L_dn_eyeild_joint2",
+            "in_L_dn_eyeild_joint3",
+            "in_L_eyeild_joint2"
+        ],
+        "nose": [
+            "C_nose_joint4",
+            "C_nose_joint1",
+            "C_none_joint2",
+            "L_nose_joint4",
+            "R_nose_joint4"
+        ],
+        "teeth": [
+            "up_teeth_joint",
+            "dn_teeth_joint"
+        ],
+        "tongue": [
+            "tongue_joint1",
+            "tongue_joint2",
+            "tongue_joint3",
+            "tongue_joint4",
+            "tongue_joint5",
+            "tongue_joint6"
+        ],
+        "up cheek": [
+            "C_cheek_joint",
+            "L_cheek_joint11",
+            "L_cheek_joint12",
+            "L_cheek_joint2",
+            "L_cheek_joint14",
+            "L_cheek_joint1",
+            "L_cheek_joint5",
+            "L_cheek_joint6",
+            "R_cheek_joint11",
+            "R_cheek_joint12",
+            "R_cheek_joint2",
+            "R_cheek_joint14",
+            "R_cheek_joint1",
+            "R_cheek_joint5",
+            "R_cheek_joint6"
+        ],
+        "up mouth": [
+            "L_up_mouth_joint11",
+            "L_up_mouth_joint10",
+            "L_up_mouth_joint9",
+            "L_up_mouth_joint8",
+            "C_up_mouth_joint2",
+            "R_up_mouth_joint8",
+            "R_up_mouth_joint9",
+            "R_up_mouth_joint10",
+            "R_up_mouth_joint11"
+        ],
+        "up nose": [
+            "C_none_joint3"
+        ],
+        "up oralCavity": [
+            "L_up_oralCavity_joint8",
+            "L_up_oralCavity_joint4",
+            "C_up_oralCavity_joint4",
+            "R_up_oralCavity_joint4",
+            "R_up_oralCavity_joint8"
+        ]
+    },
+    "tongues": [
+        "tongue_joint1",
+        "tongue_joint2",
+        "tongue_joint3",
+        "tongue_joint4",
+        "tongue_joint5"
+    ],
+    "upEyeA": [
+        "L_up_eyeild_joint1",
+        "L_up_eyeild_joint2",
+        "L_up_eyeild_joint3"
+    ],
+    "upEyeB": [
+        "in_L_up_eyeild_joint1",
+        "in_L_up_eyeild_joint2",
+        "in_L_up_eyeild_joint3"
+    ],
+    "upMain": "up_face_main_joint",
+    "upMainEyeA": "L_up_eyeild_main_joint",
+    "upMainEyeB": "in_L_up_eyeild_main_joint",
+    "upNoses": [
+        "C_none_joint3"
+    ],
+    "upOralCavity": [
+        "C_up_oralCavity_joint4",
+        "L_up_oralCavity_joint4",
+        "L_up_oralCavity_joint8"
+    ],
+    "upTeeth": "up_teeth_joint",
+    "zipper": {
+        "dnCheek": [
+            "L_cheek_joint7",
+            "R_cheek_joint7"
+        ],
+        "grpDn2": [
+            "L_main_dn_mouth_joint2",
+            "L_main_dn_mouth_joint1",
+            "C_main_dn_mouth_joint1",
+            "R_main_dn_mouth_joint1",
+            "R_main_dn_mouth_joint2"
+        ],
+        "grpUp2": [
+            "L_main_up_mouth_joint2",
+            "L_main_up_mouth_joint1",
+            "C_main_up_mouth_joint1",
+            "R_main_up_mouth_joint1",
+            "R_main_up_mouth_joint2"
+        ],
+        "jaw": "jaw_joint",
+        "jawFather": "dn_face_main_joint",
+        "lDn": [
+            "L_cheek_joint7",
+            "L_dn_mouth_joint11",
+            "L_dn_mouth_joint10",
+            "L_dn_mouth_joint9",
+            "L_dn_mouth_joint8",
+            "C_dn_mouth_joint1"
+        ],
+        "lUp": [
+            "L_cheek_joint6",
+            "L_up_mouth_joint11",
+            "L_up_mouth_joint10",
+            "L_up_mouth_joint9",
+            "L_up_mouth_joint8",
+            "C_up_mouth_joint2"
+        ],
+        "mouthCenter": "mouth_main_joint",
+        "rDn": [
+            "R_cheek_joint7",
+            "R_dn_mouth_joint11",
+            "R_dn_mouth_joint10",
+            "R_dn_mouth_joint9",
+            "R_dn_mouth_joint8",
+            "C_dn_mouth_joint1"
+        ],
+        "rUp": [
+            "R_cheek_joint6",
+            "R_up_mouth_joint11",
+            "R_up_mouth_joint10",
+            "R_up_mouth_joint9",
+            "R_up_mouth_joint8",
+            "C_up_mouth_joint2"
+        ],
+        "upCheek": [
+            "L_cheek_joint6",
+            "R_cheek_joint6"
+        ]
+    }
+}

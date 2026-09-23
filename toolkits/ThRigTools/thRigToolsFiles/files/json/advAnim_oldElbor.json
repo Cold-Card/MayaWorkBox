@@ -1,0 +1,56 @@
+{
+    "IKFKCtrl": [
+        "FKIKLeg_R",
+        "FKIKArm_R",
+        "FKIKSpine_M"
+    ],
+    "base": [
+        "Base",
+        "Base"
+    ],
+    "label": {
+        "FKAnkle_R": "RightFoot",
+        "FKChest_M": "Spine4",
+        "FKElbow_R": "RightForeArm",
+        "FKHead_M": "Head",
+        "FKHip_R": "RightUpLeg",
+        "FKIndexFinger1_R": "RightInHandIndex1",
+        "FKIndexFinger2_R": "RightInHandIndex2",
+        "FKIndexFinger3_R": "RightInHandIndex3",
+        "FKKnee_R": "RightLeg",
+        "FKMiddleFinger1_R": "RightInHandMiddle1",
+        "FKMiddleFinger2_R": "RightInHandMiddle2",
+        "FKMiddleFinger3_R": "RightInHandMiddle3",
+        "FKNeck_M": "Neck",
+        "FKPinkyFinger1_R": "RightInHandPinky1",
+        "FKPinkyFinger2_R": "RightInHandPinky2",
+        "FKPinkyFinger3_R": "RightInHandPinky3",
+        "FKRingFinger1_R": "RightInHandRing1",
+        "FKRingFinger2_R": "RightInHandRing2",
+        "FKRingFinger3_R": "RightInHandRing3",
+        "FKScapula_R": "RightShoulder",
+        "FKShoulder_R": "RightArm",
+        "FKSpine1_M": "Spine1",
+        "FKSpine2_M": "Spine2",
+        "FKSpine3_M": "Spine3",
+        "FKThumbFinger1_R": "RightHandThumb1",
+        "FKThumbFinger2_R": "RightHandThumb2",
+        "FKThumbFinger3_R": "RightHandThumb3",
+        "FKToes_R": "RightToeBase",
+        "FKWrist_R": "RightHand",
+        "RootX_M": "Hips"
+    },
+    "namespaceAS": "Elbor_rig:",
+    "namespaceMY": "",
+    "replaceStrAS": [
+        "_R",
+        "_L"
+    ],
+    "replaceStrMY": [
+        "Right",
+        "Left"
+    ],
+    "root": {
+        "RootX_M": "Hips"
+    }
+}

@@ -1,0 +1,38 @@
+{
+    "eyeAttrList": [],
+    "mouthAttrList": [
+        "sil",
+        "PP",
+        "FF",
+        "TH",
+        "DD",
+        "kk",
+        "CH",
+        "SS",
+        "nn",
+        "RR",
+        "aa",
+        "E",
+        "I",
+        "O",
+        "U"
+    ],
+    "lr": [],
+    "lrMirrorList": [
+        "E_oculus_ctrl.tx",
+        "nn_oculus_ctrl.tx",
+        "kk_oculus_ctrl.tx",
+        "aa_oculus_ctrl.tx",
+        "sil_oculus_ctrl.tx",
+        "FF_oculus_ctrl.tx",
+        "I_oculus_ctrl.tx",
+        "SS_oculus_ctrl.tx",
+        "TH_oculus_ctrl.tx",
+        "O_oculus_ctrl.tx",
+        "RR_oculus_ctrl.tx",
+        "U_oculus_ctrl.tx",
+        "PP_oculus_ctrl.tx",
+        "DD_oculus_ctrl.tx",
+        "CH_oculus_ctrl.tx"
+    ]
+}

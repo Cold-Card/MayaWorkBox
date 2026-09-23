@@ -86,4 +86,4 @@ if __name__ == '__main__':
     same_coned_attr = 'tz'
     coned_grp_lst = cmds.ls(sl=True)
     coned_ctrl_lst = cmds.ls(sl=True)
-    createSin(main_ctrl,coned_grp_lst,coned_ctrl_lst)
+    createSin(main_ctrl,coned_grp_lst,coned_ctrl_lst,same_coned_attr)

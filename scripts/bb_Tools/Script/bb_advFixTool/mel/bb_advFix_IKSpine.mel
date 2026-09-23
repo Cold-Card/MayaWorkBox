@@ -1,0 +1,169 @@
+global string $bb_advFix_SpineJoint[];
+global proc bb_advFix_IKSpineFix1()
+{
+    global string $bb_advFix_SpineJoint[];
+    $bb_advFix_SpineJoint = {"Chest_M"};
+    string $chest = "Chest_M";
+    string $curveCreate = "curve -d 3 ";
+    while($chest != "Root_M"){
+        string $spine[] = `listRelatives -parent $chest`;
+        float $t[] = `xform -q -ws -t $chest`;
+        $chest = $spine[0];
+        $bb_advFix_SpineJoint[size($bb_advFix_SpineJoint)] = $chest;
+        $curveCreate = $curveCreate + "-p " + $t[0] + " " + $t[1] + " " + $t[2] + " ";
+    }
+    if(!`objExists "bb_IKSpineFix"`) createNode "transform" -n "bb_IKSpineFix";
+    float $root_t[] = `xform -q -ws -t "Root_M"`;
+    $curveCreate = $curveCreate + "-p " + $root_t[0] + " " + $root_t[1] + " " + $root_t[2] + " ";
+    eval ($curveCreate + "-n bb_advFix_SpineCrv;");
+    rebuildCurve -ch 0 -rpo 1 -rt 0 -end 1 -kr 0 -kcp 0 -kep 1 -kt 0 -s 3 -d 3 -tol 6.10236e-10 "bb_advFix_SpineCrv";
+    reverseCurve -ch 0 -rpo 1 "bb_advFix_SpineCrv";
+    duplicate -rr -n "bb_advFix_SpineCrvSkin" "bb_advFix_SpineCrv";
+    createNode "transform" -n "bb_advFix_Spine_locGrp";
+    parent "bb_advFix_Spine_locGrp" "bb_advFix_SpineCrv" "bb_advFix_SpineCrvSkin" "bb_IKSpineFix";
+    string $spineJoint[];
+    for($i=0;$i<4;$i++){
+        string $loc = "bb_Spine_loc"+$i;
+        spaceLocator -p 0 0 0 -n $loc;
+        $spineJoint[$i] = `createNode "joint" -n ("bb_Spine_Joint"+$i)`;
+        parent ("bb_Spine_Joint"+$i) $loc;
+        parent $loc "bb_advFix_Spine_locGrp";
+        float $parameter = float($i)/3;
+        addAttr -ln "parameter" -at double  -min 0 -max 1 -dv $parameter $loc;
+        setAttr -e -keyable true ($loc + ".parameter");
+        string $infoNode = `pointOnCurve -ch on "bb_advFix_SpineCrv"`;
+        string $pointOnCurve = ("bb_advFix_SpineCrv_pointOnCurve"+$i);
+        rename $infoNode $pointOnCurve;
+        setAttr ($pointOnCurve + ".turnOnPercentage") 1;
+        connectAttr -f ($loc + ".parameter") ($pointOnCurve + ".parameter"); 
+        connectAttr -f ($pointOnCurve + ".position") ($loc + ".translate");
+        if($i == 0 || $i == 3)
+            setAttr ($loc + ".v") 0;
+        setAttr -lock true -keyable false -channelBox false ($loc + ".tx");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".ty");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".tz");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".rx");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".ry");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".rz");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".sx");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".sy");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".sz");
+        setAttr -lock true -keyable false -channelBox false ($loc + ".v");
+    }
+    select -r $spineJoint;
+    select -tgl "bb_advFix_SpineCrvSkin";
+    SmoothBindSkin;
+    string $bindListHs[] = `listHistory -gl 1 -pdo 1 "bb_advFix_SpineCrvSkin"`;
+    skinPercent -tv bb_Spine_Joint0 1 $bindListHs[0] bb_advFix_SpineCrvSkin.cv[0];
+    skinPercent -tv bb_Spine_Joint0 0.67 -tv bb_Spine_Joint1 0.33 $bindListHs[0] bb_advFix_SpineCrvSkin.cv[1];
+    skinPercent -tv bb_Spine_Joint1 1 $bindListHs[0] bb_advFix_SpineCrvSkin.cv[2];
+    skinPercent -tv bb_Spine_Joint2 1 $bindListHs[0] bb_advFix_SpineCrvSkin.cv[3];
+    skinPercent -tv bb_Spine_Joint2 0.33 -tv bb_Spine_Joint3 0.67 $bindListHs[0] bb_advFix_SpineCrvSkin.cv[4];
+    skinPercent -tv bb_Spine_Joint3 1 $bindListHs[0] bb_advFix_SpineCrvSkin.cv[5];
+    setAttr "FKIKSpine_M.autoVis" 0;
+    setAttr "FKIKSpine_M.FKVis" 0;
+    setAttr "FKIKSpine_M.IKVis" 0;
+    select -r bb_Spine_loc1 bb_Spine_loc2;
+}
+
+global proc bb_advFix_IKSpineFix2()
+{
+    global string $bb_advFix_SpineJoint[];
+    int $spineNum = size($bb_advFix_SpineJoint);
+    setAttr -lock false -keyable true -channelBox false "bb_advFix_SpineCrvSkin.tx";
+    duplicate -rr -n "bb_advFix_SpineCrvSkin1" "bb_advFix_SpineCrvSkin";
+    setAttr "bb_advFix_SpineCrvSkin1.tx" -0.5;
+    duplicate -rr -n "bb_advFix_SpineCrvSkin2" "bb_advFix_SpineCrvSkin";
+    setAttr "bb_advFix_SpineCrvSkin2.tx" 0.5;
+    loft -ch 0 -u 1 -c 0 -ar 1 -d 3 -ss 1 -rn 0 -po 0 -rsn true -n bb_Spine_Surf bb_advFix_SpineCrvSkin1 bb_advFix_SpineCrvSkin2;
+    string $Shape[] = `listRelatives -shapes "bb_Spine_Surf"`;
+    
+    string $FollicleArray[];//创建毛囊
+    for($i=0;$i<$spineNum;$i++){
+        if(!`objExists "bb_Spine_FollicleGrp"`)
+            createNode "transform" -n "bb_Spine_FollicleGrp";
+        string $follicleName = "bb_Spine" + ($i+1) + "_Follicle";
+        $FollicleArray[$i] = $follicleName;
+        string $follicleShape = `createNode follicle`;
+        string $follicle[] = `listRelatives -parent $follicleShape`;
+        connectAttr -f ($follicleShape+".outTranslate") ($follicle[0]+".translate");
+        connectAttr -f ($follicleShape+".outRotate") ($follicle[0]+".rotate");
+        connectAttr -f ($Shape[0]+".worldMatrix[0]") ($follicleShape+".inputWorldMatrix");
+        connectAttr -f ($Shape[0]+".local") ($follicleShape+".inputSurface");
+        
+        float $joint_t[] = `xform -q -ws -t $bb_advFix_SpineJoint[$spineNum-1-$i]`;
+        string $loc[] = `spaceLocator -p 0 0 0 -n ($bb_advFix_SpineJoint[$spineNum-1-$i] + "_loc")`;
+        setAttr ($loc[0] + ".t") $joint_t[0] $joint_t[1] $joint_t[2];
+        string $cpomNode = `createNode "closestPointOnSurface" -n ($bb_advFix_SpineJoint[$spineNum-1-$i] + "_CPS")`;
+        connectAttr -f ($Shape[0] + ".worldSpace") ($cpomNode + ".inputSurface");
+        connectAttr -f ($loc[0] + ".translate") ($cpomNode + ".inPosition");
+        //定位毛囊
+        float $parameterU = getAttr ($cpomNode + ".result.parameterU");
+        float $parameterV = 0.5;
+        setAttr ($follicleShape+".parameterU") $parameterU;
+        setAttr ($follicleShape+".parameterV") $parameterV;
+        setAttr ($follicleShape+".v") 0;
+        rename  $follicle[0] $follicleName;
+        parent $follicleName "bb_Spine_FollicleGrp";
+        connectAttr -f "Main.s" ($follicleName + ".s");
+        delete $cpomNode $loc;
+    }
+    for($i=1;$i<($spineNum-1);$i++){
+        delete ("IKOffsetcvSpine" + $i + "_M_parentConstraint1");
+        parentConstraint -mo -weight 1 $FollicleArray[$i] ("IKOffsetcvSpine"+$i+"_M");
+    }
+    //处理曲面权重
+    select -r bb_Spine_Joint0 bb_Spine_Joint1 bb_Spine_Joint2 bb_Spine_Joint3;
+    select -tgl "bb_Spine_Surf";
+    SmoothBindSkin;
+    string $bindListHs[] = `listHistory -gl 1 -pdo 1 "bb_Spine_Surf"`;
+    skinPercent -tv bb_Spine_Joint0 1 $bindListHs[0] bb_Spine_Surf.cv[0:1][0:3] ;
+    skinPercent -tv bb_Spine_Joint0 0.5 -tv bb_Spine_Joint1 0.5 $bindListHs[0] bb_Spine_Surf.cv[2][0:3] ;
+    skinPercent -tv bb_Spine_Joint1 0.5 -tv bb_Spine_Joint2 0.5 $bindListHs[0] bb_Spine_Surf.cv[3][0:3] ;
+    skinPercent -tv bb_Spine_Joint3 1 $bindListHs[0] bb_Spine_Surf.cv[4:5][0:3] ;
+    string $IKSpineLocatorEnd = "IKSpineLocator"+($spineNum-1)+"_M";
+    parent -w $IKSpineLocatorEnd IKSpine3LocalOrient1_M IKSpine3LocalStartOrient_M ;
+    parent -w IKSpineLocator0_M IKSpine1LocalOrient1_M ;
+    float $Joint2_t[] = `xform -q -ws -t "bb_Spine_Joint2"`;
+    float $Joint1_t[] = `xform -q -ws -t "bb_Spine_Joint1"`;
+    float $Joint0_t[] = `xform -q -ws -t "bb_Spine_Joint0"`;
+    xform -ws -t $Joint1_t[0] $Joint1_t[1] $Joint1_t[2] IKhybridOffsetSpine2_M;
+    xform -ws -t $Joint2_t[0] $Joint2_t[1] $Joint2_t[2] IKhybridOffsetSpine3_M;
+    move -r (($Joint1_t[0]-$Joint0_t[0])/2) (($Joint1_t[1]-$Joint0_t[1])/2) (($Joint1_t[2]-$Joint0_t[2])/2)
+         IKSpine1_M.scalePivot IKSpine1_M.rotatePivot ;
+    setAttr IKOffsetSpine3_M.v 0;
+    setAttr IKOffsetSpine2_M.v 0;
+    parent $IKSpineLocatorEnd IKSpine3LocalOrient1_M IKSpine3LocalStartOrient_M bb_Spine_Joint2 bb_Spine_Joint3 IKSpine3_M;
+    parent IKSpineLocator0_M IKSpine1LocalOrient1_M bb_Spine_Joint0 IKSpine1_M;
+    parent bb_Spine_Joint1 IKhybridSpine2_M;
+    duplicate -parentOnly -n "IKhybridOffsetSpine3_M1" IKhybridSpine2_M;
+    parent IKhybridOffsetSpine3_M IKhybridOffsetSpine3_M1;
+    parent IKhybridOffsetSpine3_M1 IKhybridSpine1_M;
+    orientConstraint -mo -weight 1 IKhybridSpine2_M IKhybridOffsetSpine3_M1;
+    duplicate -parentOnly -n "IKhybridOffsetSpine2_M1" "IKhybridOffsetSpine2_M";
+    //整理层级
+    addAttr -ln "ikCvVis" -at long  -min 0 -max 1 -dv 0 IKhybridSpine3_M;
+    setAttr -e -keyable false -channelBox true "IKhybridSpine3_M.ikCvVis";
+    addAttr -ln "volume" -at double  -min 0 -max 10 -dv 10 IKhybridSpine3_M;
+    setAttr -e -keyable true "IKhybridSpine3_M.volume";
+    connectAttr -f "IKhybridSpine3_M.ikCvVis" "IKSpine3_M.ikCvVis";
+    connectAttr -f "IKhybridSpine3_M.volume" "IKSpine3_M.volume";
+    delete bb_IKSpineFix;
+    if(!`objExists "bb_SpineSystem"`) createNode "transform" -n "bb_SpineSystem";
+    parent bb_Spine_Surf bb_Spine_FollicleGrp bb_SpineSystem;
+    setAttr -lock true "FKIKSpine_M.FKIKBlend" 10;
+    setAttr "FKIKSpine_M.autoVis" 1;
+    setAttr "FKIKSpine_M.FKVis" 1;
+    setAttr "FKIKSpine_M.IKVis" 1;
+    setAttr bb_SpineSystem.v 0;
+    setAttr FKIKParentConstraintSpine_M.v 0;
+    setAttr "IKhybridSpine1_MShape.overrideColor" 18;
+    setAttr "IKhybridSpine2_MShape.overrideColor" 18;
+    setAttr "IKhybridSpine3_MShape.overrideColor" 18;
+    setAttr "IKSpine1_M.FixedOrient" 10;
+    if(`objExists "Group"`) parent "bb_SpineSystem" "Group";
+}
+
+
+
+

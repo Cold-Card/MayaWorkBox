@@ -66,8 +66,10 @@ class MainUI():
     
     def create_window(self):
         window_name = 'WRL_BatchTool_window'
-        if pm.window(window_name,exists=True):
+        try:
             pm.deleteUI(window_name,window=True)
+        except RuntimeError:
+            pass
         self.window = pm.window(window_name,title='BatchTool '+WRL_BatchTool_version,s=True)
         
         pm.formLayout('sep_formLayout_ui')
@@ -421,7 +423,7 @@ class MainPY():
                     add_influence_jnts = [add_influence_jnt for add_influence_jnt in ref_skinJnts if add_influence_jnt not in mod_skinJnts]
                     pm.skinCluster(mod_skinNode, e=True, addInfluence=add_influence_jnts, wt=0)
                 #pm.select(referenced_model, modified_model,r=True)
-                pm.copySkinWeights(referenced_model, modified_model, nm=True, sa='closestPoint', ia='closestJoint')
+                pm.copySkinWeights(referenced_model, modified_model, nm=True, sa='closestPoint', ia=('label','closestJoint'))
                 #pm.mel.eval(self.CopySkinWeightsMel)
                 if pm.menuItem('remove_unused_influences_menuItem_ui',q=True,cb=True):
                     pm.skinCluster(mod_skinNode, e=True, rui=True)

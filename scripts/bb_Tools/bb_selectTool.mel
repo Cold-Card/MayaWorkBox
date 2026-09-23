@@ -1,0 +1,140 @@
+//Author  :   LiuBen
+//Date    :   10/29/2018
+//Fix    :    08/09/2019       修改重名选不上的问题
+global proc bb_selectTool()
+{
+    if (`window -q -exists bb_selectToolWindow`) deleteUI bb_selectToolWindow;
+    window -title "选择工具" bb_selectToolWindow;    
+        columnLayout -adjustableColumn true -columnAttach "both" 3;
+            rowLayout -numberOfColumns 2 -columnWidth2 150 80 ;
+                textField -w 150 -text "" bb_selectTool_nodeTypeTF;
+                button -w 80 -label "<<<载入节点" -bgc 1 0.95 0.5 -c bb_select_loadNode;  
+            setParent ..;
+            checkBox -label "tansform与shape合并计算" -v 1 bb_select_shapeCB;
+            rowLayout -numberOfColumns 3 -columnWidth3 80 80 80 ;
+                radioCollection modeChoose;
+                    radioButton -label "Hierarchy" mode_hierarchy;
+                    radioButton -label "Select" mode_select;
+                    radioButton -label "All" mode_all;
+                radioCollection -edit -select "mode_hierarchy" modeChoose;
+            setParent ..;
+            separator -height 10 -style "in"; 
+            rowLayout -numberOfColumns 2 -columnWidth2 115 115 ;
+                button -l "选择" -h 40 -w 115 -bgc 0.5 0.5 0.5 -c "bb_select_apply(0)";
+                button -l "反选" -h 40 -w 115 -bgc 0.1 0.1 0.1 -c "bb_select_apply(1)";
+            setParent ..;
+    showWindow bb_selectToolWindow;
+}
+bb_selectTool;
+
+global proc bb_select_loadNode()
+{
+    string $sel[] = `ls -sl`;
+    string $nodeArray[];
+    int $loadMode = `checkBox -q -v bb_select_shapeCB`;
+    for($i=0;$i<size($sel);$i++){
+        string $nodeType = `nodeType $sel[$i]`;
+        if($loadMode == 1){
+            if($nodeType == "transform"){
+                string $shapes[] = `listRelatives -s -path $sel[$i]`;
+                if(size($shapes)){
+                    string $newNodeType = `nodeType $shapes[0]`;
+                    $nodeArray[size($nodeArray)] = $newNodeType;
+                }
+                else{
+                    $nodeArray[size($nodeArray)] = "transform";
+                }
+            }
+            else{
+                $nodeArray[size($nodeArray)] = $nodeType;
+            }
+        }
+        else{
+            $nodeArray[size($nodeArray)] = $nodeType;
+        } 
+    }
+    $nodeArray = stringArrayRemoveDuplicates($nodeArray);
+    string $text = stringArrayToString($nodeArray, ", ");
+    textField -e -text $text bb_selectTool_nodeTypeTF;
+    //select -cl;
+}
+
+global proc bb_select_apply(int $applyMode)
+{
+    string $mode = `radioCollection -q -select modeChoose`;
+    string $allNode[],$allShape[];
+    if ($mode == "mode_all") {
+		$allNode = `ls -l`;
+		$allShape = `ls -shapes -l`;
+	} else if ($mode == "mode_select") {
+		$allNode = `ls -sl -l`;
+		$allShape = `ls -sl -shapes -l`;
+	} else if ($mode == "mode_hierarchy") {
+		$allNode = `ls -sl -dag -l`;
+		$allShape = `ls -sl -dag -shapes -l`;
+	}
+    string $text = `textField -q -text bb_selectTool_nodeTypeTF`;
+    if($text != ""){
+        string $nodeArray[] = stringToStringArray($text, ", ");
+        int $loadMode = `checkBox -q -v bb_select_shapeCB`;
+        string $select0[];
+        string $select1[];
+        for($i=0;$i<size($allNode);$i++){
+            string $nodeType = `nodeType $allNode[$i]`;
+            int $found;
+            if($loadMode == 1){
+                if($nodeType == "transform"){
+                    string $shapes[] = `listRelatives -s -path $allNode[$i]`;
+                    if(size($shapes)){
+                        string $shapeNodeType = `nodeType $shapes[0]`;
+                        $found = stringArrayContains($shapeNodeType, $nodeArray);
+                    }
+                    else{
+                        $found = stringArrayContains("transform", $nodeArray);
+                    }
+                    
+                    if($found == 1){
+                        $select0[size($select0)] = $allNode[$i];
+                    }
+                    else if($found == 0){
+                        $select1[size($select1)] = $allNode[$i];
+                    }
+                }
+                else{
+                    string $setNode[];
+                    if(stringArrayContains($allNode[$i], $allShape)){
+                        $setNode = `listRelatives -parent -path $allNode[$i]`;
+                    }
+                    else{
+                        $setNode[0] = $allNode[$i];
+                    }
+                    $found = stringArrayContains($nodeType, $nodeArray);
+                    if($found == 1){
+                        $select0[size($select0)] = $setNode[0];
+                    }
+                    else if($found == 0){
+                        $select1[size($select1)] = $setNode[0];
+                    }
+                }
+            }
+            else if($loadMode == 0){
+                $found = stringArrayContains($nodeType, $nodeArray);
+                if($found == 1){
+                    $select0[size($select0)] = $allNode[$i];
+                }
+                else if($found == 0){
+                    $select1[size($select1)] = $allNode[$i];
+                }
+            }
+        }
+        $select0 = stringArrayRemoveDuplicates($select0);
+        $select1 = stringArrayRemoveDuplicates($select1);
+        select -cl;
+        if($applyMode == 0){
+            select -r $select0;
+        }
+        else if($applyMode == 1){
+            select -r $select1;
+        }  
+    }
+}

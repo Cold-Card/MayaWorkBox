@@ -1,0 +1,57 @@
+{
+    "IKFKCtrl": [],
+    "base": [
+        "Base",
+        "Base"
+    ],
+    "label": {
+        "ball_r_drv": "ball_r",
+        "calf_r_drv": "calf_r",
+        "clavicle_r_drv": "clavicle_r",
+        "foot_r_drv": "foot_r",
+        "hand_r_drv": "hand_r",
+        "head_drv": "head",
+        "index_01_r_drv": "index_01_r",
+        "index_02_r_drv": "index_02_r",
+        "index_03_r_drv": "index_03_r",
+        "index_metacarpal_r_drv": "index_metacarpal_r",
+        "lowerarm_r_drv": "lowerarm_r",
+        "middle_01_r_drv": "middle_01_r",
+        "middle_02_r_drv": "middle_02_r",
+        "middle_03_r_drv": "middle_03_r",
+        "middle_metacarpal_r_drv": "middle_metacarpal_r",
+        "neck_01_drv": "neck_01",
+        "pelvis_drv": "pelvis",
+        "pinky_01_r_drv": "pinky_01_r",
+        "pinky_02_r_drv": "pinky_02_r",
+        "pinky_03_r_drv": "pinky_03_r",
+        "pinky_metacarpal_r_drv": "pinky_metacarpal_r",
+        "ring_01_r_drv": "ring_01_r",
+        "ring_02_r_drv": "ring_02_r",
+        "ring_03_r_drv": "ring_03_r",
+        "ring_metacarpal_r_drv": "ring_metacarpal_r",
+        "spine_01_drv": "spine_01",
+        "spine_02_drv": "spine_02",
+        "spine_03_drv": "spine_03",
+        "spine_04_drv": "spine_04",
+        "spine_05_drv": "spine_05",
+        "thigh_r_drv": "thigh_r",
+        "thumb_01_r_drv": "thumb_01_r",
+        "thumb_02_r_drv": "thumb_02_r",
+        "thumb_03_r_drv": "thumb_03_r",
+        "upperarm_r_drv": "upperarm_r"
+    },
+    "namespaceAS": "",
+    "namespaceMY": "",
+    "replaceStrAS": [
+        "_r",
+        "_l"
+    ],
+    "replaceStrMY": [
+        "_r",
+        "_l"
+    ],
+    "root": {
+        "pelvis_drv": "pelvis"
+    }
+}

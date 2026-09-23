@@ -16,11 +16,25 @@ def createNode(nodeType,nodeName,editData={}):
             print('{} 没有属性：{}'.format(nodeName,attrName))
     return nodeName
     
-def addAttr(nodeName,attrName,spaces=[]): 
-    if not nodeName.hasAttr(attrName):
-        enum=':'.join(spaces)
-        nodeName.addAttr(attrName,at='enum',enumName=enum,k=True)
-    return nodeName.attr(attrName)
+def addAttr(nodeName,attrName,minValue=None, maxValue=None, keyable=True, attributeType="float", defaultValue=0,enumName=None): 
+    if pm.objExists(nodeName):
+        nodeName = pm.PyNode(nodeName)
+        if not nodeName.hasAttr(attrName):
+            if enumName is not None:
+                pm.addAttr(nodeName,longName=attrName, enumName=enumName, keyable=keyable, attributeType=attributeType, defaultValue=defaultValue)
+            elif minValue is not None and maxValue is not None:
+                pm.addAttr(nodeName,longName=attrName, minValue=minValue, maxValue=maxValue, keyable=keyable, attributeType=attributeType, defaultValue=defaultValue)
+            elif minValue is not None:
+                pm.addAttr(nodeName,longName=attrName, minValue=minValue, keyable=keyable, attributeType=attributeType, defaultValue=defaultValue)
+            elif maxValue is not None:
+                pm.addAttr(nodeName,longName=attrName, maxValue=maxValue, keyable=keyable, attributeType=attributeType, defaultValue=defaultValue)
+            else:
+                pm.addAttr(nodeName,longName=attrName, keyable=keyable, attributeType=attributeType, defaultValue=defaultValue)
+            if not keyable:
+                pm.setAttr(f'{nodeName}.{attrName}', e=True, channelBox=True)
+        return nodeName.attr(attrName)
+    else:
+        print('{} 不存在'.format(nodeName))
     
 def get_relative_matrix(objA, objB):
     """
@@ -60,47 +74,50 @@ def setSDK(drivers,drivens,timeLists,drivenValues):
                 value=drivenValue[idx]
             )
 
-spaceData = {
-    'Main':'MainExtra2',
-    'Root':'RootX_M',
-    'Chest':'Chest_M'
-}
 
-def createGlobalSpace(ctrlName,spaces=spaceData):
-    if not spaces:
-        pm.warning('No Space')
-        return
-    partsName = ctrlName.split('_')[0][2:]
-    #print(partsName)
-    side = '_' + ctrlName.split('_')[1]
-    fkGlobalGrp = 'FKGlobal' + partsName + side
-    if not pm.objExists(fkGlobalGrp):
-        pm.warning('No Global Grp')
-        return
-    globalSpaceAttr = addAttr(ctrlName,'globalSpace',list(spaces.keys()))
-    fkGlobalMM = pm.PyNode('FKGlobal' + partsName + 'MM' + side)
-    spaceBM = createNode('blendMatrix','FKGlobalSpace' + partsName + 'BM' + side)
-    timeLists = []
-    for a in range(0,len(list(spaces.items()))):
-        timeLists.append(a)
-    #print(timeLists)
-    for i, space in enumerate(list(spaces.keys())):
-        followObj = pm.PyNode(list(spaces.items())[i][1])
-        #print(followObj)
-        spaceMM = createNode('multMatrix','FKGlobalSpace' + space + partsName + 'MM' + side)
-        rel_mat = get_relative_matrix('Main',followObj)
-        spaceMM.matrixIn[0].set(rel_mat)
-        followObj.worldMatrix[0] >> spaceMM.matrixIn[1]
-        spaceMM.matrixSum >> spaceBM.target[i].targetMatrix
-        drivenValues = [0,0,0]
-        drivenValues[i] = 1
-        #print(drivenValues)
-        setSDK([globalSpaceAttr],[spaceBM.target[i].weight],[timeLists],[drivenValues])
-    spaceBM.outputMatrix >> fkGlobalMM.matrixIn[1]
+def createGlobalSpace(spaceObj_list_data,drivenObj_list,drivenGroup_list,ctrl_list):
+    for index, drivenObj in enumerate(drivenObj_list):
+        drivenBM = createNode('blendMatrix',drivenObj + '_globalSpace_BM')
+        ioBM = createNode('blendMatrix',drivenObj + '_globalSpace_io_BM')
+        drivenMM = createNode('multMatrix',drivenObj + '_globalSpace_MM')
+        drivenPM = createNode('pickMatrix',drivenObj + '_globalSpace_PM',{'useTranslate':0,'useRotate':1,'useScale':0,'useShear':0})
+        drivenObj_mat = pm.xform(drivenObj, q=True, ws=True, matrix=True)
+        drivenMM.matrixIn[0].set(drivenObj_mat)
+        drivenBM.outputMatrix >> drivenMM.matrixIn[1]
+        #if not pm.objExists(drivenObj + '_globalSpace_grp'):
+        #    drivenGroup = pm.group(drivenObj, n=drivenObj + '_globalSpace_grp')
+        #drivenGroup = pm.PyNode(drivenObj + '_globalSpace_grp')
+        drivenGroup = pm.PyNode(drivenGroup_list[index])
+        drivenGroup.worldInverseMatrix[0] >> drivenMM.matrixIn[2]
+        drivenMM.matrixSum >> drivenPM.inputMatrix
+
+        for i, space in enumerate(list(spaceObj_list_data.keys())):
+            spaceObj = pm.PyNode(list(spaceObj_list_data.items())[i][1])
+            spaceMM = createNode('multMatrix',spaceObj + '_globalSpace_MM')
+            rel_mat = om2.MMatrix(pm.xform(spaceObj, q=True, ws=True, matrix=True)).inverse()
+            spaceMM.matrixIn[0].set(rel_mat)
+            spaceObj.worldMatrix[0] >> spaceMM.matrixIn[1]
+            spaceMM.matrixSum >> drivenBM.target[i].targetMatrix
+            
+            #drivenValues = [0,0,0]
+            #drivenValues[i] = 1
+            #print(drivenValues)
+            #setSDK([globalSpaceAttr],[spaceBM.target[i].weight],[timeLists],[drivenValues])
+
+        spaceAttr = addAttr(ctrl_list[index],space,minValue=0, maxValue=1)
+        spaceAttr >> ioBM.target[0].weight
+        drivenPM.outputMatrix >> ioBM.target[0].targetMatrix
+        ioBM.outputMatrix >> drivenObj.offsetParentMatrix
+
 
 if __name__ == '__main__':
-    ctrlNames = pm.ls(sl=True)
-    for ctrlName in ctrlNames:
-        createGlobalSpace(ctrlName)
+    createNode('transform','pathArea_global_loc')
+    spaceObj_list_data = {
+    'global':'pathArea_global_loc'
+    }
+    drivenObj_list = pm.ls(sl=True)
+    drivenGroup_list = pm.ls(sl=True)
+    ctrl_list = pm.ls(sl=True)
+    createGlobalSpace(spaceObj_list_data,drivenObj_list,drivenGroup_list,ctrl_list)
     
  

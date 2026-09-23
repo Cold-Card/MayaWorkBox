@@ -35,6 +35,7 @@ Thumbs.db
 *~
 .vscode/
 .idea/
+*.code-workspace
 
 # Maya user/runtime generated artifacts
 # 常见 Maya 自动保存/临时文件，避免把本地工作票据和缓存落进仓库
@@ -53,6 +54,18 @@ cache/
 *.whl
 
 # Native/plugin runtime artifacts are intentionally preserved in this repo
-# (do not ignore pyd / so files)
 *.dylib
-*.dll
+#*.dll
+#*.pyd
+#*.so
+
+# Ignore all other files
+AdvancedSkeleton*/
+adPose/
+zoo/
+PY_RIGASSIT/
+Maya_PY3_plug-in_2025/
+*.ce2-workspace
+
+# Tracking
+!scripts/AttrBatch/**/*.pyc

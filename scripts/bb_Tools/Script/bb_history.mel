@@ -1,0 +1,30 @@
+global proc bb_history()
+{
+    if (`window -q -exists bb_historyWindow`) deleteUI bb_historyWindow;
+    window -title "历史信息" bb_historyWindow;    
+    formLayout bb_historyWFormLayout;
+        cmdScrollFieldReporter bb_historyCmdHistory;
+        formLayout -edit
+        -attachForm     bb_historyCmdHistory     "top"    1
+        -attachForm     bb_historyCmdHistory     "left"   1
+        -attachForm     bb_historyCmdHistory     "bottom" 1 
+        -attachForm     bb_historyCmdHistory     "right"  1 
+        bb_historyWFormLayout;
+    popupMenu -p bb_historyCmdHistory;
+        menuItem -label "清空信息" -c "cmdScrollFieldReporter -e -clear bb_historyCmdHistory;";
+        menuItem -d 1;
+        menuItem -label "回显所有命令" -c "handleScriptEditorAction \"echoAllCommands\";bb_history_print;";
+    showWindow bb_historyWindow;
+}
+
+
+global proc bb_history_print()
+{
+    string $icon = (`optionVar -q echoAllLines` ? "echoCommands.png" : "echoCommandsOff.png");
+    if($icon == "echoCommands.png"){
+        print "打开回显所有命令\n";
+    }
+    else if($icon == "echoCommandsOff.png"){
+        print "关闭回显所有命令\n";
+    }
+}

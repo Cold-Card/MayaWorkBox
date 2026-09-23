@@ -1,33 +1,69 @@
-+ MAYAVERSION:2020 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
-plug-ins: plug-ins/2020
-scripts: scripts
-MAYA_SCRIPT_PATH +:= scripts
++ MAYAVERSION:2020 PLATFORM:win64 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2020
+PYTHONPATH +:= toolkits
 MAYA_SHELF_PATH +:= shelves
 
-+ MAYAVERSION:2022 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
-plug-ins: plug-ins/2022
-scripts: scripts
-MAYA_SCRIPT_PATH +:= scripts
++ MAYAVERSION:2022 PLATFORM:win64 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2022
+PYTHONPATH +:= toolkits
 MAYA_SHELF_PATH +:= shelves
 
-+ MAYAVERSION:2023 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
-plug-ins: plug-ins/2023
-scripts: scripts
-MAYA_SCRIPT_PATH +:= scripts
++ MAYAVERSION:2023 PLATFORM:win64 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2023
+PYTHONPATH +:= toolkits
 MAYA_SHELF_PATH +:= shelves
 
-+ MAYAVERSION:2024 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
-plug-ins: plug-ins/2024
-scripts: scripts
-MAYA_SCRIPT_PATH +:= scripts
++ MAYAVERSION:2024 PLATFORM:win64 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2024
+PYTHONPATH +:= toolkits
 MAYA_SHELF_PATH +:= shelves
 
-+ MAYAVERSION:2025 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
-plug-ins: plug-ins/2025
-scripts: scripts
-MAYA_SCRIPT_PATH +:= scripts
++ MAYAVERSION:2025 PLATFORM:win64 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2025
+PYTHONPATH +:= toolkits
 MAYA_SHELF_PATH +:= shelves
 
-+ dwpicker 1.0.4 L:\VVSArtistFile\wangruilong\workBox\scripts\dwpicker
++ MAYAVERSION:2026 PLATFORM:win64 WRL_Scripts any L:\VVSArtistFile\wangruilong\workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2026
+PYTHONPATH +:= toolkits
+MAYA_SHELF_PATH +:= shelves
+
++ PLATFORM:win64 dwpicker 1.0.4 L:\VVSArtistFile\wangruilong\workBox\toolkits\dwpicker
 scripts: .
-DWPICKER_PROJECT_DIRECTORY = L:\VVSArtistFile\wangruilong\workBox\scripts\dwpicker/pickers
+DWPICKER_PROJECT_DIRECTORY = L:\VVSArtistFile\wangruilong\workBox\toolkits\dwpicker\pickers
+
+
+
++ MAYAVERSION:2020 PLATFORM:linux WRL_Scripts any /home/wangruilong/maya/workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2020
+PYTHONPATH +:= toolkits
+MAYA_SHELF_PATH +:= shelves
+
++ MAYAVERSION:2022 PLATFORM:linux WRL_Scripts any /home/wangruilong/maya/workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2022
+PYTHONPATH +:= toolkits
+MAYA_SHELF_PATH +:= shelves
+
++ MAYAVERSION:2023 PLATFORM:linux WRL_Scripts any /home/wangruilong/maya/workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2023
+PYTHONPATH +:= toolkits
+MAYA_SHELF_PATH +:= shelves
+
++ MAYAVERSION:2024 PLATFORM:linux WRL_Scripts any /home/wangruilong/maya/workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2024
+PYTHONPATH +:= toolkits
+MAYA_SHELF_PATH +:= shelves
+
++ MAYAVERSION:2025 PLATFORM:linux WRL_Scripts any /home/wangruilong/maya/workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2025
+PYTHONPATH +:= toolkits
+MAYA_SHELF_PATH +:= shelves
+
++ MAYAVERSION:2026 PLATFORM:linux WRL_Scripts any /home/wangruilong/maya/workBox
+MAYA_PLUG_IN_PATH +:= plug-ins/2026
+PYTHONPATH +:= toolkits
+MAYA_SHELF_PATH +:= shelves
+
++ PLATFORM:linux dwpicker 1.0.4 /home/wangruilong/maya/workBox/toolkits/dwpicker
+scripts: .
+DWPICKER_PROJECT_DIRECTORY = /home/wangruilong/maya/workBox/toolkits/dwpicker/pickers

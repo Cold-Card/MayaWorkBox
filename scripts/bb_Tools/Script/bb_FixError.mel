@@ -1,0 +1,55 @@
+global proc bb_FixError()
+{
+    OutlineError;
+    CgAbBlastPanelOptChangeCallbackError;
+    DelDJJ;
+    confirmDialog -title "OK" -message "报错清除完成！\n请保存档案重开Maya" -button "好的！~";
+}
+
+global proc OutlineError()
+{
+    string $Outliner =
+    "import pymel.core as pm" + "\n" +
+    "for items in pm.lsUI(editors=True):" + "\n" +
+    "    if not pm.outlinerEditor(items, query=True, exists=True):" + "\n" +
+    "        continue" + "\n" +
+    "    sel_cmd = pm.outlinerEditor(items, query=True, selectCommand=True)" + "\n" +
+    "    if not sel_cmd:" + "\n" +
+    "        continue" + "\n" +
+    "    if sel_cmd.startswith('<function selCom at '):" + "\n" +
+    "        pm.outlinerEditor(items, edit=True, selectCommand='')";
+    python $Outliner;
+    
+}
+
+global proc CgAbBlastPanelOptChangeCallbackError()
+{
+    string $CgAbBlastPanelOptChangeCallback =
+    "from maya import cmds" + "\n" +
+    "for model_panel in cmds.getPanel(typ='modelPanel'):" + "\n" +
+    "    callback = cmds.modelEditor(model_panel, query=True, editorChanged=True)" + "\n" +
+    "    if callback == 'CgAbBlastPanelOptChangeCallback':" + "\n" +
+    "        cmds.modelEditor(model_panel, edit=True, editorChanged='')";
+    python $CgAbBlastPanelOptChangeCallback; 
+}
+
+global proc DelDJJ()
+{
+    string $DelDJJ = 
+    "import maya.cmds as cmds" + "\n" +
+    "import os" + "\n" +
+    "def cleanTheVaccine():" + "\n" +
+    "    vaccine_path = cmds.internalVar(userAppDir=True)+'/scripts/'" + "\n" +
+    "    va_pathlist = os.listdir(vaccine_path)" + "\n" +
+    "    for name in va_pathlist:" + "\n" +
+    "        if str(name) == 'vaccine.py' or str(name) == 'vaccine.pyc' or str(name) == 'userSetup.py':" + "\n" +
+    "            os.remove(vaccine_path+name)" + "\n" +
+    "    if cmds.objExists('breed_gene') or cmds.objExists('vaccine_gene'):" + "\n" +
+    "        cmds.delete('breed_gene')" + "\n" +
+    "        cmds.delete('vaccine_gene')" + "\n" + 
+    "cleanTheVaccine()  ";
+    python $DelDJJ;
+}
+        
+        
+        

@@ -4,15 +4,20 @@
 # 2023-05-04[11:14:00]:rebuild by yibai
 # 修复重命名对象过多卡顿问题，只显示前19个选中对象的重命名结果，最后一行显示······
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-
-from shiboken2 import wrapInstance
+try:
+    from PySide2.QtCore import *
+    from PySide2.QtGui import *
+    from PySide2.QtWidgets import *
+    from shiboken2 import wrapInstance
+except:
+    from PySide6.QtCore import *
+    from PySide6.QtGui import *
+    from PySide6.QtWidgets import *
+    from shiboken6 import wrapInstance
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 
-from main import Ui_Form
+from ol_main import Ui_Form
 from oneLiner import *
 
 import sys
@@ -82,7 +87,7 @@ class oneLinerUI(Ui_Form, QWidget):
     def paintEvent(self, event):
         # 圆角
         painter = QPainter(self)
-        painter.setRenderHint(painter.Antialiasing)                              # 抗锯齿
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)                              # 抗锯齿
         painter.setBrush(QBrush(QColor(0,0,0,100)))                              # 设置画出边框的颜色,RGBA 255
         painter.setPen(QPen(QColor(0,0,0,100)))                                  # 设置画出边框的颜色,RGBA 255
         painter.drawRoundedRect( 0, 0, self.width(), self.height(), 5, 5);       # 圆角设置

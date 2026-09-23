@@ -540,12 +540,12 @@ def bendExpContent(bendJointList, splineIkJointList, bendJntRotatedAttr, localBe
         if_max = "if($max<0)$max=0;\n"
         tailExpContent = min_agle + max_agle + if_min + if_max
         if index == 0:
-            tailExpContent += "{} = clamp($min, $max, {}*10);\n".format(bj_attr_lst[index],
+            tailExpContent += "{} = clamp($min, $max, {}*100);\n".format(bj_attr_lst[index],
                                                                    main_ctrl_bend_attr)
         else:
             attr_lst = bj_attr_lst[:index]
             temp_content = subExpContent(attr_lst)
-            tailExpContent += "{} = clamp($min, $max, {}*10 {});\n".format(bj_attr_lst[index],
+            tailExpContent += "{} = clamp($min, $max, {}*100 {});\n".format(bj_attr_lst[index],
                                                                         main_ctrl_bend_attr, temp_content)
         exp_node = createEXP(tailExpContent, "{}_{}_{}_bendExp".format(prefix, bj, index))
         exp_node_lst.append(exp_node)

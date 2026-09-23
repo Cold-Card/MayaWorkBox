@@ -1,0 +1,6 @@
+__all__ = ['attrColorSliderGrp','attrFieldGrp','attrFieldSliderGrp','attrNavigationControlGrp','button','canvas','channelBox','checkBox','checkBoxGrp','cmdScrollFieldExecuter','cmdScrollFieldReporter','cmdShell','colorIndexSliderGrp','colorSliderButtonGrp','colorSliderGrp','commandLine','componentBox','floatField','floatFieldGrp','floatScrollBar','floatSlider','floatSlider2','floatSliderButtonGrp','floatSliderGrp','gradientControl','gradientControlNoAttr','helpLine','iconTextButton','iconTextCheckBox','iconTextRadioCollection','iconTextRadioButton','iconTextScrollList','iconTextStaticLabel','image','intField','intFieldGrp','intScrollBar','intSlider','intSliderGrp','layerButton','messageLine','nameField','modelEditor','palettePort','picture','progressBar','radioButtonGrp','radioCollection','radioButton','rangeControl','scriptTable','scrollField','separator','shelfButton','swatchDisplayPort','switchTable','symbolButton','symbolCheckBox','text','textField','textFieldButtonGrp','textFieldGrp','textScrollList','toolCollection','toolButton','treeView','timePort'] 
+import importlib
+
+for i in __all__:
+    module = importlib.import_module('.'+i, __name__)
+    globals()[i] = module

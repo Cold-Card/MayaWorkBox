@@ -1,0 +1,18 @@
+global proc DelDJJ()
+{
+    string $DelDJJ = 
+    "import maya.cmds as cmds" + "\n" +
+    "import os" + "\n" +
+    "def cleanTheVaccine():" + "\n" +
+    "    vaccine_path = cmds.internalVar(userAppDir=True)+'/scripts/'" + "\n" +
+    "    va_pathlist = os.listdir(vaccine_path)" + "\n" +
+    "    for name in va_pathlist:" + "\n" +
+    "        if str(name) == 'vaccine.py' or str(name) == 'vaccine.pyc' or str(name) == 'userSetup.py':" + "\n" +
+    "            os.remove(vaccine_path+name)" + "\n" +
+    "    if cmds.objExists('breed_gene') or cmds.objExists('vaccine_gene'):" + "\n" +
+    "        cmds.delete('breed_gene')" + "\n" +
+    "        cmds.delete('vaccine_gene')" + "\n" + 
+    "cleanTheVaccine()  ";
+    python $DelDJJ;
+    confirmDialog -title "OK" -message "贼健康报错清除完成？\n   保存档案重开Maya" -button "好的！~";
+}

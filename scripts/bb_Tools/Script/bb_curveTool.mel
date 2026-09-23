@@ -1,0 +1,383 @@
+//Author  :   LiuBen
+//Date    :   2017/02/06
+//Fix     :   2017/04/11   修正生成曲面时，follicle定位错误的bug。修正单根曲线不会被重建的bug。
+//Fix     :   2017/12/19   修正生成不重建曲线的曲面时，follicle定位错误的bug。
+//Fix     :   2018/01/29   修正生成骨骼时，生成方向不指向下一节骨骼的问题。
+//Fix     :   2020/01/29   新增poly,nurbs可选，反向建立曲线定点、骨骼功能；曲面生成毛囊功能。
+//Fix     :   2021/09/13   修正不重建曲线时，毛囊生成位置不对的问题。
+global proc bb_curveTool()
+{
+    if (`window -q -exists bb_curveToolWindow`) deleteUI bb_curveToolWindow;
+    window -title "曲线工具" bb_curveToolWindow;
+        columnLayout -adjustableColumn true -columnAttach "both" 3;
+            frameLayout -label "基本设置";
+                columnLayout;
+                    rowLayout -numberOfColumns 2 -columnWidth2 50 200 ;
+                        text -label "名称: ";
+                        textField -w 152 -text "Name" bb_curveTool_nameTF;
+                    setParent ..;
+                    rowLayout -numberOfColumns 3 -columnWidth3 100 50 50 ;
+                        checkBox -label "重建曲线" -value 1 bb_curveTool_rebuildCB;
+                        text -label "曲线段数: ";
+                        intField -w 50 -min 1 -v 9 bb_curveTool_rebuildNumIF;
+                    setParent ..;
+            frameLayout -label "创建";
+                rowLayout -numberOfColumns 2 -columnWidth2 100 100 ;
+                    columnLayout; 
+                        checkBox -label "生成曲面" -value 0 bb_curveTool_surfacesCB;
+                        checkBox -label "闭合曲面" -value 0 bb_curveTool_surfacesCloseCB;
+                    setParent ..;
+                    columnLayout; 
+                        radioCollection bb_curveModeChoose;
+                            radioButton -label "创建Nurbs" processMode_nurbs;
+                            radioButton -label "创建Poly" processMode_poly;
+                        radioCollection -edit -select "processMode_poly" bb_curveModeChoose;
+                    setParent ..;
+                setParent ..;
+                button -l "创建" -w 203 -h 40 -bgc 0.1 0.1 0.1 -c bb_curveTool_apply;
+            frameLayout -label "其他";
+                columnLayout; 
+                    rowLayout -numberOfColumns 2 -columnWidth2 97 100 ;
+                        checkBox -label "反向建立" -value 0 bb_curveTool_ReverseCB;
+                        button -l "获取曲线/面段数" -w 100 -c bb_curveTool_getCVNum;
+                    setParent ..;
+                    rowLayout -numberOfColumns 3 -columnWidth3 55 30 100;
+                        text -label "  定点数量: ";
+                        intField -w 40 -v 1 -min 1 bb_curveTool_locNumIF;
+                        button -l "曲线定点" -w 100 -bgc 0.5 0.5 0.5 -c bb_curveTool_locApply;
+                    setParent ..;
+                    rowLayout -numberOfColumns 3 -columnWidth3 55 30 100;
+                        text -label "  骨骼数量: ";
+                        intField -w 40 -v 1 -min 1 bb_curveTool_jointNumIF;
+                        button -l "曲线生成骨骼" -w 100 -c bb_curveTool_jointApply;
+                    setParent ..;
+                    rowLayout -numberOfColumns 3 -columnWidth3 55 30 100;
+                        text -label "  毛囊数量: ";
+                        intField -w 40 -v 1 -min 1 bb_curveTool_follicleNumIF;
+                        button -l "曲面生成毛囊" -w 100 -c bb_curveTool_follicleOnFace;
+                    setParent ..;
+                setParent ..;
+    showWindow bb_curveToolWindow;
+}
+bb_curveTool;
+
+global proc bb_curveTool_apply()
+{
+    string $name = `textField -q -text bb_curveTool_nameTF`;
+    string $sel[] = `ls -sl`;
+    int $rebuild = `checkBox -q -value bb_curveTool_rebuildCB`;
+    int $surfaces = `checkBox -q -value bb_curveTool_surfacesCB`;
+    int $surfacesClose = `checkBox -q -value bb_curveTool_surfacesCloseCB`;
+    string $createMod = `radioCollection -q -select  bb_curveModeChoose`;
+    if(!`objExists ($name+"Crv_grp")`) createNode "transform" -n ($name+"Crv_grp"); 
+    setAttr ($name+"Crv_grp.v") 0;
+    if(size($sel)>1){
+        string $ABC[] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
+        string $list;
+        float $num = `size $sel`;
+        float $multiple = 0.0;
+        while($num>26){
+            $num = $num/26;
+            $multiple = $multiple;
+        }
+        string $crvName;
+        if(!`objExists ($name+"Ctrl_grp")`) createNode "transform" -n ($name + "Ctrl_grp"); 
+        for($i=0;$i<size($sel);$i++){
+            $list = "";
+            float $quotient = $i;
+            for($j=0;$j<$multiple+1;$j++){
+                int $residual = $quotient%26;
+                $quotient = $quotient/26;
+                $list = $ABC[$residual] + $list;
+            }
+            
+            if($rebuild == 1)
+                bb_curveTool_rebuild($sel[$i]);
+            rename $sel[$i] ($name + $list + "_crv");
+    	    parent ($name + $list + "_crv") ($name+"Crv_grp");
+            bb_curveTool_createCtrl(($name + $list + "_crv"),($name + $list));
+            parent ($name + $list + "_ctrlGrp") ($name + "Ctrl_grp"); 
+            $crvName = $crvName + " \"" + ($name + $list + "_crv\"");
+        } 
+        if($surfaces == 1){
+            string $suffix;
+            int $po;
+            if($createMod == "processMode_poly"){
+                $suffix = "_Poly";
+                $po = 1;
+            }
+            else if($createMod == "processMode_nurbs"){
+                $suffix = "_Surf";
+                $po = 0;
+            }
+            eval ("loft -ch 1 -u 1 -c " + $surfacesClose + "-ar 1 -d 3 -ss 1 -rn 0 -po " + $po + " -rsn true  -n " + $name + $suffix + $crvName);
+            eval ("loft -ch 1 -u 1 -c " + $surfacesClose + "-ar 1 -d 3 -ss 1 -rn 0 -po 0 -rsn true  -n " + $name + "_rivetSurf" + $crvName);
+            select -r ($name + "_rivetSurf");
+            DeleteHistory;
+            bb_curveTool_follicle(($name + "_rivetSurf"),$crvName);
+        }
+    }
+    else{
+        if($rebuild == 1)
+            bb_curveTool_rebuild($sel[0]);
+        rename $sel[0] ($name + "_crv");
+        parent ($name + "_crv") ($name+"Crv_grp");
+        bb_curveTool_createCtrl(($name + "_crv"),$name);
+    } 
+}
+
+global proc bb_curveTool_rebuild(string $curve)
+{
+    int $num = `intField -q -v bb_curveTool_rebuildNumIF` - 3;
+    rebuildCurve -rpo 1 -rt 0 -end 1 -kr 0 -kcp 0 -kep 1 -kt 0 -s $num -d 3 -tol 0.01 $curve;
+}
+
+global proc bb_curveTool_createCtrl(string $curve,string $name)
+{
+    createNode "transform" -n ($name + "_ctrlGrp");
+    int $numCVs = `getAttr -size ($curve + ".controlPoints")`;
+	for ($i=0;$i<$numCVs;$i++){
+		string $cls[] = `cluster ($curve + ".cv[" + $i + "]")`;
+		rename $cls[1] ($name + ($i+1) + "_cls");
+        createNode "transform" -n ($name + ($i+1)+"_ctrlEnv");
+        createNode "transform" -n ($name + ($i+1)+"_ctrlExp");
+        createNode "transform" -n ($name + ($i+1)+"_ctrlDrv");
+        createNode "transform" -n ($name + ($i+1)+"_ctrlP");
+        curve -d 1 -p 0.35 0.35 0.35 -p 0.35 0.35 -0.35 -p -0.35 0.35 -0.35 -p -0.35 0.35 0.35 -p 0.35 0.35 0.35 -p 0.35 -0.35 0.35 -p 0.35 -0.35 -0.35 
+        -p -0.35 -0.35 -0.35 -p -0.35 -0.35 0.35 -p 0.35 -0.35 0.35 -p 0.35 0.35 0.35 -p 0.35 0.35 -0.35 -p 0.35 -0.35 -0.35 -p -0.35 -0.35 -0.35 -p -0.35 0.35 -0.35 
+        -p -0.35 0.35 0.35 -p -0.35 -0.35 0.35 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -n ($name + ($i+1) + "_ctrl");
+        setAttr -lock true -keyable false -channelBox false ($name + ($i+1) +"_ctrl.v"); 
+        setAttr -lock true -keyable false -channelBox false ($name + ($i+1) +"_ctrl.sx"); 
+        setAttr -lock true -keyable false -channelBox false ($name + ($i+1) +"_ctrl.sy"); 
+        setAttr -lock true -keyable false -channelBox false ($name + ($i+1) +"_ctrl.sz"); 
+        setAttr ($name + ($i+1) +"_ctrl.overrideEnabled") 1;
+        setAttr ($name + ($i+1) +"_ctrl.overrideColor") 30;
+        createNode "transform" -n ($name + ($i+1)+"_ctrlS");
+        parent ($name + ($i+1)+"_ctrlS") ($name + ($i+1) + "_ctrl");
+        parent ($name + ($i+1)+"_ctrl") ($name + ($i+1) + "_ctrlP");
+        parent ($name + ($i+1)+"_ctrlP") ($name + ($i+1) + "_ctrlDrv");
+        parent ($name + ($i+1)+"_ctrlDrv") ($name + ($i+1) + "_ctrlExp");
+        parent ($name + ($i+1)+"_ctrlExp") ($name + ($i+1) + "_ctrlEnv");
+        reorder -front ($name + ($i+1)+"_ctrlS");
+        
+        string $pointCon[] = `pointConstraint -weight 1 ($name + ($i+1) + "_cls") ($name + ($i+1) + "_ctrlEnv")`;
+        delete $pointCon;
+        parent ($name + ($i+1) + "_ctrlEnv") ($name + "_ctrlGrp");
+        parent ($name + ($i+1) + "_cls") ($name + ($i+1)+"_ctrlS");
+        setAttr ($name + ($i+1) + "_cls.v") 0; 
+	}
+	
+    createNode "transform" -n ($name + "Main_ctrlEnv");
+    createNode "transform" -n ($name + "Main_ctrlDrv"); 
+    createNode "transform" -n ($name + "Main_ctrlDrv1");
+    createNode "transform" -n ($name + "Main_ctrlP");
+    curve -d 1 -p -0.6 0.6 -0.6 -p -0.6 0.6 0.6 -p 0.6 0.6 0.6 -p 0.6 0.6 -0.6 -p -0.6 0.6 -0.6 -p -0.6 -0.6 -0.6 -p -0.6 -0.6 0.6 -p 0.6 -0.6 0.6 
+    -p 0.6 -0.6 -0.6 -p -0.6 -0.6 -0.6 -p -0.6 0.6 -0.6 -p -0.6 0.6 0.6 -p -0.6 -0.6 0.6 -p 0.6 -0.6 0.6 -p 0.6 0.6 0.6 -p 0.6 0.6 -0.6 -p 0.6 -0.6 -0.6 -k 0 
+    -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -n ($name + "Main_ctrl");
+    setAttr -lock true -keyable false -channelBox false ($name + "Main_ctrl.v");
+    setAttr ($name + "Main_ctrl.overrideEnabled") 1;
+    setAttr ($name + "Main_ctrl.overrideColor") 21;
+    createNode "transform" -n ($name + "Main_ctrlS");
+    parent ($name + "Main_ctrlS") ($name + "Main_ctrl");
+    parent ($name + "Main_ctrl") ($name + "Main_ctrlP");
+    parent ($name + "Main_ctrlP") ($name + "Main_ctrlDrv");
+    parent ($name + "Main_ctrlDrv") ($name + "Main_ctrlEnv");
+    parent ($name + "Main_ctrlDrv1") ($name + "Main_ctrlEnv");
+    parent ($name + "Main_ctrlEnv") ($name + "_ctrlGrp");
+    reorder -front ($name + "Main_ctrlS");
+
+    string $mainPointCon[] = `pointConstraint -weight 1 ($name + "1_cls") ($name + "Main_ctrlEnv")`;
+    delete $mainPointCon;
+    pointConstraint -weight 1 ($name + "Main_ctrlS") ($name + "Main_ctrlDrv1");
+	addAttr -ln "_______________________________________________________________________"  -at "enum" -en "extra:" ($name + "Main_ctrl");
+    setAttr -e -keyable true -lock true ($name + "Main_ctrl._______________________________________________________________________");    
+    string $expString;
+	for($i=$numCVs;$i>0;$i--){
+	    float $defaultValue = (float($numCVs)-float($i))/(float($numCVs)-1);
+	    addAttr -ln ("sub"+$i)  -at double  -min 0 -max 1 -defaultValue $defaultValue ($name + "Main_ctrl");
+        setAttr -e -keyable true ($name + "Main_ctrl.sub"+$i);
+	    $expString = $expString + $name + $i+"_ctrlExp.tx = " + $name + "Main_ctrl.sub"+$i + "*" + $name + "Main_ctrlDrv1.tx;\n"  ;
+	    $expString = $expString + $name + $i+"_ctrlExp.ty = " + $name + "Main_ctrl.sub"+$i + "*" + $name + "Main_ctrlDrv1.ty;\n"  ;
+	    $expString = $expString + $name + $i+"_ctrlExp.tz = " + $name + "Main_ctrl.sub"+$i + "*" + $name + "Main_ctrlDrv1.tz;\n\n"  ;
+	}
+	expression -s $expString -n ($name + "_exp");
+}
+
+global proc bb_curveTool_follicle(string $surface,string $crvName)
+{
+    string $crvNameFix = substituteAllString($crvName, "\"", "");
+    string $crvNumArray[] = stringToStringArray($crvNameFix, " ");
+    int $numV = `size $crvNumArray`;
+    string $surfShpae[] = `listRelatives -shapes $surface`;
+    int $spansU = `getAttr ($surfShpae[0] + ".spansU")`;
+    int $degreeU = `getAttr ($surfShpae[0] + ".degreeU")`;
+    float $RangeU[] = `getAttr ($surfShpae[0] + ".minMaxRangeU")`;
+    int $numU = $spansU + $degreeU;
+    int $surfacesClose = `checkBox -q -value bb_curveTool_surfacesCloseCB`;
+    int $rebuild = `checkBox -q -value bb_curveTool_rebuildCB`;
+    
+    for($i=0;$i<$numV;$i++){
+        for($j=0;$j<$numU;$j++){
+            string $follicleName = substituteAllString($crvNumArray[$i], "_crv", (($j+1)+"_follicle"));
+            string $follicleShape = `createNode follicle`;
+            string $follicle[] = `listRelatives -parent $follicleShape`;
+            connectAttr -f ($follicleShape+".outTranslate") ($follicle[0]+".translate");
+            connectAttr -f ($follicleShape+".outRotate") ($follicle[0]+".rotate");
+            connectAttr -f ($surfShpae[0]+".worldMatrix[0]") ($follicleShape+".inputWorldMatrix");
+            connectAttr -f ($surfShpae[0]+".local") ($follicleShape+".inputSurface");
+            float $parameterU;
+            float $parameterV;
+            if($surfacesClose == 0){
+                $parameterV = float($i)/(float($numV)-1);
+            }
+            else if($surfacesClose == 1){
+                $parameterV = float($i)/(float($numV));
+            }
+            float $position[] = pointPosition ($surfShpae[0]+".cv["+$j+"][0]");
+            if(`objExists "bb_curveTool_closestPointOnSurface"`) delete "bb_curveTool_closestPointOnSurface";
+            createNode -n "bb_curveTool_closestPointOnSurface" closestPointOnSurface;
+            connectAttr -f ($surfShpae[0]+".worldSpace[0]") "bb_curveTool_closestPointOnSurface.inputSurface";
+            setAttr bb_curveTool_closestPointOnSurface.inPosition $position[0] $position[1] $position[2];
+            $parameterU = `getAttr bb_curveTool_closestPointOnSurface.parameterU`;
+            $parameterU = $parameterU/$RangeU[1];
+            delete bb_curveTool_closestPointOnSurface;
+
+            setAttr ($follicleShape+".parameterU") $parameterU;
+            setAttr ($follicleShape+".parameterV") $parameterV;
+            setAttr ($follicleShape+".v") 0;
+            rename  $follicle[0] $follicleName;
+            string $ctrlEnv = substituteAllString($crvNumArray[$i], "_crv", (($j+1)+"_ctrlEnv"));
+            string $ctrlGrp = substituteAllString($crvNumArray[$i], "_crv", "_ctrlGrp");
+            parent $follicleName $ctrlGrp;
+            parent $ctrlEnv $follicleName;
+            if($j==0){
+                string $mainCtrl = substituteAllString($crvNumArray[$i], "_crv", "Main_ctrlEnv");
+                parent $mainCtrl $follicleName;
+            }
+        } 
+    }
+}
+
+global proc bb_curveTool_locApply()
+{
+    int $locNum = `intField -q -v bb_curveTool_locNumIF`;
+    string $sel[] = `ls -sl`;
+    for($i=0;$i<size($sel);$i++){
+        string $shape[] = `listRelatives -shapes $sel[$i]`;
+        if(size($shape)>0){
+            if(`nodeType $shape[0]`=="nurbsCurve"){
+                createNode "transform" -n ($sel[$i] + "_locGrp");
+                for($j=0;$j<$locNum;$j++){
+                    string $loc = $sel[$i]+"_loc"+($j+1);
+                    spaceLocator -p 0 0 0 -n $loc;
+                    parent $loc ($sel[$i] + "_locGrp");
+                    float $parameter = 0;
+                    if($locNum>1){
+                        int $reverse = `checkBox -q -value bb_curveTool_ReverseCB`;
+                        if($reverse == 0)
+                            $parameter = float($j)/($locNum-1);
+                        if($reverse == 1)
+                            $parameter = float($locNum-1-$j)/($locNum-1);
+                    }
+                    addAttr -ln "parameter" -at double  -min 0 -max 1 -dv $parameter $loc;
+                    setAttr -e -keyable true ($loc + ".parameter");
+                    string $infoNode = `pointOnCurve -ch on $sel[$i]`;
+                    string $pointOnCurve = ($sel[$i]+"_pointOnCurve"+($j+1));
+                    rename $infoNode $pointOnCurve;
+                    setAttr ($pointOnCurve + ".turnOnPercentage") 1;
+                    connectAttr -f ($loc + ".parameter") ($pointOnCurve + ".parameter"); 
+                    connectAttr -f ($pointOnCurve + ".position") ($loc + ".translate");
+                }
+            }
+        }
+    }
+}
+
+global proc bb_curveTool_jointApply()
+{
+    int $jointNum = `intField -q -v bb_curveTool_jointNumIF`;
+    string $sel[] = `ls -sl`;
+    for($i=0;$i<size($sel);$i++){
+        select -clear;
+        string $shape[] = `listRelatives -shapes $sel[$i]`;
+        if(size($shape)>0){
+            if(`nodeType $shape[0]`=="nurbsCurve"){
+                string $infoNode = `pointOnCurve -ch on $sel[$i]`;
+                setAttr ($infoNode + ".turnOnPercentage") 1;
+                for($j=0;$j<$jointNum;$j++){
+                    float $parameter = 0;
+                    if($jointNum>1){
+                        int $reverse = `checkBox -q -value bb_curveTool_ReverseCB`;
+                        if($reverse == 0)
+                            $parameter = float($j)/($jointNum-1);
+                        if($reverse == 1)
+                            $parameter = float($jointNum-1-$j)/($jointNum-1);
+                    }
+                    setAttr ($infoNode + ".parameter") $parameter;
+                    float $position[] = getAttr ($infoNode + ".position");
+                    joint -n ($sel[$i] + ($j+1)) -position $position[0] $position[1] $position[2];
+                    if($j>0){
+                        joint -e -zso -oj xyz -sao yup ($sel[$i] + $j);
+                    }
+                }
+                delete $infoNode;
+                select -clear;
+            }
+        }      
+    }    
+}
+
+global proc bb_curveTool_getCVNum()
+{
+    string $sel[] = `ls -sl`;
+    if(size($sel)){
+        string $Shape[] = `listRelatives -shapes $sel[0]`;
+        string $ShapeNote = `nodeType $Shape[0]`;
+        if($ShapeNote == "nurbsCurve"){
+            int $numCVs = `getAttr -size ($sel[0] + ".controlPoints")`;
+            intField -e -v $numCVs bb_curveTool_locNumIF;
+            intField -e -v $numCVs bb_curveTool_jointNumIF;
+        }
+        else if($ShapeNote == "nurbsSurface"){
+            int $spansU = `getAttr ($sel[0] + ".spansU")`;
+            intField -e -v $spansU bb_curveTool_follicleNumIF;
+        }
+    }
+}
+
+global proc bb_curveTool_follicleOnFace()
+{
+    string $sel[] = `ls -sl`;
+    int $follicleNum = `intField -q -v bb_curveTool_follicleNumIF`;
+    for($i=0;$i<size($sel);$i++){
+        for($j=0;$j<$follicleNum;$j++){
+            string $Shape[] = `listRelatives -shapes $sel[$i]`;
+            string $ShapeNote = `nodeType $Shape[0]`;
+            if($ShapeNote == "nurbsSurface"){
+                if(!`objExists ($sel[$i] + "_follicleGrp")`){
+                    createNode "transform" -n ($sel[$i] + "_follicleGrp");
+                }
+                string $follicleName = $sel[$i] + ($j+1) + "_follicle";
+                string $follicleShape = `createNode follicle`;
+                string $follicle[] = `listRelatives -parent $follicleShape`;
+                connectAttr -f ($follicleShape+".outTranslate") ($follicle[0]+".translate");
+                connectAttr -f ($follicleShape+".outRotate") ($follicle[0]+".rotate");
+                connectAttr -f ($Shape[0]+".worldMatrix[0]") ($follicleShape+".inputWorldMatrix");
+                connectAttr -f ($Shape[0]+".local") ($follicleShape+".inputSurface");
+                float $parameterU;
+                float $parameterV = 0.5;
+                int $reverse = `checkBox -q -value bb_curveTool_ReverseCB`;
+                if($reverse == 0)
+                    $parameterU = float($j)/($follicleNum-1);
+                if($reverse == 1)
+                    $parameterU = float($follicleNum-1-$j)/($follicleNum-1);
+                setAttr ($follicleShape+".parameterU") $parameterU;
+                setAttr ($follicleShape+".parameterV") $parameterV;
+                setAttr ($follicleShape+".v") 0;
+                rename  $follicle[0] $follicleName;
+                parent $follicleName ($sel[$i] + "_follicleGrp");
+            }
+        }
+    }
+}
+

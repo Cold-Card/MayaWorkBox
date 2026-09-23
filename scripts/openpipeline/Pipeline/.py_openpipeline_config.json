@@ -1,0 +1,16 @@
+{
+    "project_root_path": "/home/wangruilong/workSpace/openPipeline",
+    "projects": [
+        "/home/wangruilong/workSpace/openPipeline/HYI/"
+    ],
+    "asset_types": [],
+    "library_folder": "lib",
+    "last_project": "/home/wangruilong/workSpace/openPipeline/HYI/",
+    "last_assetType": "CHR",
+    "last_asset": "huodou_test",
+    "last_subtype": "20260918",
+    "fbx_export": [
+        "Geo_grp",
+        "root_jnt"
+    ]
+}

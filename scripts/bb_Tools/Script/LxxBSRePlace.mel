@@ -1,0 +1,61 @@
+//我lxx今天终于写了一个正经的工具栏，哇咔咔咔咔咔~~~
+global proc LxxBSReplace ()
+{
+if (`window -q -ex LxxBSReplace`)
+    deleteUI LxxBSReplace;
+window -t bsReplace LxxBSReplace;
+
+string $Source=$Aims=$BSNote="请确保没有重名物体";
+string $Rename = "_BsCopy";
+
+columnLayout -adj 1;
+//rowLayout -nc 2;
+//    textFieldGrp -cw2 60 120 -l "源物体:" -ed 0 -tx $Source LxxBSReplaceSourcetextFieldGrp;
+//    button -h 15 -l "加载" -c "LxxBSReplacePick LxxBSReplaceSourcetextFieldGrp";
+//    setParent..;
+rowLayout -nc 2;
+    textFieldGrp -cw2 60 120 -l "目标体:" -ed 0 -tx $Aims LxxBSReplaceAimstextFieldGrp;
+    button -h 15 -l "加载" -c "LxxBSReplacePick LxxBSReplaceAimstextFieldGrp";
+    setParent..;
+rowLayout -nc 2;
+    textFieldGrp -cw2 60 120 -l "BS节点:" -ed 0 -tx $BSNote LxxBSReplaceBSNotetextFieldGrp;
+    button -h 15 -l "加载" -c "LxxBSReplacePick LxxBSReplaceBSNotetextFieldGrp";
+    setParent..;
+rowColumnLayout -numberOfColumns 2 -cs 1 13 -columnWidth 1 60 -columnWidth 2 145;
+			text -l "后缀名:";
+			textFieldGrp -label "" -text "_BsCopy" -columnWidth 1 1 -columnWidth 2 130 WP_BsCopy;
+			setParent..;
+button -l "执行" -c LxxBSReplaceCopy;
+showWindow LxxBSReplace;
+}
+LxxBSReplace;
+
+global proc LxxBSReplacePick (string $textFieldGrp)
+{
+string $selMesh[]=`ls -sl`;
+if (size($selMesh) == 0)
+    error "No mesh selected";
+textFieldGrp -e -tx $selMesh[0] $textFieldGrp;
+}
+
+global proc LxxBSReplaceCopy(){
+string $target[];
+string $BSNote = `textFieldGrp -q -tx LxxBSReplaceBSNotetextFieldGrp`;
+string $Aims = `textFieldGrp -q -tx LxxBSReplaceAimstextFieldGrp`;
+string $Rename = `textFieldGrp -q -tx WP_BsCopy`;
+clear $target;
+string $BS[]=`listAttr -m ($BSNote + ".w")`;
+    for($Sam=0;$Sam<(size($BS));$Sam++){
+        setAttr ($BSNote + "." + $BS[$Sam]) 1;
+        duplicate -n ($BS[$Sam]+$Rename) $Aims;
+        setAttr ($BSNote + "." + $BS[$Sam]) 0;
+        $target[$Sam] = ($BS[$Sam] + $Rename);
+        if($Sam == (size($BS)-1)){
+            setAttr ($BSNote + "." + $BS[$Sam]) 0;
+        }
+    }
+    if(!`objExists ($Aims + $Rename + "_grp")`){
+        createNode "transform" -n ($Aims + $Rename + "_grp"); 
+    }
+    parent $target ($Aims + $Rename + "_grp"); 
+}

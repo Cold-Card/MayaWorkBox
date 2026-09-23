@@ -1,0 +1,78 @@
+global proc bb_createFolliceTool()
+{
+    if (`window -q -exists bb_createFolliceToolWindow`) deleteUI bb_createFolliceToolWindow;
+    window -title "创建毛囊工具" -toolbox 1  bb_createFolliceToolWindow;    
+        columnLayout -adjustableColumn true -columnAttach "both" 3;
+            rowLayout -numberOfColumns 2 -columnWidth2 150 80 ;
+                textField -w 150 -text "" bb_createFolliceTool_meshTF;
+                button -w 80 -label "<<<载入模型" -bgc 1 0.95 0.5 -c "bb_createFollice_loadGeo(0)";
+            setParent ..;
+            rowLayout -numberOfColumns 2 -columnWidth2 150 80 ;
+                textField -w 150 -text "" bb_createFolliceTool_locTF;
+                button -w 80 -label "<<<载入位置" -bgc 1 0.95 0.5 -c "bb_createFollice_loadGeo(1)";
+            setParent ..;
+            separator -height 10 -style "in"; 
+            button -l "执行" -h 40 -w 115 -bgc 0.1 0.1 0.1 -c bb_createFollice;
+    showWindow bb_createFolliceToolWindow;
+}
+bb_createFolliceTool;
+
+global proc bb_createFollice_loadGeo(int $mode)
+{
+    string $selGeo[] = `ls -sl`;
+    if (size($selGeo)>0){
+        if($mode == 0){
+            textField -e -text $selGeo[0] bb_createFolliceTool_meshTF;
+        }
+        else if($mode == 1){
+            string $text = stringArrayToString($selGeo, ",");
+            textField -e -text $text bb_createFolliceTool_locTF;
+        }
+    }
+}
+
+//根据点创建毛囊
+global proc bb_createFollice()
+{
+    string $loc = `textField -q -text bb_createFolliceTool_locTF`;
+    string $bb_loc[] = stringToStringArray($loc, ",");//位置
+    
+    string $baseMod = `textField -q -text bb_createFolliceTool_meshTF`;//模型名称
+    if(!`objExists "bb_folliceGrp"`){
+        createNode "transform" -n "bb_folliceGrp";
+    }
+    for($i=0;$i<size($bb_loc);$i++){
+        string $cpomNode = `createNode "closestPointOnMesh" -n ("closestPointOnMesh_"+$bb_loc[$i])`;
+        string $shape[] = `listRelatives -shapes -fullPath $baseMod`;
+        
+        connectAttr -f ($shape[0] + ".worldMesh") ($cpomNode + ".inMesh");
+        connectAttr -f ($shape[0] + ".worldMatrix") ($cpomNode + ".inputMatrix");
+        connectAttr -f ($bb_loc[$i] + ".translate") ($cpomNode + ".inPosition");
+        
+        float $cpomNodeU = getAttr ($cpomNode + ".result.parameterU");
+        float $cpomNodeV = getAttr ($cpomNode + ".result.parameterV");
+        
+        string $folliceNode = `createNode "follicle" -n ($bb_loc[$i] + "_follicleShape")`;
+        string $folliceTran[] = `listRelatives -p -path $folliceNode`;
+          
+        connectAttr -f ($shape[0] + ".outMesh") ($folliceNode + ".inputMesh");
+        connectAttr -f ($shape[0] + ".worldMatrix") ($folliceNode + ".inputWorldMatrix");
+        connectAttr -f ($folliceNode + ".outTranslate") ($folliceTran[0] + ".translate");
+        connectAttr -f ($folliceNode + ".outRotate") ($folliceTran[0] + ".rotate");
+        
+        setAttr ($folliceNode + ".parameterU") $cpomNodeU;
+        setAttr ($folliceNode + ".parameterV") $cpomNodeV;
+        
+        string $newName = $folliceTran[0] + "_Follicle";//后缀改名
+        rename $folliceTran[0] $newName;
+        parent $newName "bb_folliceGrp" ;
+    }
+}
+
+
+
+
+
+
+
+

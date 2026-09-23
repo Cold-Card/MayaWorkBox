@@ -1,0 +1,198 @@
+//Author  :   LiuBen
+//Date    :   09/12/2016
+//Fix     :   12/09/2016，对属性栏增加右键菜单
+//Fix     :   02/12/2019，修改不选择属性加载时，不重置属性栏
+//Fix     :   07/30/2019，添加旋转约束
+global proc bb_listTool()
+{
+    if (`window -q -exists bb_listToolWindow`) deleteUI bb_listToolWindow;
+    window -title "批量处理" -bgc 0.2 0.2 0.2 bb_listToolWindow;    
+        columnLayout -adjustableColumn true;
+            rowColumnLayout -numberOfColumns 2 -columnWidth 1 80 -columnWidth 2 200 rowColmnLayout_texField;
+                checkBox -label "复制权重" bb_listTool_checkBox001;
+                textField -w 200 -tx "copySkinWeights  -noMirror -surfaceAssociation closestPoint -influenceAssociation closestJoint -influenceAssociation oneToOne;" bb_listTool_textField001;
+                checkBox -label "点约束" bb_listTool_checkBox002;
+                textField -w 200 -tx "pointConstraint -mo -weight 1;" bb_listTool_textField002;
+                checkBox -label "父子约束" bb_listTool_checkBox003;
+                textField -w 200 -tx "parentConstraint -mo -weight 1;" bb_listTool_textField003;
+                checkBox -label "缩放约束" bb_listTool_checkBox004;
+                textField -w 200 -tx "scaleConstraint -mo -weight 1;" bb_listTool_textField004;
+                checkBox -label "父子关系" bb_listTool_checkBox005;
+                textField -w 200 -tx "parent $sourc $aim;" bb_listTool_textField005;
+                checkBox -label "连接属性" bb_listTool_checkBox006;
+                textField -w 200 -tx "connectAttr -f $sourc $aim;" -en 0 bb_listTool_textField006;
+            setParent ..;
+            rowColumnLayout -numberOfColumns 3 -columnWidth 1 90 -columnWidth 2 90 -columnWidth 2 100 ;
+                button -l "源物体" -h 25 -c "bb_listTool_import(1)" bb_listTool_sourceButton;
+                button -l "目标物体" -h 25 -c "bb_listTool_import(2)" bb_listTool_aimButton;
+                button -l "执行" -w 90 -h 25 -bgc 1 0.7 0 -c "bb_listTool_apply" bb_listTool_applyButton;
+                textField -tx "None" bb_listTool_attr001;
+                    popupMenu;
+                        menuItem -label ".t" -c ("textField -e -tx \""+".t"+"\" bb_listTool_attr001");
+                        menuItem -label ".r" -c ("textField -e -tx \""+".r"+"\" bb_listTool_attr001");
+                        menuItem -label ".s" -c ("textField -e -tx \""+".s"+"\" bb_listTool_attr001");
+                        menuItem -label ".input" -c ("textField -e -tx \""+".input"+"\" bb_listTool_attr001");
+                        menuItem -label ".output" -c ("textField -e -tx \""+".output"+"\" bb_listTool_attr001");
+                textField -tx "None" bb_listTool_attr002;
+                    popupMenu;
+                        menuItem -label ".t" -c ("textField -e -tx \""+".t"+"\" bb_listTool_attr002");
+                        menuItem -label ".r" -c ("textField -e -tx \""+".r"+"\" bb_listTool_attr002");
+                        menuItem -label ".s" -c ("textField -e -tx \""+".s"+"\" bb_listTool_attr002");
+                        menuItem -label ".input" -c ("textField -e -tx \""+".input"+"\" bb_listTool_attr002");
+                        menuItem -label ".output" -c ("textField -e -tx \""+".output"+"\" bb_listTool_attr002");
+                optionMenu  bb_listTool_modeOptionMenu;
+                    menuItem -label "按顺序";
+                    menuItem -label "按选择";
+            setParent ..;
+    showWindow bb_listToolWindow;
+    bb_listTool_extra;
+}
+bb_listTool;
+
+global string $bb_listTool_aims[],
+              $bb_listTool_sources[];
+global int $bb_listTool_aimsNum,
+           $bb_listTool_sourcesNum;
+
+global proc bb_listTool_import(int $mode)
+{
+    global string $bb_listTool_aims[],
+                  $bb_listTool_sources[];
+    global int $bb_listTool_aimsNum,
+               $bb_listTool_sourcesNum;
+    
+    string $sel[] = `ls -sl`;
+    int $listMode = `optionMenu -q -select bb_listTool_modeOptionMenu`;
+    string $attr[] = `channelBox -q -sma mainChannelBox`;
+    
+    if(size($sel) == 0){
+        confirmDialog -title "然而你神马都木有选！" -message "你好歹选个什么吧！" -button "囧" ;
+    }
+    else{
+        if($mode == 1){
+            clear $bb_listTool_sources;
+            if($listMode == 1){
+                $bb_listTool_sources = `sort $sel`;
+            }
+            else if($listMode == 2){
+                $bb_listTool_sources = $sel;
+            }
+            $bb_listTool_sourcesNum = `size $bb_listTool_sources`;
+            button -e -l ("源物体("+$bb_listTool_sourcesNum+")") bb_listTool_sourceButton;
+        }
+        else if($mode == 2){
+            clear $bb_listTool_aims;
+            if($listMode == 1){
+                $bb_listTool_aims = `sort $sel`;
+            }
+            else if($listMode == 2){
+                $bb_listTool_aims = $sel;
+            }
+            $bb_listTool_aimsNum = `size $bb_listTool_aims`;
+            button -e -l ("目标物体("+$bb_listTool_aimsNum+")") bb_listTool_aimButton;
+        }
+    }
+    
+    if(size($attr)>0){
+        if($mode == 1){
+            textField -e -tx ("."+$attr[0]) bb_listTool_attr001;
+        }
+        else if($mode == 2){
+            textField -e -tx ("."+$attr[0]) bb_listTool_attr002;
+        }
+    }
+    /*else{
+        if($mode == 1){
+            textField -e -tx "None" bb_listTool_attr001;
+        }
+        else if($mode == 2){
+            textField -e -tx "None" bb_listTool_attr002;
+        }
+    }*/
+}
+
+global proc bb_listTool_apply()
+{
+    global string $bb_listTool_aims[],
+                  $bb_listTool_sources[];
+    global int $bb_listTool_aimsNum,
+               $bb_listTool_sourcesNum;
+
+    if(($bb_listTool_aimsNum > 0)&&($bb_listTool_sourcesNum == 1)){
+        for($i=0;$i<$bb_listTool_aimsNum;$i++){
+            bb_listTool_execute($bb_listTool_aims[$i],$bb_listTool_sources[0]);
+        }
+    }
+    else if($bb_listTool_aimsNum == $bb_listTool_sourcesNum){
+        for($i=0;$i<$bb_listTool_aimsNum;$i++){
+            bb_listTool_execute($bb_listTool_aims[$i],$bb_listTool_sources[$i]);
+        }
+    }
+    else if(($bb_listTool_aimsNum == 1)&&($bb_listTool_sourcesNum > 0)){
+        for($i=0;$i<$bb_listTool_sourcesNum;$i++){
+            bb_listTool_execute($bb_listTool_aims[0],$bb_listTool_sources[$i]);
+        }
+    }
+}
+
+global proc bb_listTool_execute(string $aim0,string $sourc0)
+{
+    global string $aim;
+    global string $sourc;
+    $aim = $aim0;
+    $sourc = $sourc0;
+    select -r $sourc $aim;
+
+    if(`checkBox -q -v bb_listTool_checkBox001`){
+        string $text001 =`textField -q -tx bb_listTool_textField001`;
+        eval $text001;
+    }
+    if(`checkBox -q -v bb_listTool_checkBox002`){
+        string $text002 =`textField -q -tx bb_listTool_textField002`;
+        eval $text002;
+    }
+    if(`checkBox -q -v bb_listTool_checkBox003`){
+        string $text003 =`textField -q -tx bb_listTool_textField003`;
+        eval $text003;
+    }
+    if(`checkBox -q -v bb_listTool_checkBox004`){
+        string $text004 =`textField -q -tx bb_listTool_textField004`;
+        eval $text004;
+    }
+    if(`checkBox -q -v bb_listTool_checkBox005`){
+        string $text005 =`textField -q -tx bb_listTool_textField005`;
+        eval $text005;
+    }
+    if(`checkBox -q -v bb_listTool_checkBox006`){
+        string $text006 = `textField -q -tx bb_listTool_textField006`;
+        string $aimAttr = `textField -q -tx bb_listTool_attr002`;
+        string $sourcAttr = `textField -q -tx bb_listTool_attr001`;
+        
+        $aim = $aim + $aimAttr;
+        $sourc = $sourc + $sourcAttr;
+        eval $text006;
+    }
+}
+
+global proc bb_listTool_extra()
+{
+    string $extraTitle[];
+    string $extraCommand[];
+    $extraTitle[0] = "传递UV";
+    $extraCommand[0] = "polyTransfer -uv 1 -ao $sourc $aim;";
+    $extraTitle[1] = "融合变形";
+    $extraCommand[1] = "blendShape -frontOfChain $sourc $aim;";
+    $extraTitle[2] = "旋转约束";
+    $extraCommand[2] = "orientConstraint -mo -weight 1;;";
+    for($i=0;$i<5;$i++){
+        string $menuName = "bb_listTool_extraMenu" + ($i+1);
+        string $parentName = "bb_listTool_textField00" + ($i+1);
+        string $checkBoxName = "bb_listTool_checkBox00" + ($i+1);
+        string $textFieldName = "bb_listTool_textField00" + ($i+1);
+        popupMenu -p $parentName $menuName;
+        setParent -menu $menuName;
+        for($j=0;$j<size($extraCommand);$j++){
+            menuItem -label $extraTitle[$j] -c (("checkBox -e -label \""+$extraTitle[$j]+"\" \""+$checkBoxName+"\";textField -e -tx \""+$extraCommand[$j]+"\" \""+$textFieldName+"\";"));
+        }
+    }
+}

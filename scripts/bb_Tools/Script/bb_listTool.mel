@@ -1,0 +1,274 @@
+//Author  :   LiuBen
+//Date    :   03/23/2020
+global proc bb_listTool()
+{
+    if (`window -q -exists bb_listToolWindow`) deleteUI bb_listToolWindow;
+    window -title "批量处理" -bgc 0.2 0.2 0.2 bb_listToolWindow;    
+        columnLayout -adjustableColumn true -columnAttach "both" 2;
+            rowColumnLayout -numberOfColumns 2 -columnWidth 1 110 -columnWidth 2 110 bb_listTool_rowColumnLayout;
+                button -l "源物体" -h 35 -bgc 0.9 0.9 0.9 -c "bb_listTool_import(1)" bb_listTool_sourceButton;
+                    popupMenu;
+                        menuItem -label "选择源物体" -c "bb_listTool_select(1)";
+                button -l "目标物体" -h 35 -bgc 0.5 0.5 0.5 -c "bb_listTool_import(2)" bb_listTool_aimButton;
+                    popupMenu;
+                        menuItem -label "选择目标物体" -c "bb_listTool_select(2)";
+                textField -tx "None" bb_listTool_attr001;
+                    popupMenu;
+                        menuItem -label ".t" -c ("textField -e -tx \""+".t"+"\" bb_listTool_attr001");
+                        menuItem -label ".r" -c ("textField -e -tx \""+".r"+"\" bb_listTool_attr001");
+                        menuItem -label ".s" -c ("textField -e -tx \""+".s"+"\" bb_listTool_attr001");
+                        menuItem -label ".input" -c ("textField -e -tx \""+".input"+"\" bb_listTool_attr001");
+                        menuItem -label ".output" -c ("textField -e -tx \""+".output"+"\" bb_listTool_attr001");
+                textField -tx "None" bb_listTool_attr002;
+                    popupMenu;
+                        menuItem -label ".t" -c ("textField -e -tx \""+".t"+"\" bb_listTool_attr002");
+                        menuItem -label ".r" -c ("textField -e -tx \""+".r"+"\" bb_listTool_attr002");
+                        menuItem -label ".s" -c ("textField -e -tx \""+".s"+"\" bb_listTool_attr002");
+                        menuItem -label ".input" -c ("textField -e -tx \""+".input"+"\" bb_listTool_attr002");
+                        menuItem -label ".output" -c ("textField -e -tx \""+".output"+"\" bb_listTool_attr002");
+                radioCollection -parent bb_listTool_rowColumnLayout bb_listTool_modeChoose;
+                                radioButton -label "按名字顺序" nameList;
+                                radioButton -label "按选择顺序" selectList;
+                radioCollection -edit -select nameList bb_listTool_modeChoose;
+            setParent ..;
+            separator -height 10 -style "in";
+            checkBox -label "保持偏移值" -v 1 bb_select_shapeCB;
+            rowColumnLayout -numberOfColumns 2 -columnWidth 1 110 -columnWidth 2 110 ;
+                iconTextButton -style "iconAndTextHorizontal" -image1 "parentConstraint.png" -label "父子约束" -c "bb_listTool_apply(1)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "posConstraint.png" -label "点约束" -c "bb_listTool_apply(2)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "orientConstraint.png" -label "旋转约束" -c "bb_listTool_apply(3)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "scaleConstraint.png" -label "缩放约束" -c "bb_listTool_apply(4)";
+            setParent ..;
+            separator -height 10 -style "in"; 
+            rowColumnLayout -numberOfColumns 2 -columnWidth 1 110 -columnWidth 2 110 ;
+                iconTextButton -style "iconAndTextHorizontal" -image1 "blendShape.png" -label "融合变形" -c "bb_listTool_apply(5)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "textureEditor.png" -label "传递UV" -c "bb_listTool_apply(6)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "copySkinWeight.png" -label "拷贝权重" -c "bb_listTool_apply(7)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "smoothSkin.png" -label "蒙皮+拷贝" -c "bb_listTool_apply(8)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "menuIconEdit.png" -label "父子关系" -c "bb_listTool_apply(9)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "mirrorSkinWeight.png" -label "镜像权重" -c "bb_listTool_apply(12)";
+            setParent ..;
+            separator -height 10 -style "in"; 
+            rowColumnLayout -numberOfColumns 2 -columnWidth 1 110 -columnWidth 2 110 ;
+                iconTextButton -style "iconAndTextHorizontal" -image1 "menuIconEdit.png" -label "连接属性" -c "bb_listTool_apply(10)";
+                iconTextButton -style "iconAndTextHorizontal" -image1 "menuIconKeys.png" -label "连接驱动" -c "bb_listTool_apply(11)";
+            setParent ..;
+    showWindow bb_listToolWindow;
+}
+bb_listTool;
+
+global string $bb_listTool_aims[],
+              $bb_listTool_sources[];
+global int $bb_listTool_aimsNum,
+           $bb_listTool_sourcesNum;
+
+global proc bb_listTool_select(int $mode)
+{
+    global string $bb_listTool_aims[],
+                  $bb_listTool_sources[];
+    if($mode == 1){
+        select -r $bb_listTool_sources;
+    }
+    else if($mode == 2){
+        select -r $bb_listTool_aims;
+    }
+}
+
+global proc bb_listTool_import(int $mode)
+{
+    global string $bb_listTool_aims[],
+                  $bb_listTool_sources[];
+    global int $bb_listTool_aimsNum,
+               $bb_listTool_sourcesNum;
+    
+    string $sel[] = `ls -sl`;
+    string $attr[] = `channelBox -q -sma mainChannelBox`;
+    
+    if(size($sel) == 0){
+        confirmDialog -title "然而你神马都木有选！" -message "你好歹选个什么吧！" -button "囧" ;
+    }
+    else{
+        if($mode == 1){
+            clear $bb_listTool_sources;
+            $bb_listTool_sources = $sel;
+            $bb_listTool_sourcesNum = `size $bb_listTool_sources`;
+            button -e -l ("源物体("+$bb_listTool_sourcesNum+")") bb_listTool_sourceButton;
+        }
+        else if($mode == 2){
+            clear $bb_listTool_aims;
+            $bb_listTool_aims = $sel;
+            $bb_listTool_aimsNum = `size $bb_listTool_aims`;
+            button -e -l ("目标物体("+$bb_listTool_aimsNum+")") bb_listTool_aimButton;
+        }
+    }
+    if(size($attr)>0){
+        string $attr1[] = stringArrayAddPrefix($attr, "." );
+        string $attrTx = stringArrayToString($attr1, ",");
+        if($mode == 1){
+            textField -e -tx $attrTx bb_listTool_attr001;
+        }
+        else if($mode == 2){
+            textField -e -tx $attrTx bb_listTool_attr002;
+        }
+    }
+}
+
+global proc bb_listTool_apply(int $mode)
+{
+    global string $bb_listTool_aims[],
+                  $bb_listTool_sources[];
+    global int $bb_listTool_aimsNum,
+               $bb_listTool_sourcesNum;
+    
+    string $listModeSting = `radioCollection -q -select bb_listTool_modeChoose`;
+    int $listMode;
+    if($listModeSting == "nameList"){
+        $listMode = 1;
+    }
+    else{
+        $listMode = 2;
+    }
+    string $bb_listTool_aims1[],
+           $bb_listTool_sources1[];
+    if($listMode == 1){
+        $bb_listTool_aims1 = `sort $bb_listTool_aims`;
+        $bb_listTool_sources1 = `sort $bb_listTool_sources`;
+    }
+    else if($listMode == 2){
+        $bb_listTool_aims1 = $bb_listTool_aims;
+        $bb_listTool_sources1 = $bb_listTool_sources;
+    }
+    if(($bb_listTool_aimsNum > 0)&&($bb_listTool_sourcesNum == 1)){
+        for($i=0;$i<$bb_listTool_aimsNum;$i++){
+            bb_listTool_execute($bb_listTool_aims1[$i],$bb_listTool_sources1[0],$mode);
+        }
+    }
+    else if($bb_listTool_aimsNum == $bb_listTool_sourcesNum){
+        for($i=0;$i<$bb_listTool_aimsNum;$i++){
+            bb_listTool_execute($bb_listTool_aims1[$i],$bb_listTool_sources1[$i],$mode);
+        }
+    }
+    else if(($bb_listTool_aimsNum == 1)&&($bb_listTool_sourcesNum > 0)){
+        for($i=0;$i<$bb_listTool_sourcesNum;$i++){
+            bb_listTool_execute($bb_listTool_aims1[0],$bb_listTool_sources1[$i],$mode);
+        }
+    }
+    else{
+        confirmDialog -title "这…很难办。" -message "加载的物体数量不符合规范哦！" -button "囧=。=#" ;
+    }
+}
+
+global proc bb_listTool_execute(string $aim0,string $sourc0,int $mode)
+{
+    global string $aim;
+    global string $sourc;
+    $aim = $aim0;
+    $sourc = $sourc0;
+    select -r $sourc $aim;
+    int $offset = `checkBox -q -v bb_select_shapeCB`;
+    string $offsetTx;
+    if($offset == 0){
+        $offsetTx = "";
+    }
+    else{
+        $offsetTx = " -mo ";
+    }
+    string $aimAttr = `textField -q -tx bb_listTool_attr002`;
+    string $sourcAttr = `textField -q -tx bb_listTool_attr001`;
+    string $aimArray[] = stringToStringArray($aimAttr, ",");
+    string $sourcArray[] = stringToStringArray($sourcAttr, ",");
+    string $listModeSting = `radioCollection -q -select bb_listTool_modeChoose`;
+    if($listModeSting == "nameList"){
+        $aimArray = `sort $aimArray`;
+        $sourcArray = `sort $sourcArray`;
+    }
+    
+    switch($mode){
+        case 1:
+            string $command = "parentConstraint" + $offsetTx + "-weight 1;";
+            eval $command;
+            break;
+        case 2:
+            string $command = "pointConstraint" + $offsetTx + "-weight 1;";
+            eval $command;
+            break;
+        case 3:
+            string $command = "orientConstraint" + $offsetTx + "-weight 1;";
+            eval $command;
+            break;
+        case 4:
+            string $command = "scaleConstraint" + $offsetTx + "-weight 1;";
+            eval $command;
+            break;
+        case 5:
+            string $bs[] = `blendShape -frontOfChain $sourc $aim`;
+            blendShape -edit -w 0 1 $bs[0];
+            break;
+        case 6:
+            polyTransfer -uv 1 -ao $sourc $aim;
+            break;
+        case 7:
+            copySkinWeights  -noMirror -surfaceAssociation closestPoint -influenceAssociation closestJoint -influenceAssociation oneToOne;
+            break;
+        case 8:
+            if (`nodeType $sourc` == "transform")  {	
+        		string $bindListHs[] = `listHistory -gl 1 -pdo 1 $sourc`;
+            	string $bindJsList[];
+            	for($i=0;$i<size($bindListHs);$i++){
+            	    if(`nodeType $bindListHs[$i]`=="skinCluster"){
+            	        $bindJsList = `skinCluster -q -influence $bindListHs[$i]`;
+                	    skinCluster -tsb $bindJsList $aim;
+                	    select -r $sourc $aim;
+                	    copySkinWeights -noMirror -surfaceAssociation closestPoint -influenceAssociation closestJoint -influenceAssociation oneToOne;
+                	    break;
+            	    }
+            	}
+        	}	
+            break;
+        case 9:
+            parent $sourc $aim;
+            break;
+        case 10:
+            if(size($aimArray) == size($sourcArray)){
+                for($i=0;$i<size($aimArray);$i++){
+                    string $aim1 = $aim + $aimArray[$i];
+                    string $sourc1 = $sourc + $sourcArray[$i];
+                    connectAttr -f $sourc1 $aim1;
+                }
+            }
+            else if((size($aimArray) == 1)&&(size($sourcArray) > 0)){
+                for($i=0;$i<size($sourcArray);$i++){
+                    string $aim1 = $aim + $aimArray[0];
+                    string $sourc1 = $sourc + $sourcArray[$i];
+                    connectAttr -f $sourc1 $aim1;
+                }
+            }
+            break;
+        case 11:
+            if(size($aimArray) == size($sourcArray)){
+                for($i=0;$i<size($aimArray);$i++){
+                    string $aim1 = $aim + $aimArray[$i];
+                    string $sourc1 = $sourc + $sourcArray[$i];
+                    string $conNode[] = `listConnections -d off -s on -plugs on $sourc1`;
+                    if(`objExists $conNode[0]`){
+                        connectAttr -f $conNode[0] $aim1;
+                    }
+                }
+            }
+            else if((size($aimArray) == 1)&&(size($sourcArray) > 0)){
+                for($i=0;$i<size($sourcArray);$i++){
+                    string $aim1 = $aim + $aimArray[0];
+                    string $sourc1 = $sourc + $sourcArray[$i];
+                    string $conNode[] = `listConnections -d off -s on -plugs on $sourc1`;
+                    if(`objExists $conNode[0]`){
+                        connectAttr -f $conNode[0] $aim1;
+                    }
+                }
+            }
+            break;
+        case 12:
+            MirrorSkinWeights;
+            break;
+    }
+}
+

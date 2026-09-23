@@ -1,0 +1,80 @@
+global proc  bb_skinList()
+{
+	if(`window -ex bb_skinListWin`) deleteUI bb_skinListWin;	
+	window -t "skinList" bb_skinListWin;
+		
+	formLayout inflJointMainForm;
+	frameLayout -l "" infJointMainFrame;
+	
+	formLayout -e	
+		-af infJointMainFrame top 2
+		-af infJointMainFrame left 2
+		-af infJointMainFrame right 2
+		-af infJointMainFrame bottom 2	
+	inflJointMainForm;	
+	formLayout inflJointSubForm;	
+	textScrollList -ams 1 -sc "bb_tslSel" inflJointList;
+	
+	formLayout -e	
+		-af inflJointList top 2
+		-af inflJointList left 2
+		-af inflJointList right 2
+		-af inflJointList bottom 2			
+	inflJointSubForm;	
+	scriptJob -parent "bb_skinListWin" -replacePrevious -event "SelectionChanged" "bb_reloadSkinList";
+	showWindow bb_skinListWin;
+	bb_reloadSkinList;
+	popupMenu -p "inflJointList";
+        menuItem -label "sclect All" -c "bb_allSel";
+}
+bb_skinList;
+
+global proc string[] bb_returnSkinList(string $obj)
+{
+	string $bindListHs[] = `listHistory -gl 1 -pdo 1 $obj`;
+    
+	string $bindJsList[];
+	
+	for($i=0;$i<size($bindListHs);$i++){
+	    if(`nodeType $bindListHs[$i]`=="skinCluster")
+	    $bindJsList = `skinCluster -q -influence $bindListHs[$i]`;
+	}
+	return $bindJsList;
+}
+
+global proc bb_reloadSkinList()
+{
+
+	string $getSelection[] = `ls -sl -o`;
+
+	if (size($getSelection)>0 && (`nodeType $getSelection[0]` == "transform"))  
+	{	
+    	string $listOutJoints[] = `bb_returnSkinList $getSelection[0]` ;
+			
+		textScrollList -e -ra inflJointList ;
+			
+		for ($eJoint in $listOutJoints){
+			textScrollList -e -append $eJoint inflJointList ;
+		}
+		frameLayout -e -l ($getSelection[0]+": ") infJointMainFrame;
+	}
+}
+
+global proc bb_tslSel()	
+{
+ // select the items that are hilighted in the tsl
+    string $sel[] = `textScrollList -q -si inflJointList`;
+    if (size($sel) > 0){
+        select $sel;
+    } 
+}
+
+global proc bb_allSel()
+{
+    string $all[] = `textScrollList -q -allItems "inflJointList"`;
+    for($i=0;$i<size($all);$i++){
+        textScrollList -e -selectItem $all[$i] "inflJointList";
+    }
+    bb_tslSel;
+}
+

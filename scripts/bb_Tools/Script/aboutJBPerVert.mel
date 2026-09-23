@@ -1,0 +1,395 @@
+/* This file downloaded from Highend3d.com
+''  
+''  Highend3d.com File Information:
+''  
+''    Script Name: JB PerVert
+''    Author: jarombrand 
+''    Last Updated: May 26, 2009
+''    Update/Change this file at:
+''    http://Highend3d.com/maya/downloads/mel_scripts/character/3010.html
+''  
+''  Please do not alter any information above this line
+''  it is generated dynamically by Highend3d.com and will
+''  be changed automatically on any updates.
+*/
+	if (`window -exists JBPerVertWindow`)
+	deleteUI JBPerVertWindow;
+
+
+string $window = `window -title "JB PerVert"
+	-iconName "PerVert"
+	-sizeable 0
+	-menuBar 1
+	-maximizeButton 0
+	-widthHeight 400 365
+	JBPerVertWindow`;
+
+	menu -label "Edit";
+	menuItem -label "Default" -c "setToDefault";
+	//menuItem -subMenu true -label "Presets";
+	//	menuItem -label "Presets" -c "setToDefault";
+	menu -label "Help";
+	menuItem -label "About JB PerVert" -c "aboutJBPerVert";
+columnLayout -adjustableColumn true;
+
+	separator  -height 30 -style "single" -horizontal 1;	
+	colorSliderGrp -label "One Influence" 
+                        -height 40
+			-rgb 0 0 0
+                        //-rgb $1infColor[0] $1infColor[1] $1infColor[2]
+                        color1;
+	colorSliderGrp -label "Two Influences" 
+                        -height 40
+                        -rgb 0 0 .7
+                        color2;
+	colorSliderGrp -label "Three Influences" 
+                        -height 40
+                        -rgb 0 1 0
+                        color3;
+	colorSliderGrp -label "Four Influences" 
+                        -height 40
+                        -rgb 0 1 1
+                        color4;
+	colorSliderGrp -label "Five Influences" 
+                        -height 40
+                        -rgb 1 0 0
+                        color5;
+	colorSliderGrp -label "six+ Influences" 
+                        -height 40
+                        -rgb 1 1 0
+                        color6;
+separator  -height 15 -style "single" -horizontal 1;	
+	rowLayout -numberOfColumns 2
+                -columnAttach2 "both" "both"
+                -columnWidth2 130 130
+                -columnOffset2 10 10
+                -columnAlign2 "center" "center";
+		button -label "Color PerVert" -command ("PervertScript()");
+		button -label "Default PerVert" -command ("PervertDefault()");
+	setParent..;
+separator  -height 10 -style "single" -horizontal 1;	
+	columnLayout -adjustableColumn true;
+		global string $progressControl;
+		$progressControl = `progressBar -minValue 0 -maxValue 7 -width 300`;
+	setParent ..;
+showWindow $window;
+
+/*****************************************************************
+set window to default - 
+	sets all fields to default falues
+*****************************************************************/
+
+proc setToDefault(){
+	colorSliderGrp -e -rgb 0 0 0 color1;
+	colorSliderGrp -e -rgb 0 0 .7 color2;
+	colorSliderGrp -e -rgb 0 1 0 color3;
+	colorSliderGrp -e -rgb 0 1 1 color4;
+	colorSliderGrp -e -rgb 1 0 0 color5;
+	colorSliderGrp -e -rgb 1 1 0 color6;
+}
+
+/*****************************************************************
+Core functionality - 
+	Finds the skin cluster of the selected object 
+	then evaluates the number vertices that object has, from there it
+	puts each vertex into an array depending on how many influences it
+	has. Then colors each array giving a visual representation of the 
+	information.
+*****************************************************************/
+
+proc PervertScript(){
+	string $selectObj[] = `ls -sl`;
+	if (size($selectObj) != 1){
+
+        string $window = `window -title "ERROR"
+	-iconName "PerVert"
+	-sizeable 0
+	-maximizeButton 0
+	-widthHeight 250 100
+	Error`;
+
+		columnLayout -adjustableColumn true;
+	separator  -height 10 -style "single" -horizontal 1;	
+		text -label "You Gotta Select Somthing Stupid Dumb Head!";
+	separator  -height 10 -style "single" -horizontal 1;	
+		button -label "Ok Now I Understand" -command ("deleteUI -window " + $window);
+
+	setParent..;
+
+	showWindow $window;
+
+}else{
+	float $InfluenceNum[];
+	global string $progressControl;
+	progressBar -edit
+		-step 1 $progressControl;
+
+	string $selectObj[] = `ls -sl`;
+	string $selectedObj = $selectObj[0];
+	string $skin = `findRelatedSkinCluster($selectedObj)`;
+
+	//see how many vertices the selected object has
+	int $NumMeshVert1[] = `polyEvaluate -vertex $selectObj`; 
+
+	//array place holder
+	int $oneIn = 0;
+	int $twoIn = 0;
+	int $threeIn = 0;
+	int $fourIn = 0;
+	int $fiveIn = 0;
+	int $moreIn = 0;
+
+	//vertices are put into one of these arrays depending on how many influences it has
+	string $oneInfAr[];
+	string $twoInfAr[];
+	string $threeInfAr[];
+	string $fourInfAr[];
+	string $fiveInfAr[];
+	string $moreInfAr[];
+
+	//now that we know how many vertices we have, we loop through them to see how many influences each has
+	int $Count = 0;
+	while( $Count <= $NumMeshVert1[0]){
+
+		string $vert = ($selectedObj + ".vtx[" + $Count + "]");
+		//find how many influences each vertex has above .001
+		$InfluenceNum = `skinPercent -ignoreBelow 0.001 -query -value $skin $vert`;
+		//assigning each vertex to an array
+		switch (`size($InfluenceNum)`){
+				case 1:
+			$oneInfAr[$oneIn] = $vert;
+			$oneIn++;
+			break;
+				case 2:
+			$twoInfAr[$twoIn] = $vert;
+			$twoIn++;
+			break;
+				case 3:
+			$threeInfAr[$threeIn] = $vert;
+			$threeIn++;
+			break;
+				case 4:
+			$fourInfAr[$fourIn] = $vert;
+			$fourIn++;
+			break;
+				case 5:
+			$fiveInfAr[$fiveIn] = $vert;
+			$fiveIn++;
+			break;
+				default: //6+
+			$moreInfAr[$moreIn] = $vert;
+			$moreIn++;
+			break;
+		}
+	
+		$Count++;
+	}
+	//print ($oneIn + " ONE INF ");
+	//print ($twoIn + " TWO INF ");
+	//print ($threeIn + " THREE INF ");
+	//print ($moreIn + " MORE INF ");
+
+
+
+	//selecting the array of vertices with only one influence and painting them. so on and so forth 
+	float $color1[] = `colorSliderGrp -q -rgbValue color1`;
+	float $color2[] = `colorSliderGrp -q -rgbValue color2`;
+	float $color3[] = `colorSliderGrp -q -rgbValue color3`;
+	float $color4[] = `colorSliderGrp -q -rgbValue color4`;
+	float $color5[] = `colorSliderGrp -q -rgbValue color5`;
+	float $color6[] = `colorSliderGrp -q -rgbValue color6`;
+	global string $progressControl;
+	progressBar -edit
+		-step 1 $progressControl;
+	select -r $oneInfAr;
+	if (size($oneInfAr) > 0){
+		polyColorPerVertex -cdo -rgb $color1[0] $color1[1] $color1[2];
+		progressBar -edit
+			-step 1 $progressControl;
+		select -r $twoInfAr;
+	}else{
+		progressBar -edit
+			-step 6 $progressControl;
+		progressBar -edit
+			-step -8 $progressControl;
+		select $selectedObj;
+	};	
+	if (size($twoInfAr) > 0){
+		polyColorPerVertex -cdo -rgb $color2[0] $color2[1] $color2[2];
+		progressBar -edit
+			-step 1 $progressControl;
+		select -r $threeInfAr;
+	}else{
+		progressBar -edit
+			-step 5 $progressControl;
+		progressBar -edit
+			-step -8 $progressControl;
+		select $selectedObj;
+	};
+	if (size($threeInfAr) > 0){
+		polyColorPerVertex -cdo -rgb $color3[0] $color3[1] $color3[2];
+		progressBar -edit
+			-step 1 $progressControl;
+		select -r $fourInfAr;
+	}else{
+		progressBar -edit
+			-step 4 $progressControl;
+		progressBar -edit
+			-step -8 $progressControl;
+		select $selectedObj;
+	};
+	if (size($fourInfAr) > 0){
+		polyColorPerVertex -cdo -rgb $color4[0] $color4[1] $color4[2];
+		progressBar -edit
+			-step 1 $progressControl;
+		select -r $fiveInfAr;
+	}else{
+		progressBar -edit
+			-step 3 $progressControl;
+		progressBar -edit
+			-step -8 $progressControl;
+		select $selectedObj;
+	};
+		if (size($fiveInfAr) > 0){
+			polyColorPerVertex -cdo -rgb $color5[0] $color5[1] $color5[2];
+			progressBar -edit
+				-step 1 $progressControl;
+			select -r $moreInfAr;
+	}else{
+		progressBar -edit
+			-step 2 $progressControl;
+		progressBar -edit
+			-step -8 $progressControl;
+		select $selectedObj;
+	};
+		if (size($moreInfAr) > 0){
+			polyColorPerVertex -cdo -rgb $color6[0] $color6[1] $color6[2];
+			progressBar -edit
+				-step 1 $progressControl;
+			select $selectedObj;
+		progressBar -edit
+			-step -1 $progressControl;
+		progressBar -edit
+			-step -8 $progressControl;
+		select $selectedObj;
+
+	};
+progressBar -edit
+			-progress 0
+			$progressControl;
+};
+
+};
+
+/*****************************************************************
+Reset Core functionality - resets the objects colors to default by
+	removing colors with polyColorPerVertex -cdo -rem
+*****************************************************************/
+
+proc PervertDefault(){
+	string $selectObj[] = `ls -sl`;
+	if (size($selectObj) != 1){
+
+        string $window = `window -title "ERROR"
+	-iconName "PerVert"
+	-sizeable 0
+	-maximizeButton 0
+	-widthHeight 250 100
+	Error`;
+
+		columnLayout -adjustableColumn true;
+	separator  -height 10 -style "single" -horizontal 1;	
+		text -label "You Gotta Select Somthing Stupid Dumb Head!";
+	separator  -height 10 -style "single" -horizontal 1;	
+		button -label "Ok Now I Understand" -command ("deleteUI -window " + $window);
+
+	setParent..;
+
+	showWindow $window;
+
+}else{
+
+	float $InfluenceNum[];
+
+	string $selectObj[] = `ls -sl`;
+	string $selectedObj = $selectObj[0];
+	string $skin = `findRelatedSkinCluster($selectedObj)`;
+
+	//see how many vertices the selected object has
+	int $NumMeshVert1[] = `polyEvaluate -vertex $selectObj`; 
+	int $default = 0;
+	string $defaultAr[];
+
+	//now that we know how many vertices we have, we loop through them to add them to the default array
+	int $Count = 0;
+	while( $Count <= $NumMeshVert1[0]){
+		string $vert = ($selectedObj + ".vtx[" + $Count + "]");
+		$defaultAr[$default] = $vert;
+		$default++;
+		//polyColorPerVertex -cdo -rem $vert;
+		$Count++;
+	}
+	//select and reset the color of the vertices
+	select -r $defaultAr;
+	polyColorPerVertex -cdo -rem;
+	select $selectedObj;
+};
+};
+
+/*****************************************************************
+
+About JB PerVert- includes purpose, instructions, and special thanks
+
+*****************************************************************/
+proc aboutJBPerVert(){
+
+	if (`window -exists aboutJBPerVertWindow`)
+	deleteUI aboutJBPerVertWindow;
+
+
+
+	 string $window = `window -title "About"
+	-iconName "PerVert"
+	-sizeable 0
+	-maximizeButton 0
+	-widthHeight 515 330 
+	aboutJBPerVertWindow`;
+		columnLayout -adjustableColumn true;
+	separator  -height 10 -style "single" -horizontal 1;	
+		text -h 40 -align left -font boldLabelFont -label "       Title:                       JB PerVert";
+		text -align left -font boldLabelFont -label "       Author:                   Jarom Brand";
+		text -h 30-align left -label "                                       jarombrand@gmail.com";
+		text -h 40 -align left -font boldLabelFont -label "       Institute:                 Utah Valley University";
+		separator  -height 10 -style "single" -horizontal 1;
+		text -h 15 -align center -font boldLabelFont -label "Purpose:";
+		text -h 15 -align left -label "       JB Pervert is meant to give a visual representation";
+		text -h 15 -align left -label "       of how many joint or bone influences there are ";
+		text -h 15 -align left -label "       per vertex, hence the name JB PerVert. This visual";
+		text -h 15 -align left -label "       representation is accomplished by coloring each";
+		text -h 15 -align left -label "       vertex according to the number of influences it";
+		text -h 15 -align left -label "       has.";
+		separator  -height 15 -style "none" -horizontal 1;
+
+		text -h 15 -align center -font boldLabelFont -label "Instructions:";
+		text -h 15 -align left -label "       Select the object which you want to paint (must";
+		text -h 15 -align left -label "       have a Skin Cluster). If you wish you can choose";
+		text -h 15 -align left -label "       the colors to be used. Then press \"Color Pervert\"";
+		text -h 15 -align left -label "       It's that easy!!!";
+		text -h 15 -align left -label "       To revert back to the default color simply press";
+		text -h 15 -align left -label "       \"Default PerVert\"";	
+		separator  -height 15 -style "none" -horizontal 1;
+		
+		text -h 15 -align center -font boldLabelFont -label "Special Thanks:";
+		text -h 15 -align left -label "       Anthony Romrell was the inspiration behind the ";
+		text -h 15 -align left -label "       project, being the genius that he is.";
+//		text -h 15 -align left -label "					- anthonyromrell@mac.com";
+		text -h 15 -align left -label "       Rob Guest helped with concepts, research, and";
+		text -h 15 -align left -label "       anything else he could.";
+		text -h 15 -align left -label "       Clayton Lantz kept me motivated to make it better.     ";	
+//		text -h 15 -align left -label "					- claytor@gmail.com";
+	separator  -height 10 -style "single" -horizontal 1;	
+		button -label "Ok" -command ("deleteUI -window " + $window);
+	setParent..;
+	showWindow $window;
+};
+

@@ -1,0 +1,496 @@
+//Author  :   LiuBen
+//Date    :   2020/03/13
+//Fix     :   2020/07/27   适配ADV5.74版本。
+//Fix     :   2020/08/05   添加控制器显示隐藏功能。
+//Fix     :   2020/08/18   针对5.74手指加入层级修改功能,添加修改眼睛上层组scale不为1的功能。
+//Fix     :   2020/08/19   修改躯干IK出问题的BUG。
+//Fix     :   2020/10/21   重新设计界面，‘躯干方向修改’改为‘修改IK控制器为统一腰部控制器’。
+//Fix     :   2021/03/11   添加嘴唇月牙次级功能。
+//Fix     :   2021/06/16   1，修正脖子时，删除原来头控制器的shape（原来是隐藏）。2，修改腰部时，锁住切换属性。3,添加autoPress属性。
+//Fix     :   2021/07/06   添加眉毛修改功能。
+//Fix     :   2021/11/03   删除部分功能，修改脖子功能bug。
+global proc bb_advFixTool()
+{
+    string $melPath = `bb_advFix_setFilePath`;
+    eval ("source \""+$melPath+"/mel/bb_subFacialTool.mel\";");
+    eval ("source \""+$melPath+"/mel/bb_advFix_IKSpine.mel\";");
+    bb_advFixUI;
+}
+bb_advFixTool;
+//提取路径
+global proc string bb_advFix_setFilePath()
+{
+    string $melPath = `whatIs bb_advFixTool`;
+    string $melPathArray[] = stringToStringArray($melPath, "/");
+    stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
+    string $start[] = stringToStringArray($melPathArray[0], " ");
+    $melPathArray[0] = $start[size($start)-1];
+    string $path = stringArrayToString($melPathArray, "/");
+    return $path;
+}
+global proc bb_advFixUI()
+{
+    if (`window -q -exists bb_advFixToolWindow`) deleteUI bb_advFixToolWindow;
+    window -title "ADV插件优化工具" -toolbox 1 bb_advFixToolWindow;    
+        columnLayout -adjustableColumn true -columnAttach "both" 2;
+            frameLayout -label "适配ADV5.74版本";
+                rowColumnLayout -numberOfColumns 2 -columnWidth 1 110 -columnWidth 2 100 -rowSpacing 1 5 -columnAlign 1 "left";
+                    text -l "1，锁控制器.v：";
+                    button -l "锁控制器.v" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_lockCtrlV;
+                    text -l "2，肩膀控制器方向：";
+                    button -l "肩膀控制器方向" -w 80 -c bb_advFix_Scapula;
+                    text -l "3，躯干控制器修改：";
+                    rowLayout -numberOfColumns 2 -columnWidth2 50 50;
+                        button -l "1.定位" -w 50 -bgc 0.5 0.5 0.5 -c bb_advFix_IKSpineFix1;
+                        button -l "2.整理" -w 50 -bgc 0.5 0.5 0.5 -c bb_advFix_IKSpineFix2;
+                    setParent ..;
+                    text -l "4，脖子修改：";
+                    button -l "脖子修改" -w 80 -c bb_advFix_Neck;
+                    text -l "5，跨部整理：";
+                    button -l "跨部整理" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_Hip;
+                    text -l "6，手指额外层级：";
+                    button -l "手指额外层级" -w 80 -c bb_advFix_Finger0Fix;
+                    text -l "7，眼睛控制器：";
+                    button -l "眼睛控制器" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_AimEye;
+                    text -l "8，嘴唇次级：";
+                    button -l "嘴唇次级" -w 80 -c ("bb_advFix_FacialSubCtrl;bb_advFix_autoLipPress;");
+                    text -l "9，眉毛修改：";
+                    button -l "眉毛修改" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_Brow;
+                setParent ..;
+            frameLayout -label "修型驱动";
+                button -l "导入驱动" -w 160 -h 35 -bgc 0 0.3 0.5 -c bb_advFix_Drv;
+            frameLayout -label "控制器显示/隐藏";
+                button -l "创建属性" -w 160 -bgc 1 0.95 0.5 -c bb_advFix_VisCreate;
+                rowLayout -numberOfColumns 2 -columnWidth2 105 105;
+                    button -l "第一层显示" -en 0 -w 105 -h 35 -bgc 0.5 0.5 0.5 -c "bb_advFix_VisCon(1)" bb_advFix_Vis1_Button;
+                    button -l "第二层显示" -en 0 -w 105 -h 35  -c "bb_advFix_VisCon(2)" bb_advFix_Vis2_Button;
+                setParent ..;
+    showWindow bb_advFixToolWindow;
+    if(`objExists "Main.CtrlVis"`){
+        button -e -en 1 bb_advFix_Vis1_Button;
+        button -e -en 1 bb_advFix_Vis2_Button;
+    }
+}
+
+//肩膀
+global proc bb_advFix_Scapula()
+{
+    string $Constraint[];
+    delete TwistFollowParentShoulder_L_parentConstraint1;
+    delete Scapula_L_parentConstraint1;
+    xform -ws -ro 90 0 180 "FKOffsetScapula_L";
+    parentConstraint -mo -weight 1 "FKXScapula_L" "TwistFollowParentShoulder_L";
+    $Constraint = `parentConstraint -mo -weight 1 "FKXScapula_L" "Scapula_L"`;
+    parent $Constraint[0] "ConstraintSystem";
+    
+    delete TwistFollowParentShoulder_R_parentConstraint1;
+    delete Scapula_R_parentConstraint1;
+    xform -ws -ro -90 180 0 "FKOffsetScapula_R";
+    parentConstraint -mo -weight 1 "FKXScapula_R" "TwistFollowParentShoulder_R";
+    $Constraint = `parentConstraint -mo -weight 1 "FKXScapula_R" "Scapula_R"`;
+    parent $Constraint[0] "ConstraintSystem";  
+}
+
+//大环
+global proc bb_advFix_AddMov()
+{
+    circle -nr 0 1 0 -c 0 0 0 -radius 7 -constructionHistory 0 -n "Move";
+    string $parent[] = `listRelatives  -parent -path "Main"`;
+    createNode "transform" -n "Main_grp"; 
+    createNode "transform" -n "Move_grp"; 
+    parent "Move_grp" $parent[0];
+    parent "Move" "Move_grp"; 
+    parent "Main_grp" "Move";
+    parent "Main" "Main_grp";
+    setAttr -lock true -keyable false -channelBox false "Move.sx";
+    setAttr -lock true -keyable false -channelBox false "Move.sy";
+    setAttr -lock true -keyable false -channelBox false "Move.sz";
+    setAttr -lock true -keyable false -channelBox false "Move.v";    
+}
+//脖子
+global proc bb_advFix_Neck()
+{
+    delete FKXNeckPart1_M_orientConstraint1 FKXNeckPart2_M_orientConstraint1 FKXNeck_M_orientConstraint1;
+    disconnectAttr "FKNeck_M.t"  "FKXNeck_M.t";
+    parent "FKXNeck_M" "FKNeck_M";
+    parent "FKXHead_M" "FKExtraHead_M";
+
+    duplicate -parentOnly -n "FKOffsetHeadDrv_M" "FKOffsetHead_M";
+    duplicate -parentOnly -n "FKGlobalStaticHeadDrv_M" "FKGlobalStaticHead_M";
+    duplicate -parentOnly -n "FKGlobalHeadDrv_M" "FKGlobalHead_M";
+    duplicate -parentOnly -n "FKExtraHeadDrv_M" "FKExtraHead_M";
+    duplicate -n "FKHeadDrv_M" "FKHead_M";
+    duplicate -parentOnly -n "FKGlobalHeadDrv_M1" "FKGlobalStaticHeadDrv_M";
+    duplicate -parentOnly -n "FKOffsetNeckDrv_M" "FKOffsetNeck_M";
+    duplicate -parentOnly -n "FKExtraNeckDrv_M" "FKExtraNeck_M";
+
+    parent "FKHeadDrv_M" "FKExtraHeadDrv_M";
+    parent "FKExtraHeadDrv_M" "FKGlobalHeadDrv_M";
+    parent "FKGlobalHeadDrv_M" "FKGlobalStaticHeadDrv_M";
+    parent "FKGlobalStaticHeadDrv_M" "FKOffsetHeadDrv_M";
+    parent "FKGlobalHeadDrv_M1" "FKOffsetHeadDrv_M";
+    parent "FKOffsetHeadDrv_M" "FKNeck_M";
+    parent "FKExtraNeckDrv_M" "FKOffsetNeckDrv_M";
+    parent "FKOffsetNeckDrv_M" "FKOffsetHeadDrv_M";
+    parent "FKXHead_M" "FKHead_M";
+    delete "FKHead_MShape";
+       
+    connectAttr -f FKHeadDrv_M.t FKHead_M.t ;
+    connectAttr -f FKHeadDrv_M.r FKHead_M.r ;
+    connectAttr -f FKHeadDrv_M.s FKHead_M.s ;
+    connectAttr -f FKHeadDrv_M.Global FKHead_M.Global;
+    
+    string $GlobalCon[] = `orientConstraint -weight 1 "GlobalHead_M" "FKGlobalStaticHeadDrv_M" "FKGlobalHeadDrv_M"`;
+    connectAttr -f globalUnitConversionHead_M.output ($GlobalCon[0]+".GlobalHead_MW0");
+    connectAttr -f globalReverseHead_M.outputX ($GlobalCon[0]+".FKGlobalStaticHeadDrv_MW1");
+    delete FKGlobalHead_M_orientConstraint1;
+    string $GlobalCon1[] = `orientConstraint -weight 1 "GlobalHead_M" "FKGlobalStaticHeadDrv_M" "FKGlobalHead_M"`;
+    connectAttr -f globalUnitConversionHead_M.output ($GlobalCon1[0]+".GlobalHead_MW0");
+    connectAttr -f globalReverseHead_M.outputX ($GlobalCon1[0]+".FKGlobalStaticHeadDrv_MW1");
+    
+    parentConstraint -weight 1 "FKHeadDrv_M" "FKGlobalHeadDrv_M1";
+    setAttr FKOffsetNeckDrv_M.t 0 0 0;
+    parentConstraint -mo -weight 1 "FKHeadDrv_M" "FKExtraNeckDrv_M";
+    
+    duplicate -rr -po -n "TwistBalancerHeadDrv_M" "TwistBalancerHead_M";
+    parent "TwistBalancerHeadDrv_M" "TwistFollowParentHead_M";
+    duplicate -rr -po -n "FKXHeadDrv_M" "FKXHead_M";
+    parent "FKXHeadDrv_M" "FKHeadDrv_M";
+    parentConstraint -mo -weight 1 "FKXHeadDrv_M" "TwistBalancerHeadDrv_M";
+    disconnectAttr "InbetweenUnTwistDividerNeck1_M.outputX"  "NeckPart1_M_parentConstraint1.target[0].targetOffsetRotateX";
+    disconnectAttr "InbetweenUnTwistDividerNeck2_M.outputX"  "NeckPart2_M_parentConstraint1.target[0].targetOffsetRotateX";
+    disconnectAttr "TwistBalancerHead_M.twist"  "InbetweenUnTwistDividerNeck2_M.input1X";
+    disconnectAttr "TwistBalancerHead_M.twist"  "InbetweenUnTwistDividerNeck1_M.input1X";
+    
+    connectAttr -f "TwistBalancerHeadDrv_M.rx" "InbetweenUnTwistDividerNeck2_M.input1X";
+    connectAttr -f "FKGlobalHeadDrv_M1.ry" "InbetweenUnTwistDividerNeck2_M.input1Y";
+    connectAttr -f "FKGlobalHeadDrv_M1.rz" "InbetweenUnTwistDividerNeck2_M.input1Z";
+    connectAttr -f "TwistBalancerHeadDrv_M.rx" "InbetweenUnTwistDividerNeck1_M.input1X";
+    connectAttr -f "FKGlobalHeadDrv_M1.ry" "InbetweenUnTwistDividerNeck1_M.input1Y";
+    connectAttr -f "FKGlobalHeadDrv_M1.rz" "InbetweenUnTwistDividerNeck1_M.input1Z";
+    setAttr "InbetweenUnTwistDividerNeck2_M.input2" 0.3 0.3 0.3;
+    setAttr "InbetweenUnTwistDividerNeck1_M.input2" 0.2 0.2 0.2;
+    createNode "multiplyDivide" -name "InbetweenUnTwistDividerNeck_M";
+    setAttr "InbetweenUnTwistDividerNeck_M.input2" 0.1 0.1 0.1;
+    connectAttr -f "TwistBalancerHeadDrv_M.rx" "InbetweenUnTwistDividerNeck_M.input1X";
+    connectAttr -f "FKGlobalHeadDrv_M1.ry" "InbetweenUnTwistDividerNeck_M.input1Y";
+    connectAttr -f "FKGlobalHeadDrv_M1.rz" "InbetweenUnTwistDividerNeck_M.input1Z";
+    
+    connectAttr -f "InbetweenUnTwistDividerNeck_M.output" "FKXNeck_M.r";
+    connectAttr -f "InbetweenUnTwistDividerNeck1_M.output" "FKNeckPart1_M.r";
+    connectAttr -f "InbetweenUnTwistDividerNeck2_M.output" "FKNeckPart2_M.r";
+    
+    createNode "multiplyDivide" -name "FKNeckPart_MD";
+    setAttr "FKNeckPart_MD.input2" 0.33334 0.33334 0.33334;
+    connectAttr -f "FKExtraNeckDrv_M.t" "FKNeckPart_MD.input1";
+    connectAttr -f "FKNeckPart_MD.output" "FKNeckPart1_M.t";
+    connectAttr -f "FKNeckPart_MD.output" "FKNeckPart2_M.t";
+    
+    createNode "multiplyDivide" -name "ReFKExtraHead_MD";
+    setAttr "ReFKExtraHead_MD.input2" -0.66666 -0.66666 -0.66666;
+    connectAttr -f "FKGlobalHeadDrv_M1.t" "ReFKExtraHead_MD.input1";
+    connectAttr -f "ReFKExtraHead_MD.output" "FKExtraHead_M.t";
+}
+//手指
+global proc bb_advFix_Finger0Fix()
+{
+    string $finger0[] = `ls "FKOffset*Finger0_*"`;
+    for($i=0;$i<size($finger0);$i++){
+        string $SDK = substituteAllString($finger0[$i], "FKOffset", "SDKFK");
+        duplicate -parentOnly -n $SDK $finger0[$i];
+        string $extra = substituteAllString($finger0[$i], "FKOffset", "FKExtra");
+        parent $SDK $finger0[$i];
+        parent $extra $SDK;
+    } 
+}
+//眼睛
+global proc bb_advFix_AimEye()
+{
+    if(`objExists "AimEyeOffset_M"`){
+        select AimEyeOffset_M;
+        channelBoxCommand -freezeScale;
+    } 
+}
+//锁visibility
+global proc bb_advFix_lockCtrlV()
+{
+    string $suffixArray[] = {"_L", "_R", "_M", "Main"};
+    string $shapes[] = `ls -l -type "nurbsCurve"`;
+    string $obj[];
+    for($i=0;$i<size($shapes);$i++){
+        string $transforms[] = `listRelatives -f -p $shapes[$i]`;
+        $obj[size($obj)] = $transforms[0];
+    }
+    $obj = stringArrayRemoveDuplicates($obj);
+    for($i=0;$i<size($obj);$i++){
+        for($j=0;$j<size($suffixArray);$j++){
+            if(`gmatch $obj[$i] ("*"+$suffixArray[$j]+"*")`){
+                setAttr -lock true ($obj[$i] + ".v");
+            }
+        }
+    }
+}
+
+global proc bb_advFix_RenameExtra(string $defPrefix,string $defSuffix,string $aimName,int $finger)
+{
+    string $renameJoint[] = `ls -type "joint" ($defPrefix+"*"+$defSuffix)`;
+    for($i=0;$i<size($renameJoint);$i++){
+        string $endNum;
+        if($finger == 0){
+            if($i==0){
+                $endNum = "";
+            }
+            else{
+                $endNum = $i;
+            }
+        }
+        else if($finger == 1){
+            string $fingerName = substituteAllString($renameJoint[$i], $defSuffix, "");
+            string $listNum = endString($fingerName, 1);
+            int $IsNum = isValidString($listNum, "[0-9]*"); 
+            if($IsNum == 1){
+                $endNum = $listNum;
+            }
+            else{
+                $endNum = "";
+            }
+        }
+        rename $renameJoint[$i] ($aimName+$endNum);
+    }
+}
+//跨修改
+global proc bb_advFix_Hip()
+{
+    bb_advFix_HipApply("L");
+    bb_advFix_HipApply("R");
+}
+global proc bb_advFix_HipApply(string $Orientation)
+{
+    parent ("FKOffsetHip_" + $Orientation) ("FKXHipExtra_" + $Orientation);
+    parent ("Hip_" + $Orientation) ("HipExtra_" + $Orientation);
+    delete ("IKParentConstraintHip_" + $Orientation + "_parentConstraint1");
+    delete ("HipExtraEnd_" + $Orientation);
+    parentConstraint -mo -weight 1 ("FKXHipExtra_" + $Orientation) ("IKParentConstraintHip_" + $Orientation);
+
+    duplicate -n "FKHipExtra_advFix" -renameChildren ("FKScapula_" + $Orientation);
+    string $newShape[] = `listRelatives -s "FKHipExtra_advFix"`;
+    string $oldShape[] = `listRelatives -s ("FKHipExtra_" + $Orientation)`;
+    delete $oldShape[0];
+    parent -add -s $newShape[0] ("FKHipExtra_" + $Orientation);
+    rename $newShape[0] $oldShape[0];
+    delete FKHipExtra_advFix;
+}
+//导入驱动
+global proc bb_advFix_Drv()
+{
+    string $melPath = `bb_advFix_setFilePath`;
+    
+    string $refReture = `file -r -type "mayaAscii" -ignoreVersion -gl -mergeNamespacesOnClash false 
+                         -namespace "Drv" -options "v=0;" ($melPath + "/file/drv.ma")`;
+    string $sel[] = `ls -sl`;
+    string $refNode = `referenceQuery -referenceNode $refReture`;
+    string $allNode[] = `referenceQuery -nodes -showDagPath 1 $refNode`;
+    file -importReference -referenceNode $refNode;
+    for($i=0;$i<size($allNode);$i++){
+        if(`objExists $allNode[$i]`){
+            string $newName[] = stringToStringArray($allNode[$i], ":");
+            string $longName[] = `ls -long $allNode[$i]`;
+            rename $longName[0] $newName[size($newName)-1];
+        }
+    }
+    //file -import -type "mayaAscii"  -ignoreVersion -mergeNamespacesOnClash false -rpr "drv" -options "v=0;"  -pr ($melPath + "/file/drv.ma"); 
+    string $jointName[];
+    if(`objExists "Root_M"`){
+        $jointName = {"Shoulder_L","Shoulder_R","Wrist_L","Wrist_R","Hip_L","Hip_R","Ankle_L","Ankle_R","Neck_M"};
+    }
+    else if(`objExists "Hips"`){
+        $jointName = {"LeftArm","RightArm","LeftHand","RightHand","LeftUpLeg","RightUpLeg","LeftFoot","RightFoot","Neck"};
+    }
+    string $drvEnv[] = {"l_arm_drvEnv","r_arm_drvEnv","l_wrist_drvEnv","r_wrist_drvEnv","l_leg_drvEnv","r_leg_drvEnv","l_ankle_drvEnv","r_ankle_drvEnv","head_drvEnv"};
+    for($i=0;$i<size($drvEnv);$i++){
+        string $Constraint[] = `parentConstraint -weight 1 $jointName[$i] $drvEnv[$i]`;
+        delete $Constraint;
+        string $main = substituteAllString($drvEnv[$i], "drvEnv", "main_loc");
+        string $parent[] = `listRelatives -p $jointName[$i]`;
+        parentConstraint -mo -weight 1 $parent[0] $drvEnv[$i];
+        if($drvEnv[$i] == "head_drvEnv"){
+            if($jointName[$i] == "Neck_M")
+                orientConstraint -mo -weight 1 "Head_M" $main;
+            if($jointName[$i] == "Neck")
+                orientConstraint -mo -weight 1 "Head" $main;
+        }
+        else{
+            parentConstraint -mo -weight 1 $jointName[$i] $main;
+        }
+    }
+}
+//控制器显示隐藏
+global proc bb_advFix_VisCreate()
+{
+    if(`objExists Main`){
+        if(!`objExists "Main.FacialVis"`){
+            addAttr -ln "FacialVis" -at bool "Main";
+            setAttr -e -keyable false -channelBox true "Main.FacialVis";
+            if(`objExists "ctrlBoxOffset"`) connectAttr -f Main.FacialVis "ctrlBoxOffset.v";
+        }
+        if(!`objExists "Main.CtrlVis"`){
+            addAttr -ln "CtrlVis"  -at "enum" -en "Basic:Further:All:"  "Main";
+            setAttr -e -keyable true "Main.CtrlVis";
+            shadingNode -asUtility -n "CtrlVis_MA" plusMinusAverage;
+            shadingNode -asUtility -n "CtrlVis_clamp" clamp;
+            setAttr "CtrlVis_clamp.maxR" 1;
+            setAttr CtrlVis_MA.input1D[0] -1;
+            connectAttr -f Main.CtrlVis CtrlVis_MA.input1D[1];
+            connectAttr -f CtrlVis_MA.output1D CtrlVis_clamp.inputR;
+        }
+        setAttr -e -keyable false -channelBox false "Main.fkVis";
+        setAttr -e -keyable false -channelBox false "Main.ikVis";
+        setAttr -e -keyable false -channelBox false "Main.aimVis";
+        setAttr -e -keyable false -channelBox false "Main.aimFKVis";
+        setAttr -e -keyable false -channelBox false "Main.aimLRVis";
+        setAttr -e -keyable false -channelBox false "Main.fingerVis";
+        setAttr -e -keyable false -channelBox false "Main.bendVis";
+        setAttr -e -keyable false -channelBox false "Main.arrowVis";
+        setAttr -e -keyable false -channelBox false "Main.drvSysVis";
+
+        string $vis1[] = {"Main.fingerVis","FKParentConstraintToToes_L.v","FKParentConstraintToToes_R.v",
+                          "SquashControls.v","ctrlBox.ACtrlVis","ctrlBox.RegionsCtrlVis","ctrlBox.SquashCtrlVis",
+                          "ctrlBox.TongueCtrlVis"};
+
+        string $vis2[] = {"Main.bendVis","ctrlBox.UpMidLoCtrlVis","middleFaceOffset_M.v",
+                          "ctrlBox.TeethCtrlVis","ctrlBox.BCtrlVis","ctrlBox.CCtrlVis"};
+        for($i=0;$i<size($vis1);$i++){
+            if(`objExists $vis1[$i]`){
+                int $lock = `getAttr -l $vis1[$i]`;
+                if($lock != 0) setAttr -e -l 0 $vis1[$i];
+                connectAttr -f Main.CtrlVis $vis1[$i];
+                if($lock != 0) setAttr -e -l 1 $vis1[$i];
+            }
+        }
+        for($i=0;$i<size($vis2);$i++){
+            if(`objExists $vis2[$i]`){
+                int $lock = `getAttr -l $vis2[$i]`;
+                if($lock != 0) setAttr -e -l 0 $vis2[$i];
+                connectAttr -f CtrlVis_clamp.outputR $vis2[$i];
+                if($lock != 0) setAttr -e -l 1 $vis2[$i];
+            }
+        }
+        button -e -en 1 bb_advFix_Vis1_Button;
+        button -e -en 1 bb_advFix_Vis2_Button;
+        if(`objExists "squashBase_MShape"`) setAttr "squashBase_MShape.v" 0;
+    }
+}
+global proc bb_advFix_VisCon(int $mod)
+{
+    string $sel[] = `ls -sl`;
+    for($i=0;$i<size($sel);$i++){
+        if(`objExists ($sel[$i]+".v")`){
+            int $lock = `getAttr -l ($sel[$i]+".v")`;
+            if($lock != 0) setAttr -e -l 0 ($sel[$i]+".v");
+            if($mod == 1)
+                connectAttr -f Main.CtrlVis ($sel[$i]+".v");
+            if($mod == 2)
+                connectAttr -f CtrlVis_clamp.outputR ($sel[$i]+".v");
+            if($lock != 0) setAttr -e -l 1 ($sel[$i]+".v");
+        }
+    }  
+}
+
+//嘴唇次级
+global proc bb_advFix_FacialSubCtrl()
+{
+    string $upper[] = {"upperLip_M","upperLipASubtract","upperLipA","upperLipJoint","upperupperLipClusterHandle_M","upperLipASubtractMD_M"};
+    string $lower[] = {"lowerLip_M","lowerLipASubtract","lowerLipA","lowerLipJoint","lowerlowerLipClusterHandle_M","lowerLipASubtractMD_M"};
+    bb_advFix_FacialSubCtrlApply($upper);
+    bb_advFix_FacialSubCtrlApply($lower);
+}
+
+global proc bb_advFix_FacialSubCtrlApply(string $Aim[])
+{
+    if(`objExists $Aim[0]`){
+        string $Grp[] = `duplicate -parentOnly -n ($Aim[1] + "_M") ($Aim[1] + "_L")`;
+        string $Ctrl[] = `duplicate -n ($Aim[2] + "_M") ($Aim[2] + "_L")`;
+        parent $Ctrl[0] $Grp[0];
+        parent $Grp[0] $Aim[0];
+        setAttr ($Grp[0] + ".t") 0 0 0;
+        duplicate -parentOnly -n ($Aim[3] + "_M1") ($Aim[3] + "_M");
+        parent ($Aim[3] + "_M1") ($Aim[3] + "_M");
+        string $parentCon[] = `listConnections -d off -s on ($Aim[4] + ".tx")`;
+        delete $parentCon[0];
+        parentConstraint -mo -weight 1 ($Aim[3] + "_M1") $Aim[4];
+        shadingNode -asUtility multiplyDivide -n $Aim[5];
+        setAttr ($Aim[5] + ".input2") -1 -1 -1;
+        connectAttr -f ($Aim[2] + "_M.t") ($Aim[5] + ".input1");
+        connectAttr -f ($Aim[5] + ".output") ($Aim[1] + "_M.t");
+        connectAttr -f ($Aim[2] + "_M.t") ($Aim[3] + "_M1.t"); 
+        connectAttr -f ($Aim[2] + "_M.r") ($Aim[3] + "_M1.r");
+        connectAttr -f ($Aim[2] + "_M.s") ($Aim[3] + "_M1.s");
+    } 
+}
+
+//嘟嘴控制
+global proc bb_advFix_autoLipPress()
+{
+    addAttr -ln "autoPress" -at double -min -10 -max 0 -dv -10 -keyable true "ctrlMouth_M";
+    connectAttr -f "ctrlMouth_M.autoPress" "lowerLipPressSetRange.minY";
+    connectAttr -f "ctrlMouth_M.autoPress" "upperLipPressSetRange.minY"; 
+}
+
+//眉毛修改
+global proc bb_advFix_Brow()
+{
+    setAttr EyeBrowInner_L.EyeBrowMid1Joint 0;
+    setAttr EyeBrowOuter_L.EyeBrowMid3Joint 0;
+    setAttr EyeBrowInner_R.EyeBrowMid1Joint 0;
+    setAttr EyeBrowOuter_R.EyeBrowMid3Joint 0;
+    string $EyeBrow[] = {"EyeBrowRegion","EyeBrowInner","EyeBrowMid1","EyeBrowMid2","EyeBrowMid3","EyeBrowOuter"};
+    string $Side[] = {"_L","_R"};
+    if(!`objExists "EyeBrowLayer_GeoCon"`){
+        duplicate -n "EyeBrowLayer_GeoCon" EyeBrowLayer;
+        polySmooth  -mth 0 -sdt 2 -ovb 1 -ofb 3 -ofc 0 -ost 0 -ocr 0 -dv 2 -bnr 1 -c 1 -kb 1 -ksb 1 
+        -khe 0 -kt 1 -kmb 1 -suv 1 -peh 0 -sl 1 -dpe 1 -ps 0.1 -ro 1 -ch 1 "EyeBrowLayer_GeoCon";
+        select "EyeBrowLayer_GeoCon";
+        DeleteHistory;
+    }
+    for($i=0;$i<size($EyeBrow);$i++){
+        for($j=0;$j<size($Side);$j++){
+            string $Joint = $EyeBrow[$i] + "Joint" + $Side[$j];
+            string $Env = $EyeBrow[$i] + "JointEnv" + $Side[$j];
+            string $Offset = $EyeBrow[$i] + "JointOffset" + $Side[$j];
+
+            float $t[] = `xform -q -t -ws $Joint`;
+            createNode "transform" -n $Env; 
+            xform -t $t[0] $t[1] $t[2] $Env;
+            parent $Env $Offset;
+            parent $Joint $Env;
+            string $GeoCon[] = `geometryConstraint -weight 1 "EyeBrowLayer_GeoCon" $Env`;
+            delete $GeoCon;
+            string $Joint1 = $EyeBrow[$i] + "Joint1" + $Side[$j];
+            duplicate -n $Joint1 $Joint;
+            connectAttr -f ($Joint + ".t") ($Joint1 + ".t");
+            connectAttr -f ($Joint + ".r") ($Joint1 + ".r");
+            connectAttr -f ($Joint + ".s") ($Joint1 + ".s");
+            geometryConstraint -weight 1 "EyeBrowLayer_GeoCon" $Joint1;
+            
+            if($EyeBrow[$i] != "EyeBrowRegion"){
+                string $Attach = $EyeBrow[$i] + "Attach" + $Side[$j];
+                string $SDK = "SDK" + $EyeBrow[$i] + $Side[$j];
+                string $pointCon = $Attach + "_pointConstraint1";
+                delete $pointCon;
+                string $Region = "EyeBrowRegionJoint1" + $Side[$j];
+                parent $Attach $SDK;
+                
+                string $MD = $EyeBrow[$i] + "SubtractMultiplyDivide" + $Side[$j];
+                setAttr ($MD + ".input2") 0 0 0;
+                string $Con = $EyeBrow[$i] + "Con" + $Side[$j];
+                string $ConEnv = $EyeBrow[$i] + "ConEnv" + $Side[$j];
+                duplicate -parentOnly -n $Con $Attach;
+                duplicate -parentOnly -n $ConEnv $Attach;
+                parent $Con $ConEnv;
+                parent $ConEnv ("EyeBrowRegionJointOffset" + $Side[$j]);
+                parentConstraint -mo -weight 1 $Region $Con;
+                connectAttr -f ($Con + ".t") ($Attach + ".t");
+            }
+        }
+    }
+}
