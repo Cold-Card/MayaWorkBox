@@ -1,88 +1,88 @@
 //Author  :   LiuBen
 //Date    :   2016/12/05
-//Fix     :   2017/05/18 ĞŞÕıÁËpivotµÄ²ã¼¶¹ØÏµ¡£
-//Fix     :   2018/01/29 ĞŞ¸ÄÁË´´½¨»ù´¡¿ØÖÆÆ÷µÄ²ã¼¶¼°ÃüÃû·½Ê½¡£
-//Fix     :   2018/11/13 ĞŞ¸ÄÁË¼ıÍ·Ô²µÄĞÎ×´£¬Ìí¼ÓÁË¡°´´½¨loc¡±°´Å¥¡£
-//Fix     :   2020/10/13 ÖØĞÂÉè¼Æ½çÃæ£¬Ôö¼ÓÁËĞí¶àĞÂ¹¦ÄÜ¡£
-//Fix     :   2021/09/24 ÖØĞÂÉè¼ÆÁËÑÕÉ«Ñ¡È¡£¬ĞÎ×´±à¼­¹¦ÄÜ¡£
-//Fix     :   2021/11/02 ĞŞ¸´Ò»Ğ©Ğ¡bug¡£
+//Fix     :   2017/05/18 ä¿®æ­£äº†pivotçš„å±‚çº§å…³ç³»ã€‚
+//Fix     :   2018/01/29 ä¿®æ”¹äº†åˆ›å»ºåŸºç¡€æ§åˆ¶å™¨çš„å±‚çº§åŠå‘½åæ–¹å¼ã€‚
+//Fix     :   2018/11/13 ä¿®æ”¹äº†ç®­å¤´åœ†çš„å½¢çŠ¶ï¼Œæ·»åŠ äº†â€œåˆ›å»ºlocâ€æŒ‰é’®ã€‚
+//Fix     :   2020/10/13 é‡æ–°è®¾è®¡ç•Œé¢ï¼Œå¢åŠ äº†è®¸å¤šæ–°åŠŸèƒ½ã€‚
+//Fix     :   2021/09/24 é‡æ–°è®¾è®¡äº†é¢œè‰²é€‰å–ï¼Œå½¢çŠ¶ç¼–è¾‘åŠŸèƒ½ã€‚
+//Fix     :   2021/11/02 ä¿®å¤ä¸€äº›å°bugã€‚
 global proc bb_ctrlTool()
 {
     if (`window -q -exists bb_CtrlToolWindow`) deleteUI bb_CtrlToolWindow;
-    window -title "¿ØÖÆÆ÷´´½¨¹¤¾ß" bb_CtrlToolWindow;    
+    window -title "æ§åˆ¶å™¨åˆ›å»ºå·¥å…·" bb_CtrlToolWindow;    
         columnLayout -adjustableColumn true bb_CtrlTool_CL;
-            frameLayout -label "»ù±¾ÉèÖÃ";
+            frameLayout -label "åŸºæœ¬è®¾ç½®";
                 columnLayout;
                     rowLayout -numberOfColumns 4 -columnWidth4 50 125 40 30 ;
-                        text -label "Ãû³Æ: ";
+                        text -label "åç§°: ";
                         textField -w 125 -text "Name" CtrlNameTF;
-                        text -label " ĞòÁĞ³õ:";
+                        text -label " åºåˆ—åˆ:";
                         intField -w 30 -minValue 0 -value 1 CtrlStartIF  ;
                     setParent ..;
                     rowLayout -numberOfColumns 2 -columnWidth2 50 200 ;
-                        text -label "²ã¼¶: ";
+                        text -label "å±‚çº§: ";
                         textField -w 200 -text "CtrlEnv,CtrlExp,CtrlDrv,CtrlP,Ctrl,CtrlS" CtrlGroupTF;
                     setParent ..;
                     rowLayout -numberOfColumns 2 -columnWidth2 50 200 ;
-                        text -label "µ÷Õû²ã¼¶: ";
+                        text -label "è°ƒæ•´å±‚çº§: ";
                         intSlider -w 200 -min 1 -max 5 -value 5 -step 1 -dc bb_CtrlTool_CtrlGroup bb_CtrlTool_CtrlGroupIS;
                     setParent ..;
                     rowLayout -numberOfColumns 4 -columnWidth4 53 55 55 60;
-                        text -label "Ìí¼ÓÊôĞÔ: ";
+                        text -label "æ·»åŠ å±æ€§: ";
                         checkBox -label "pivots" -value 0 pivotsCB;
                         checkBox -label "geoVis" -value 0 geoVisCB;
-                        button -l "Òş²Ø/ÏÔÊ¾pivot" -bgc 0 0.3 0.45 -c bb_CtrlTool_visPivots;
+                        button -l "éšè—/æ˜¾ç¤ºpivot" -bgc 0 0.3 0.45 -c bb_CtrlTool_visPivots;
                     setParent ..;
-            frameLayout -label "ÑÕÉ«&ĞÎ×´";
+            frameLayout -label "é¢œè‰²&å½¢çŠ¶";
                 columnLayout;
                     rowLayout -numberOfColumns 3 -columnWidth3 50 150 50;
-                        text -l "ÑÕÉ«£º";
-                        button -l "ÑÕÉ« 5" -w 150 -bgc 0 0.016 0.376 -c bb_CtrlTool_SelectColorVis bb_CtrlTool_SelectColor;
-                        button -l "¸ÄÑÕÉ«" -w 50 -bgc 0 0.3 0.45 -c bb_CtrlTool_changeColor;
+                        text -l "é¢œè‰²ï¼š";
+                        button -l "é¢œè‰² 5" -w 150 -bgc 0 0.016 0.376 -c bb_CtrlTool_SelectColorVis bb_CtrlTool_SelectColor;
+                        button -l "æ”¹é¢œè‰²" -w 50 -bgc 0 0.3 0.45 -c bb_CtrlTool_changeColor;
                     setParent ..;
                     rowColumnLayout -vis 0 -numberOfColumns 7 bb_CtrlTool_ColorListRCL;
                         for($i=1;$i<=31;$i++){
                             if($i != 9 && $i != 19 && $i != 16){
                                 float $BGC[] = `colorIndex -query $i`;
                                 button -w 35 -h 13 -l "" -bgc $BGC[0] $BGC[1] $BGC[2] -c 
-                                ("button -e -l \"ÑÕÉ« "+$i+"\"-bgc "+$BGC[0]+" "+$BGC[1]+" "+$BGC[2]+" bb_CtrlTool_SelectColor;"+
+                                ("button -e -l \"é¢œè‰² "+$i+"\"-bgc "+$BGC[0]+" "+$BGC[1]+" "+$BGC[2]+" bb_CtrlTool_SelectColor;"+
                                 "rowColumnLayout -e -vis 0 bb_CtrlTool_ColorListRCL;window -e -h 549 bb_CtrlToolWindow;");
                             }
                         }
                     setParent ..;
                         rowColumnLayout -numberOfColumns 4 -columnWidth 1 60 -columnWidth 2 60 -columnWidth 3 60  -columnWidth 4 60;
                             radioCollection CtrlShapeChoose;
-                                radioButton -label "Çò" CtrlShape_sphere;
-                                radioButton -label "Á¢·½Ìå" CtrlShape_cube;
-                                radioButton -label "½ğ×ÖËş" CtrlShape_pyramid;
-                                radioButton -label "ÁâĞÎ" CtrlShape_rhombus;
-                                radioButton -label "Ô²Öù" CtrlShape_cylinder;
-                                radioButton -label "Ô²»·" CtrlShape_circle;
-                                radioButton -label "·½¿é" CtrlShape_square;
-                                radioButton -label "Èı½Ç" CtrlShape_triangle;
-                                radioButton -label "¼ıÍ·" CtrlShape_arrowhead1;
-                                radioButton -label "2¼ıÍ·" CtrlShape_arrowhead2;
-                                radioButton -label "2¼ıÍ·Ô²" CtrlShape_arrowCircle1;
-                                radioButton -label "4¼ıÍ·Ô²" CtrlShape_arrowCircle2;
-                                radioButton -label "Ê®×Ö" CtrlShape_cross;
-                                radioButton -label "»¡90" CtrlShape_arc1;
-                                radioButton -label "»¡270" CtrlShape_arc2;
+                                radioButton -label "çƒ" CtrlShape_sphere;
+                                radioButton -label "ç«‹æ–¹ä½“" CtrlShape_cube;
+                                radioButton -label "é‡‘å­—å¡”" CtrlShape_pyramid;
+                                radioButton -label "è±å½¢" CtrlShape_rhombus;
+                                radioButton -label "åœ†æŸ±" CtrlShape_cylinder;
+                                radioButton -label "åœ†ç¯" CtrlShape_circle;
+                                radioButton -label "æ–¹å—" CtrlShape_square;
+                                radioButton -label "ä¸‰è§’" CtrlShape_triangle;
+                                radioButton -label "ç®­å¤´" CtrlShape_arrowhead1;
+                                radioButton -label "2ç®­å¤´" CtrlShape_arrowhead2;
+                                radioButton -label "2ç®­å¤´åœ†" CtrlShape_arrowCircle1;
+                                radioButton -label "4ç®­å¤´åœ†" CtrlShape_arrowCircle2;
+                                radioButton -label "åå­—" CtrlShape_cross;
+                                radioButton -label "å¼§90" CtrlShape_arc1;
+                                radioButton -label "å¼§270" CtrlShape_arc2;
                                 radioButton -label "loc" CtrlShape_loc;
                             radioCollection -edit -select "CtrlShape_cube" CtrlShapeChoose;
                     setParent ..;
-                    button -l "¸ÄĞÎ×´" -w 252 -bgc 0 0.3 0.45 -c bb_CtrlTool_changeShape;
+                    button -l "æ”¹å½¢çŠ¶" -w 252 -bgc 0 0.3 0.45 -c bb_CtrlTool_changeShape;
                 setParent ..;
-                frameLayout -label "´¦Àí·½Ê½";
+                frameLayout -label "å¤„ç†æ–¹å¼";
                     rowColumnLayout -numberOfColumns 4 -columnWidth 1 55 -columnWidth 2 55 -columnWidth 3 55 -columnWidth 4 80;
                         radioCollection bb_processModeChoose;
-                            radioButton -label "¸¸×Ó" processMode_parent;
-                            radioButton -label "Ô¼Êø" processMode_constrain;
-                            radioButton -label "ÃÉÆ¤" processMode_skin;
-                            radioButton -label "Ê²Ã´Ò²²»×ö" processMode_nothing;
+                            radioButton -label "çˆ¶å­" processMode_parent;
+                            radioButton -label "çº¦æŸ" processMode_constrain;
+                            radioButton -label "è’™çš®" processMode_skin;
+                            radioButton -label "ä»€ä¹ˆä¹Ÿä¸åš" processMode_nothing;
                         radioCollection -edit -select "processMode_nothing"  bb_processModeChoose;
                     setParent ..;
                 setParent ..;
-            frameLayout -label "ÆäËû";
+            frameLayout -label "å…¶ä»–";
                 columnLayout;
                     rowLayout -numberOfColumns 2 -columnWidth2 173 75;
                         optionMenu -w 173 -label "RotateOrder:" rotateOrderMenu;
@@ -92,46 +92,46 @@ global proc bb_ctrlTool()
                             menuItem -label "xzy";
                             menuItem -label "yxz";
                             menuItem -label "zyx";
-                        button -l "ĞŞ¸ÄËùÓĞ²ã¼¶" -w 75 -c "bb_CtrlTool_fixExtra(3)";
+                        button -l "ä¿®æ”¹æ‰€æœ‰å±‚çº§" -w 75 -c "bb_CtrlTool_fixExtra(3)";
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 70 101 75;
-                        checkBox -label "¼ÓÈë¹Ç÷À£º" -value 0 joinJointCB;
+                        checkBox -label "åŠ å…¥éª¨éª¼ï¼š" -value 0 joinJointCB;
                         optionMenu -w 101 -label "" jointMenu;
-                            menuItem -label "Ô¼Êø";
-                            menuItem -label "¸¸×Ó¹ØÏµ";
+                            menuItem -label "çº¦æŸ";
+                            menuItem -label "çˆ¶å­å…³ç³»";
                         optionMenu -e -select 2 jointMenu;
-                        button -l "Ìí¼Ó¹Ç÷À" -w 75 -c "bb_CtrlTool_fixExtra(1)";
+                        button -l "æ·»åŠ éª¨éª¼" -w 75 -c "bb_CtrlTool_fixExtra(1)";
                     setParent ..;
                     rowLayout -numberOfColumns 2 -columnWidth2 173 75;
-                        checkBox -label "´´½¨Çı¶¯×é" -value 0 createDrv1CB;
-                        button -l "´´½¨Çı¶¯×é" -w 75 -bgc 0.5 0.5 0.5 -c "bb_CtrlTool_fixExtra(2)";
+                        checkBox -label "åˆ›å»ºé©±åŠ¨ç»„" -value 0 createDrv1CB;
+                        button -l "åˆ›å»ºé©±åŠ¨ç»„" -w 75 -bgc 0.5 0.5 0.5 -c "bb_CtrlTool_fixExtra(2)";
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 40 131 75;
-                        text -l "ºó×º£º";
+                        text -l "åç¼€ï¼š";
                         textField -text "Grp" -w 130 bb_CtrlTool_groupObjSuffix;
                         popupMenu;
                             menuItem -label "_Grp" -c "textField -e -text _Grp bb_CtrlTool_groupObjSuffix;";
                             menuItem -label "Grp" -c "textField -e -text Grp bb_CtrlTool_groupObjSuffix;";
-                        button -l "´ò×éËùÑ¡ÎïÌå" -w 75 -c bb_CtrlTool_groupObj;
+                        button -l "æ‰“ç»„æ‰€é€‰ç‰©ä½“" -w 75 -c bb_CtrlTool_groupObj;
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 96 75 75;
-                        text -l "¿ØÖÆÆ÷ĞÎ×´±à¼­£º";
-                        button -l "±à¼­Ä£Ê½" -w 75 -bgc 0.4 0.4 0.4 -ann "Ñ¡ÖĞÏëÒªµ÷ÕûµÄ¿ØÖÆÆ÷" -c bb_CtrlTool_CtrlShapeEdit bb_CtrlTool_ShapeEditBTN;
-                        button -l "Íê³É±à¼­" -w 75 -bgc 0.5 0.5 0.5 -c bb_CtrlTool_CtrlShapeEditOK;
+                        text -l "æ§åˆ¶å™¨å½¢çŠ¶ç¼–è¾‘ï¼š";
+                        button -l "ç¼–è¾‘æ¨¡å¼" -w 75 -bgc 0.4 0.4 0.4 -ann "é€‰ä¸­æƒ³è¦è°ƒæ•´çš„æ§åˆ¶å™¨" -c bb_CtrlTool_CtrlShapeEdit bb_CtrlTool_ShapeEditBTN;
+                        button -l "å®Œæˆç¼–è¾‘" -w 75 -bgc 0.5 0.5 0.5 -c bb_CtrlTool_CtrlShapeEditOK;
                     setParent ..;
                     rowColumnLayout -numberOfColumns 2 -columnWidth 1 125 -columnWidth 2 125;
-                        button -l "ºÏ²¢Shape" -bgc 0.5 0.5 0.5 -c bb_CtrlTool_combineShape;
-                        button -l "Ìí¼ÓPivots" -c bb_CtrlTool_selAddPivots;
-                        button -l "´´½¨Reference Loc" -c "spaceLocator -p 0 0 0 -n Reference;";
-                        button -l "´´½¨»ù±¾¿ØÖÆÆ÷" -bgc 0.5 0.5 0.5 -c bb_CtrlTool_porpsCtrlApply;
+                        button -l "åˆå¹¶Shape" -bgc 0.5 0.5 0.5 -c bb_CtrlTool_combineShape;
+                        button -l "æ·»åŠ Pivots" -c bb_CtrlTool_selAddPivots;
+                        button -l "åˆ›å»ºReference Loc" -c "spaceLocator -p 0 0 0 -n Reference;";
+                        button -l "åˆ›å»ºåŸºæœ¬æ§åˆ¶å™¨" -bgc 0.5 0.5 0.5 -c bb_CtrlTool_porpsCtrlApply;
                     setParent ..;
-                    button -l "´´½¨" -w 252 -h 40 -bgc 0.1 0.1 0.1 -c bb_CtrlTool_apply;
+                    button -l "åˆ›å»º" -w 252 -h 40 -bgc 0.1 0.1 0.1 -c bb_CtrlTool_apply;
                 setParent ..;        
     showWindow bb_CtrlToolWindow;
 }
 bb_ctrlTool;
 
-//ÑÕÉ«Ñ¡ÔñÃæ°å
+//é¢œè‰²é€‰æ‹©é¢æ¿
 global proc bb_CtrlTool_SelectColorVis()
 {
     int $vis = `rowColumnLayout -q -vis bb_CtrlTool_ColorListRCL`;
@@ -200,7 +200,7 @@ global proc bb_CtrlTool_apply()
     }
 }
 
-//Ñ¡ÔñĞÎ×´
+//é€‰æ‹©å½¢çŠ¶
 global proc bb_CtrlTool_createWholeCtrl(string $CtrlName)
 {
     string $CtrlGroup = `textField -q -text CtrlGroupTF`;
@@ -254,7 +254,7 @@ global proc bb_CtrlTool_createWholeCtrl(string $CtrlName)
         setAttr -e -keyable true ($Ctrl+".geoVis");
     }
 }
-//´´½¨pivot
+//åˆ›å»ºpivot
 global proc bb_CtrlTool_selAddPivots()
 {
     string $sel[] = `ls -sl`;
@@ -291,7 +291,7 @@ global proc bb_CtrlTool_addPivots(string $transform)
     connectAttr -f ($transform+"Pivot.translate") ($transform+".rotatePivot");
 }
 
-//Ñ¡ÖĞ¸ÄÑÕÉ«
+//é€‰ä¸­æ”¹é¢œè‰²
 global proc bb_CtrlTool_changeColor()
 {
     string $selColor = `button -q -l bb_CtrlTool_SelectColor`;
@@ -304,7 +304,7 @@ global proc bb_CtrlTool_changeColor()
     }
 }
 
-//¸ÄÑÕÉ«Ö´ĞĞ
+//æ”¹é¢œè‰²æ‰§è¡Œ
 global proc bb_CtrlTool_changeColorApply(string $CtrlName,int $color)
 {
     string $shape[] = `listRelatives -shapes -f $CtrlName`;
@@ -316,7 +316,7 @@ global proc bb_CtrlTool_changeColorApply(string $CtrlName,int $color)
     } 
 }
 
-//´¦Àí·½Ê½
+//å¤„ç†æ–¹å¼
 global proc bb_CtrlTool_processMode(string $CtrlName,string $obj)
 {
     string $mode = `radioCollection -q -select bb_processModeChoose`;
@@ -356,7 +356,7 @@ global proc bb_CtrlTool_processMode(string $CtrlName,string $obj)
     }
 }
 
-//Ñ¡Ôñ´ò×é
+//é€‰æ‹©æ‰“ç»„
 global proc bb_CtrlTool_groupObj()
 {
     string $sel[] = `ls -sl`;
@@ -364,7 +364,7 @@ global proc bb_CtrlTool_groupObj()
        bb_CtrlTool_groupObjApply($sel[$i]);
     }
 }
-//´ò×éÎïÌåÖ´ĞĞ
+//æ‰“ç»„ç‰©ä½“æ‰§è¡Œ
 global proc string bb_CtrlTool_groupObjApply(string $obj)
 {
     string $objArray[] = stringToStringArray($obj, "|");
@@ -385,7 +385,7 @@ global proc string bb_CtrlTool_groupObjApply(string $obj)
     return $newGrpName;
 }
 
-//°´Å¥Ö´ĞĞ
+//æŒ‰é’®æ‰§è¡Œ
 global proc bb_CtrlTool_fixExtra(int $choose)
 {
     string $sel[] = `ls -sl`;
@@ -415,7 +415,7 @@ global proc bb_CtrlTool_fixExtra(int $choose)
     }
 }
 
-//Ìí¼Ó¹Ç÷À
+//æ·»åŠ éª¨éª¼
 global proc bb_CtrlTool_addJointApply(string $CtrlName)
 {
     string $CtrlGroup = `textField -q -text CtrlGroupTF`;
@@ -438,7 +438,7 @@ global proc bb_CtrlTool_addJointApply(string $CtrlName)
 }
 
 
-//Ìí¼ÓÇı¶¯×é
+//æ·»åŠ é©±åŠ¨ç»„
 global proc bb_CtrlTool_addDrv1Apply(string $CtrlName)
 {
     string $CtrlGroup = `textField -q -text CtrlGroupTF`;
@@ -456,7 +456,7 @@ global proc bb_CtrlTool_addDrv1Apply(string $CtrlName)
     scaleConstraint -weight 1 $CtrlS ($CtrlName+"_CtrlDrv1");
 }
 
-//Òş²Ø¡¢ÏÔÊ¾pivot
+//éšè—ã€æ˜¾ç¤ºpivot
 global proc bb_CtrlTool_visPivots()
 {
     string $pivot[] = `ls "*Pivot"`;
@@ -477,7 +477,7 @@ global proc bb_CtrlTool_visPivots()
     }
 }
 
-//´´½¨»ù´¡¿ØÖÆÆ÷
+//åˆ›å»ºåŸºç¡€æ§åˆ¶å™¨
 global proc bb_CtrlTool_porpsCtrlApply()
 {
     createNode "transform" -n "RIG";
@@ -542,7 +542,7 @@ global proc bb_CtrlTool_createShape(string $shapeStyle,string $shapeName)
         } 
     }
     switch($shape){
-        case 1://Çò
+        case 1://çƒ
             curve -d 1 -p 0 1 0 -p 0.5 0.866025 0 -p 0.866025 0.5 0 -p 1 0 0 -p 0.866025 -0.5 0 -p 0.5 -0.866025 0 -p 0 -1 0 -p -0.5 -0.866025 0 -p -0.866025 -0.5 0 
             -p -1 0 0 -p -0.866025 0.5 0 -p -0.5 0.866025 0 -p 0 1 0 -p 0 0.866025 -0.5 -p 0 0.5 -0.866025 -p 0 0 -1 -p 0 -0.5 -0.866025 -p 0 -0.866025 -0.5 
             -p 0 -1 0 -p 0 -0.866025 0.5 -p 0 -0.5 0.866025 -p 0 0 1 -p 0 0.5 0.866025 -p 0 0.866025 0.5 -p 0 1 0 -p 0 0.866025 -0.5 -p 0 0.5 -0.866025 -p 0 0 -1 
@@ -550,46 +550,46 @@ global proc bb_CtrlTool_createShape(string $shapeStyle,string $shapeName)
             -p -0.5 0 -0.866025 -p 0 0 -1 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 
             -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 -k 32 -k 33 -k 34 -k 35 -k 36 -k 37 -k 38 -k 39 -n $shapeName;
             break;
-        case 2://Á¢·½Ìå
+        case 2://ç«‹æ–¹ä½“
             curve -d 1 -p -0.5 0.5 -0.5 -p -0.5 0.5 0.5 -p 0.5 0.5 0.5 -p 0.5 0.5 -0.5 -p -0.5 0.5 -0.5 -p -0.5 -0.5 -0.5 -p -0.5 -0.5 0.5 -p 0.5 -0.5 0.5 
             -p 0.5 -0.5 -0.5 -p -0.5 -0.5 -0.5 -p -0.5 0.5 -0.5 -p -0.5 0.5 0.5 -p -0.5 -0.5 0.5 -p 0.5 -0.5 0.5 -p 0.5 0.5 0.5 -p 0.5 0.5 -0.5 -p 0.5 -0.5 -0.5 -k 0 
             -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -n $shapeName;  
             break;
-        case 3://½ğ×ÖËş
+        case 3://é‡‘å­—å¡”
             curve -d 1 -p 0 0.353553 0 -p 9.27258e-008 -0.353553 -0.707107 -p -0.707107 -0.353553 -6.18172e-008 -p -3.09086e-008 -0.353553 0.707107 -p 0.707107 -0.353553 0 
             -p 9.27258e-008 -0.353553 -0.707107 -p 0 0.353553 0 -p -0.707107 -0.353553 -6.18172e-008 -p -3.09086e-008 -0.353553 0.707107 -p 0 0.353553 0 
             -p 0.707107 -0.353553 0 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -n $shapeName;
             break;
-        case 4://ÁâĞÎ
+        case 4://è±å½¢
             curve -d 1 -p 0 0.707107 0 -p 9.27258e-008 0 -0.707107 -p 0 -0.707107 0 -p -3.09086e-008 0 0.707107 -p 0 0.707107 0 -p -0.707107 0 -6.18172e-008 
             -p 0 -0.707107 0 -p 0.707107 0 0 -p 0 0.707107 0 -p -3.09086e-008 0 0.707107 -p -0.707107 0 -6.18172e-008 -p 9.27258e-008 0 -0.707107 -p 0.707107 0 0 
             -p -3.09086e-008 0 0.707107 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -n $shapeName;
             break;
         
-        case 5://Ô²Öù
+        case 5://åœ†æŸ±
             curve -d 1 -p -1 1 -1.49012e-007 -p -0.5 1 0.866025 -p 0.5 1 0.866025 -p 1 1 0 -p 0.5 1 -0.866025 -p -0.5 1 -0.866026 -p -1 1 -1.49012e-007 -p -1 -1 -1.49012e-007 
             -p -0.5 -1 0.866025 -p 0.5 -1 0.866025 -p 1 -1 0 -p 0.5 -1 -0.866025 -p -0.5 -1 -0.866026 -p -1 -1 -1.49012e-007 -p -1 1 -1.49012e-007 -p -0.5 1 0.866025 
             -p -0.5 -1 0.866025 -p 0.5 -1 0.866025 -p 0.5 1 0.866025 -p 1 1 0 -p 1 -1 0 -p 0.5 -1 -0.866025 -p 0.5 1 -0.866025 -p -0.5 1 -0.866026 -p -0.5 -1 -0.866026 
             -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 -k 24 -n $shapeName;
             break;
-       case 6://Ô²»·
+       case 6://åœ†ç¯
             circle -nr 0 1 0 -c 0 0 0 -constructionHistory 0 -n $shapeName;
             break; 
-       case 7://·½¿é
+       case 7://æ–¹å—
             curve -d 1 -p 1 0 1 -p 1 0 -1 -p -1 0 -1 -p -1 0 1 -p 1 0 1 -k 0 -k 1 -k 2 -k 3 -k 4 -n $shapeName;
             break; 
-       case 8://Èı½Ç
+       case 8://ä¸‰è§’
             curve -d 1 -p 0.866026 0 -0.5 -p -0.866025 0 -0.5 -p 0 0 1 -p 0.866026 0 -0.5 -k 0 -k 1 -k 2 -k 3 -n $shapeName;
             break; 
-       case 9://¼ıÍ·
+       case 9://ç®­å¤´
             curve -d 1 -p 0 0 1.506288 -p 1 0 0.41283 -p 0.5 0 0.41283 -p 0.5 0 -1.283553 -p -0.5 0 -1.283553 -p -0.5 0 0.41283 -p -1 0 0.41283 -p 0 0 1.506288 
             -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -n $shapeName;
             break; 
-       case 10://2¼ıÍ·
+       case 10://2ç®­å¤´
             curve -d 1 -p 0 0 2.789841 -p 1 0 1.696382 -p 0.5 0 1.696382 -p 0.5 0 -1.696382 -p 1 0 -1.696382 -p 0 0 -2.789841 -p -1 0 -1.696382 -p -0.5 0 -1.696382 
             -p -0.5 0 1.696382 -p -1 0 1.696382 -p 0 0 2.789841 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -n $shapeName;  
             break; 
-       case 11://2¼ıÍ·Ô²
+       case 11://2ç®­å¤´åœ†
             curve -d 1 -p 3.528175 0 0 -p 2.434717 0 1 -p 2.434717 0 0.5 -p 1.921919 0 0.5 -p 1.902113 0 0.618034 -p 1.618034 0 1.175571 -p 1.17557 0 1.618034 
             -p 0.618034 0 1.902113 -p -5.96046e-008 0 2 -p -0.618034 0 1.902113 -p -1.175571 0 1.618034 -p -1.618034 0 1.175571 -p -1.902114 0 0.618034 -p -1.920404 0 0.5 
             -p -2.434716 0 0.5 -p -2.434716 0 1 -p -3.528175 0 0 -p -2.434716 0 -1 -p -2.434716 0 -0.5 -p -1.920404 0 -0.5 -p -1.902114 0 -0.618034 -p -1.618034 0 -1.175571 
@@ -597,7 +597,7 @@ global proc bb_CtrlTool_createShape(string $shapeStyle,string $shapeName)
             -p 1.921919 0 -0.5 -p 2.434717 0 -0.5 -p 2.434717 0 -1 -p 3.528175 0 0 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 
             -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 -k 32 -n $shapeName;
             break; 
-       case 12://4¼ıÍ·Ô²
+       case 12://4ç®­å¤´åœ†
             curve -d 1 -p 0 0 2.469723 -p 1 0 2.093856 -p 0.5 0 2.093856 -p 0.5 0 1.920404 -p 0.618034 0 1.902113 -p 1.17557 0 1.618034 -p 1.618034 0 1.175571 -p 1.902113 0 0.618034 
             -p 1.921919 0 0.5 -p 2.093857 0 0.5 -p 2.093857 0 1 -p 2.469723 0 0 -p 2.093857 0 -1 -p 2.093857 0 -0.5 -p 1.921919 0 -0.5 -p 1.902114 0 -0.618034 -p 1.618035 0 -1.175571 
             -p 1.175571 0 -1.618035 -p 0.618034 0 -1.902114 -p 0.618034 0 -1.902114 -p 0.5 0 -1.921919 -p 0.5 0 -2.093857 -p 1 0 -2.093857 -p 0 0 -2.469723 -p -1 0 -2.093857 
@@ -607,17 +607,17 @@ global proc bb_CtrlTool_createShape(string $shapeStyle,string $shapeName)
             -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 -k 32 -k 33 -k 34 -k 35 -k 36 
             -k 37 -k 38 -k 39 -k 40 -k 41 -k 42 -k 43 -k 44 -k 45 -n $shapeName;
             break; 
-       case 13://Ê®×Ö
+       case 13://åå­—
             curve -d 1 -p -0.490606 0 -1.471817 -p -0.490606 0 -0.490606 -p -1.471817 0 -0.490606 -p -1.471817 0 0.490606 -p -0.490606 0 0.490606 -p -0.490606 0 1.471817 
             -p 0.490606 0 1.471817 -p 0.490606 0 0.490606 -p 1.471817 0 0.490606 -p 1.471817 0 -0.490606 -p 0.490606 0 -0.490606 -p 0.490606 0 -1.471817 
             -p -0.490606 0 -1.471817 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -n $shapeName;
             break; 
-       case 14://»¡90
+       case 14://å¼§90
             curve -d 1 -p 2.505715 0 1.093459 -p 3.49787 0 0 -p 3 0 0 -p 2.853171 0 -0.927052 -p 2.427053 0 -1.763357 -p 1.763357 0 -2.427052 -p 0.927051 0 -2.853171 
             -p 0 0 -3.000001 -p 0 0 -2.000001 -p 0.618034 0 -1.902114 -p 1.175571 0 -1.618035 -p 1.618035 0 -1.175571 -p 1.902114 0 -0.618034 -p 2 0 0 -p 1.51356 0 0 
             -p 2.505715 0 1.093459 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -n $shapeName;     
             break; 
-       case 15://»¡270
+       case 15://å¼§270
             curve -d 1 -p 2.505715 0 1.093459 -p 3.49787 0 0 -p 3 0 0 -p 2.853171 0 -0.927052 -p 2.427053 0 -1.763357 -p 1.763357 0 -2.427052 -p 0.927051 0 -2.853171 
             -p 0 0 -3.000001 -p -0.927051 0 -2.853171 -p -1.763356 0 -2.427052 -p -2.427052 0 -1.763356 -p -2.85317 0 -0.927051 -p -3.000001 0 0 -p -2.85317 0 0.927051 
             -p -2.427052 0 1.763356 -p -1.763356 0 2.427051 -p -0.927051 0 2.85317 -p -8.9407e-008 0 3 -p -5.96046e-008 0 2 -p -0.618034 0 1.902113 -p -1.175571 0 1.618034 
@@ -631,7 +631,7 @@ global proc bb_CtrlTool_createShape(string $shapeStyle,string $shapeName)
             break;
     }
 }
-//¸Äshape
+//æ”¹shape
 global proc bb_CtrlTool_changeShape()
 {
     string $sel[] = `ls -sl`;
@@ -665,7 +665,7 @@ global proc bb_CtrlTool_changeShape()
         }
     }
 }
-//ºÏ²¢shape
+//åˆå¹¶shape
 global proc bb_CtrlTool_combineShape()
 {
     string $sel[] = `ls -sl`;
@@ -685,7 +685,7 @@ global proc bb_CtrlTool_combineShape()
     }
 }
 
-//ĞÎ×´±à¼­Ä£Ê½
+//å½¢çŠ¶ç¼–è¾‘æ¨¡å¼
 global string $bb_CtrlTool_EditCtrl[],$bb_CtrlTool_FixCtrl[];
 
 global proc bb_CtrlTool_CtrlShapeEdit()
@@ -752,7 +752,7 @@ global proc bb_CtrlTool_CtrlShapeEdit()
     }
     select -r $bb_CtrlTool_FixCtrl;
 }
-//Íê³ÉĞÎ×´±à¼­
+//å®Œæˆå½¢çŠ¶ç¼–è¾‘
 global proc bb_CtrlTool_CtrlShapeEditOK()
 {
     global string $bb_CtrlTool_EditCtrl[],$bb_CtrlTool_FixCtrl[];

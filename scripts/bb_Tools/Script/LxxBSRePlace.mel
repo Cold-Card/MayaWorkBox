@@ -1,31 +1,31 @@
-//ÎÒlxx½ñÌìÖÕÓÚĞ´ÁËÒ»¸öÕı¾­µÄ¹¤¾ßÀ¸£¬ÍÛßÇßÇßÇßÇßÇ~~~
+//æˆ‘lxxä»Šå¤©ç»ˆäºå†™äº†ä¸€ä¸ªæ­£ç»çš„å·¥å…·æ ï¼Œå“‡å’”å’”å’”å’”å’”~~~
 global proc LxxBSReplace ()
 {
 if (`window -q -ex LxxBSReplace`)
     deleteUI LxxBSReplace;
 window -t bsReplace LxxBSReplace;
 
-string $Source=$Aims=$BSNote="ÇëÈ·±£Ã»ÓĞÖØÃûÎïÌå";
+string $Source=$Aims=$BSNote="è¯·ç¡®ä¿æ²¡æœ‰é‡åç‰©ä½“";
 string $Rename = "_BsCopy";
 
 columnLayout -adj 1;
 //rowLayout -nc 2;
-//    textFieldGrp -cw2 60 120 -l "Ô´ÎïÌå:" -ed 0 -tx $Source LxxBSReplaceSourcetextFieldGrp;
-//    button -h 15 -l "¼ÓÔØ" -c "LxxBSReplacePick LxxBSReplaceSourcetextFieldGrp";
+//    textFieldGrp -cw2 60 120 -l "æºç‰©ä½“:" -ed 0 -tx $Source LxxBSReplaceSourcetextFieldGrp;
+//    button -h 15 -l "åŠ è½½" -c "LxxBSReplacePick LxxBSReplaceSourcetextFieldGrp";
 //    setParent..;
 rowLayout -nc 2;
-    textFieldGrp -cw2 60 120 -l "Ä¿±êÌå:" -ed 0 -tx $Aims LxxBSReplaceAimstextFieldGrp;
-    button -h 15 -l "¼ÓÔØ" -c "LxxBSReplacePick LxxBSReplaceAimstextFieldGrp";
+    textFieldGrp -cw2 60 120 -l "ç›®æ ‡ä½“:" -ed 0 -tx $Aims LxxBSReplaceAimstextFieldGrp;
+    button -h 15 -l "åŠ è½½" -c "LxxBSReplacePick LxxBSReplaceAimstextFieldGrp";
     setParent..;
 rowLayout -nc 2;
-    textFieldGrp -cw2 60 120 -l "BS½Úµã:" -ed 0 -tx $BSNote LxxBSReplaceBSNotetextFieldGrp;
-    button -h 15 -l "¼ÓÔØ" -c "LxxBSReplacePick LxxBSReplaceBSNotetextFieldGrp";
+    textFieldGrp -cw2 60 120 -l "BSèŠ‚ç‚¹:" -ed 0 -tx $BSNote LxxBSReplaceBSNotetextFieldGrp;
+    button -h 15 -l "åŠ è½½" -c "LxxBSReplacePick LxxBSReplaceBSNotetextFieldGrp";
     setParent..;
 rowColumnLayout -numberOfColumns 2 -cs 1 13 -columnWidth 1 60 -columnWidth 2 145;
-			text -l "ºó×ºÃû:";
+			text -l "åç¼€å:";
 			textFieldGrp -label "" -text "_BsCopy" -columnWidth 1 1 -columnWidth 2 130 WP_BsCopy;
 			setParent..;
-button -l "Ö´ĞĞ" -c LxxBSReplaceCopy;
+button -l "æ‰§è¡Œ" -c LxxBSReplaceCopy;
 showWindow LxxBSReplace;
 }
 LxxBSReplace;

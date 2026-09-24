@@ -20,7 +20,7 @@ global proc bb_QC_UIValueSet(int $order,int $value)
     $bb_QC_checkBoxValue =  stringArrayToString($bb_QC_checkBoxValueArray, " ");
     optionVar -stringValue bb_QC_checkBoxValue $bb_QC_checkBoxValue;
 }
-//»´—°£¨∑¥—°
+//ÂÖ®ÈÄâÔºåÂèçÈÄâ
 global proc bb_QC_UISelect(int $mode,int $type)
 {
     int $value;
@@ -63,72 +63,72 @@ global proc bb_QCUI()
         $bb_QC_UIValue[$i] = $bb_QC_checkBoxValueArray[$i];
     }
     if (`window -q -exists bb_QCUIWindow`) deleteUI bb_QCUIWindow;
-    window -title "«·À…QC" bb_QCUIWindow; 
+    window -title "ËΩªÊùæQC" bb_QCUIWindow; 
         formLayout bb_QCUI_form;
             columnLayout -adjustableColumn true -w 210 -columnAttach "both" 3 -rowSpacing 5 bb_QCUI_QC1Layout;
-                frameLayout -label "Õ®”√";
+                frameLayout -label "ÈÄöÁî®";
                     rowColumnLayout -numberOfColumns 4 -columnWidth 1 110 -columnWidth 2 40 -columnWidth 3 10 -columnWidth 4 40 -rowSpacing 1 2;
-                        checkBox -label "1.unkonwΩ⁄µ„" -v $bb_QC_UIValue[0] -onCommand "bb_QC_UIValueSet(0,1)" -offCommand "bb_QC_UIValueSet(0,0)" bb_QC_unkonwCB;
+                        checkBox -label "1.unkonwËäÇÁÇπ" -v $bb_QC_UIValue[0] -onCommand "bb_QC_UIValueSet(0,1)" -offCommand "bb_QC_UIValueSet(0,0)" bb_QC_unkonwCB;
                         button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_unkownQC;text -l "";
                         button -l "Fix" -bgc 0.5 0.5 0.5 -c "bb_QC_deleteFix(\"QC_unkownSets\")";
                         checkBox -label "2.intermedia OBJ" -v $bb_QC_UIValue[1] -onCommand "bb_QC_UIValueSet(1,1)" -offCommand "bb_QC_UIValueSet(1,0)" bb_QC_intermediaCB;
                         button -l "QC" -c bb_QC_intermediaObjQC;text -l "";
                         button -l "Fix" -c "bb_QC_deleteFix(\"QC_intermediaObjSets\")";
-                        checkBox -label "3.Œﬁ∂•µ„ƒ£–Õ" -v $bb_QC_UIValue[2] -onCommand "bb_QC_UIValueSet(2,1)" -offCommand "bb_QC_UIValueSet(2,0)" bb_QC_noVertexCB;
+                        checkBox -label "3.Êó†È°∂ÁÇπÊ®°Âûã" -v $bb_QC_UIValue[2] -onCommand "bb_QC_UIValueSet(2,1)" -offCommand "bb_QC_UIValueSet(2,0)" bb_QC_noVertexCB;
                         button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_zeroVertexObjQC;text -l "";
                         button -l "Fix" -bgc 0.5 0.5 0.5 -c "bb_QC_deleteFix(\"QC_zeroVertexObjSets\")";
-                        checkBox -label "4.…˘“Ù" -v $bb_QC_UIValue[3] -onCommand "bb_QC_UIValueSet(3,1)" -offCommand "bb_QC_UIValueSet(3,0)" bb_QC_soundCB;
+                        checkBox -label "4.Â£∞Èü≥" -v $bb_QC_UIValue[3] -onCommand "bb_QC_UIValueSet(3,1)" -offCommand "bb_QC_UIValueSet(3,0)" bb_QC_soundCB;
                         button -l "QC" -c bb_QC_audioQC;text -l "";
                         button -l "Fix" -c "bb_QC_deleteFix(\"QC_audioSets\")";
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 40 40 130 -columnAlign  1 "left" ;
-                        button -l "»´—°" -c "bb_QC_UISelect(1,0)";
-                        button -l "∑¥—°" -c "bb_QC_UISelect(0,0)";
+                        button -l "ÂÖ®ÈÄâ" -c "bb_QC_UISelect(1,0)";
+                        button -l "ÂèçÈÄâ" -c "bb_QC_UISelect(0,0)";
                         button -l "QC" -bgc 0 0.3 0.45 -h 30 -w 120 -c "bb_QC_allQC(0)";
                     setParent ..;
                 setParent ..; 
-                frameLayout -label "Riggingœ‡πÿ";
+                frameLayout -label "RiggingÁõ∏ÂÖ≥";
                     rowColumnLayout -numberOfColumns 4 -columnWidth 1 110 -columnWidth 2 40 -columnWidth 3 10 -columnWidth 4 40 -rowSpacing 1 2;
-                        checkBox -label "1.÷ÿ√¸√˚" -v $bb_QC_UIValue[4] -onCommand "bb_QC_UIValueSet(4,1)" -offCommand "bb_QC_UIValueSet(4,0)" bb_QC_renameCB;
+                        checkBox -label "1.ÈáçÂëΩÂêç" -v $bb_QC_UIValue[4] -onCommand "bb_QC_UIValueSet(4,1)" -offCommand "bb_QC_UIValueSet(4,0)" bb_QC_renameCB;
                         button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_repeatedNameQC;text -l "";
                         button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_repeatedNameFix;
-                        checkBox -label "2.ƒ£–Õ∫Û◊∫" -v $bb_QC_UIValue[5] -onCommand "bb_QC_UIValueSet(5,1)" -offCommand "bb_QC_UIValueSet(5,0)" bb_QC_modleSuffixCB;
+                        checkBox -label "2.Ê®°ÂûãÂêéÁºÄ" -v $bb_QC_UIValue[5] -onCommand "bb_QC_UIValueSet(5,1)" -offCommand "bb_QC_UIValueSet(5,0)" bb_QC_modleSuffixCB;
                         button -l "QC" -c bb_QC_modleSuffixQC;text -l "";
                         button -l "Fix" -vis 0;
-                        checkBox -label "3.ƒ£–ÕÀ¯ Ù–‘" -v $bb_QC_UIValue[6] -onCommand "bb_QC_UIValueSet(6,1)" -offCommand "bb_QC_UIValueSet(6,0)" bb_QC_modleLockCB;
+                        checkBox -label "3.Ê®°ÂûãÈîÅÂ±ûÊÄß" -v $bb_QC_UIValue[6] -onCommand "bb_QC_UIValueSet(6,1)" -offCommand "bb_QC_UIValueSet(6,0)" bb_QC_modleLockCB;
                         button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_attrLockQC;text -l "";
                         button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_attrLockFix;
-                        checkBox -label "4.ƒ£–Õœ‘ æ" -v $bb_QC_UIValue[7] -onCommand "bb_QC_UIValueSet(7,1)" -offCommand "bb_QC_UIValueSet(7,0)" bb_QC_modleVisCB;
+                        checkBox -label "4.Ê®°ÂûãÊòæÁ§∫" -v $bb_QC_UIValue[7] -onCommand "bb_QC_UIValueSet(7,1)" -offCommand "bb_QC_UIValueSet(7,0)" bb_QC_modleVisCB;
                         button -l "QC" -c bb_QC_modleVisQC;text -l "";
                         button -l "Fix" -c bb_QC_modleVisFix;
-                        checkBox -label "5.µ∆π‚" -v $bb_QC_UIValue[8] -onCommand "bb_QC_UIValueSet(8,1)" -offCommand "bb_QC_UIValueSet(8,0)" bb_QC_lightCB;
+                        checkBox -label "5.ÁÅØÂÖâ" -v $bb_QC_UIValue[8] -onCommand "bb_QC_UIValueSet(8,1)" -offCommand "bb_QC_UIValueSet(8,0)" bb_QC_lightCB;
                         button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_lightQC;text -l "";
                         button -l "Fix" -bgc 0.5 0.5 0.5 -c "bb_QC_deleteFix(\"QC_lightSets\")";
-                        checkBox -label "6.…„œÒª˙" -v $bb_QC_UIValue[9] -onCommand "bb_QC_UIValueSet(9,1)" -offCommand "bb_QC_UIValueSet(9,0)" bb_QC_camCB;
+                        checkBox -label "6.ÊëÑÂÉèÊú∫" -v $bb_QC_UIValue[9] -onCommand "bb_QC_UIValueSet(9,1)" -offCommand "bb_QC_UIValueSet(9,0)" bb_QC_camCB;
                         button -l "QC" -c bb_QC_camQC;text -l "";
                         button -l "Fix" -c "bb_QC_deleteFix(\"QC_cameraSets\")";
-                        checkBox -label "7.øÿ÷∆∆˜ ˝÷µ" -v $bb_QC_UIValue[10] -onCommand "bb_QC_UIValueSet(10,1)" -offCommand "bb_QC_UIValueSet(10,0)" bb_QC_ctrlValueCB;
+                        checkBox -label "7.ÊéßÂà∂Âô®Êï∞ÂÄº" -v $bb_QC_UIValue[10] -onCommand "bb_QC_UIValueSet(10,1)" -offCommand "bb_QC_UIValueSet(10,0)" bb_QC_ctrlValueCB;
                         button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_ctrlValueQC;text -l "";
                         button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_ctrlValueFix;
-                        checkBox -label "8.—°√ÊÃ˘" -v $bb_QC_UIValue[11] -onCommand "bb_QC_UIValueSet(11,1)" -offCommand "bb_QC_UIValueSet(11,0)" bb_QC_faceMappingCB;
+                        checkBox -label "8.ÈÄâÈù¢Ë¥¥" -v $bb_QC_UIValue[11] -onCommand "bb_QC_UIValueSet(11,1)" -offCommand "bb_QC_UIValueSet(11,0)" bb_QC_faceMappingCB;
                         button -l "QC" -c bb_QC_faceMappingQC;text -l "";
                         button -l "Fix" -vis 0;
-                        checkBox -label "9.∂Øª≠÷°" -v $bb_QC_UIValue[12] -onCommand "bb_QC_UIValueSet(12,1)" -offCommand "bb_QC_UIValueSet(12,0)" bb_QC_animKeyCB;
+                        checkBox -label "9.Âä®ÁîªÂ∏ß" -v $bb_QC_UIValue[12] -onCommand "bb_QC_UIValueSet(12,1)" -offCommand "bb_QC_UIValueSet(12,0)" bb_QC_animKeyCB;
                         button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_animKeyQC;text -l "";
                         button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_animKeyFix;
-                        checkBox -label "10.œ‘ æ≤„" -v $bb_QC_UIValue[13] -onCommand "bb_QC_UIValueSet(13,1)" -offCommand "bb_QC_UIValueSet(13,0)" bb_QC_layerCB;
+                        checkBox -label "10.ÊòæÁ§∫Â±Ç" -v $bb_QC_UIValue[13] -onCommand "bb_QC_UIValueSet(13,1)" -offCommand "bb_QC_UIValueSet(13,0)" bb_QC_layerCB;
                         button -l "QC" -c bb_QC_layerQC;text -l "";
                         button -l "Fix" -c "bb_QC_deleteFix(\"QC_layerSets\")";;
                         checkBox -label "11.smooth" -v $bb_QC_UIValue[14] -onCommand "bb_QC_UIValueSet(14,1)" -offCommand "bb_QC_UIValueSet(14,0)" bb_QC_smoothCB;
                         button -l "QC" -bgc 0.5 0.5 0.5 -c bb_QC_smoothQC;text -l "";
                         button -l "Fix" -bgc 0.5 0.5 0.5 -c bb_QC_smoothFix;
-                        checkBox -label "12.Œﬁ”∞œÏπ«˜¿" -v $bb_QC_UIValue[15] -onCommand "bb_QC_UIValueSet(15,1)" -offCommand "bb_QC_UIValueSet(15,0)" bb_QC_unusedCB;
+                        checkBox -label "12.Êó†ÂΩ±ÂìçÈ™®È™º" -v $bb_QC_UIValue[15] -onCommand "bb_QC_UIValueSet(15,1)" -offCommand "bb_QC_UIValueSet(15,0)" bb_QC_unusedCB;
                         button -l "QC" -c bb_QC_unusedQC;text -l "";
                         button -l "Fix" -c bb_QC_unusedFix;
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 40 40 130 -columnAlign  1 "left" ;
-                        button -l "»´—°" -c "bb_QC_UISelect(1,1)";
-                        button -l "∑¥—°" -c "bb_QC_UISelect(0,1)";
+                        button -l "ÂÖ®ÈÄâ" -c "bb_QC_UISelect(1,1)";
+                        button -l "ÂèçÈÄâ" -c "bb_QC_UISelect(0,1)";
                         button -l "QC" -bgc 0 0.3 0.45 -h 30 -w 120 -c "bb_QC_allQC(1)";;
                     setParent ..;
                 setParent ..;
@@ -138,7 +138,7 @@ global proc bb_QCUI()
             formLayout bb_QC_informationLayout;
                scrollField -wordWrap true -editable false bb_QC_informationSF;
                    popupMenu;
-                       menuItem -label "«Âø’–≈œ¢" -c "scrollField -e -clear bb_QC_informationSF";
+                       menuItem -label "Ê∏ÖÁ©∫‰ø°ÊÅØ" -c "scrollField -e -clear bb_QC_informationSF";
             setParent ..;
             formLayout -edit
                 -attachForm     "bb_QC_informationSF"     "top"    1
@@ -175,54 +175,54 @@ global proc bb_QCUI()
                 setParent ..;
             setParent ..;
             formLayout bb_QC_setLayout;
-                text -label "≈‰÷√µµ∞∏£∫" bb_QC_setPathTX;
+                text -label "ÈÖçÁΩÆÊ°£Ê°àÔºö" bb_QC_setPathTX;
                 optionMenu -changeCommand bb_QC_changeSetFile bb_QC_setPathMenu;
-                button -l "µº»Î…Ë÷√" -bgc 1 0.95 0.5 -c bb_QC_loadFile bb_QC_loadFileButton;
+                button -l "ÂØºÂÖ•ËÆæÁΩÆ" -bgc 1 0.95 0.5 -c bb_QC_loadFile bb_QC_loadFileButton;
                 
                 separator -height 10 -style "in" bb_QC_separator1;
                 
-                text -label "÷ÿ√¸√˚ºÏ≤È£∫" bb_QC_renameTX;
+                text -label "ÈáçÂëΩÂêçÊ£ÄÊü•Ôºö" bb_QC_renameTX;
                 checkBox -label "Polygons" bb_QC_renamePlyCB;
                 checkBox -label "Surfaces" bb_QC_renameSurfCB;
                 checkBox -label "Curves" bb_QC_renameCurvesCB;
                 checkBox -label "Joint" bb_QC_renameJointCB;
                 
-                text -label "ƒ£–Õ∫Û◊∫£∫" bb_QC_modleSuffixTX;
+                text -label "Ê®°ÂûãÂêéÁºÄÔºö" bb_QC_modleSuffixTX;
                 textField -cc "bb_QC_checkTextField(\"bb_QC_modleSuffixTF\")" bb_QC_modleSuffixTF;
-                button -l "<<<ÃÌº”" -c "bb_QC_addApply(\"mesh\",\"bb_QC_modleSuffixTF\",1)" bb_QC_modleSuffixButton;
-                checkBox -label "∫ˆ¬‘∫Û◊∫ ˝◊÷" bb_QC_suffixNumCB;
+                button -l "<<<Ê∑ªÂä†" -c "bb_QC_addApply(\"mesh\",\"bb_QC_modleSuffixTF\",1)" bb_QC_modleSuffixButton;
+                checkBox -label "ÂøΩÁï•ÂêéÁºÄÊï∞Â≠ó" bb_QC_suffixNumCB;
                 
-                text -label "…„œÒª˙:" bb_QC_camTX;
+                text -label "ÊëÑÂÉèÊú∫:" bb_QC_camTX;
                 textField -cc "bb_QC_checkTextField(\"bb_QC_camTF\")" bb_QC_camTF;
-                button -l "<<<ÃÌº”" -c "bb_QC_addApply(\"camera\",\"bb_QC_camTF\",0)" bb_QC_camButton;
+                button -l "<<<Ê∑ªÂä†" -c "bb_QC_addApply(\"camera\",\"bb_QC_camTF\",0)" bb_QC_camButton;
                 
-                text -label "smooth∫Û◊∫:" bb_QC_smoothSuffixTX;
+                text -label "smoothÂêéÁºÄ:" bb_QC_smoothSuffixTX;
                 textField -cc "bb_QC_checkTextField(\"bb_QC_smoothSuffixTF\")" bb_QC_smoothSuffixTF;
-                button -l "<<<ÃÌº”" -c "bb_QC_addApply(\"mesh\",\"bb_QC_smoothSuffixTF\",1)" bb_QC_smoothSuffixButton;
-                checkBox -label "ºÏ≤Èsmooth¡¨Ω”" bb_QC_smoothConCB;
+                button -l "<<<Ê∑ªÂä†" -c "bb_QC_addApply(\"mesh\",\"bb_QC_smoothSuffixTF\",1)" bb_QC_smoothSuffixButton;
+                checkBox -label "Ê£ÄÊü•smoothËøûÊé•" bb_QC_smoothConCB;
                 
-                text -label "øÿ÷∆∆˜∫Û◊∫:" bb_QC_ctrlSuffixTX;
+                text -label "ÊéßÂà∂Âô®ÂêéÁºÄ:" bb_QC_ctrlSuffixTX;
                 textField -cc "bb_QC_checkTextField(\"bb_QC_ctrlSuffixTF\")" bb_QC_ctrlSuffixTF;
-                button -l "<<<ÃÌº”" -c "bb_QC_addApply(\"nurbsCurve\",\"bb_QC_ctrlSuffixTF\",1)" bb_QC_ctrlSuffixButton;
+                button -l "<<<Ê∑ªÂä†" -c "bb_QC_addApply(\"nurbsCurve\",\"bb_QC_ctrlSuffixTF\",1)" bb_QC_ctrlSuffixButton;
                 
-                button -l "øÿ÷∆∆˜ Ù–‘°≈°≈°≈" -c "bb_QC_addAttr(0)" bb_QC_ctrlAttrButton;
+                button -l "ÊéßÂà∂Âô®Â±ûÊÄß‚à®‚à®‚à®" -c "bb_QC_addAttr(0)" bb_QC_ctrlAttrButton;
                 textScrollList -ams 1 bb_QC_ctrlAttrTSL;
                     popupMenu;
-                        menuItem -label "…æ≥˝—°‘Ò" -c "bb_QC_deleteAttr(0,\"bb_QC_ctrlAttrTSL\")";
-                        menuItem -label "∑¥—°" -c "bb_QC_reverseSelAttr(\"bb_QC_ctrlAttrTSL\")";
+                        menuItem -label "Âà†Èô§ÈÄâÊã©" -c "bb_QC_deleteAttr(0,\"bb_QC_ctrlAttrTSL\")";
+                        menuItem -label "ÂèçÈÄâ" -c "bb_QC_reverseSelAttr(\"bb_QC_ctrlAttrTSL\")";
                         menuItem -divider true;
-                        menuItem -label "«Âø’¡–±Ì" -c "bb_QC_deleteAttr(1,\"bb_QC_ctrlAttrTSL\")";
+                        menuItem -label "Ê∏ÖÁ©∫ÂàóË°®" -c "bb_QC_deleteAttr(1,\"bb_QC_ctrlAttrTSL\")";
                 
-                button -l "∆‰À˚øÿ÷∆∆˜°≈°≈°≈" -c "bb_QC_addAttr(1)" bb_QC_extraCtrlButton;
+                button -l "ÂÖ∂‰ªñÊéßÂà∂Âô®‚à®‚à®‚à®" -c "bb_QC_addAttr(1)" bb_QC_extraCtrlButton;
                 textScrollList -ams 1 bb_QC_extraCtrlTSL;
                     popupMenu;
-                        menuItem -label "…æ≥˝—°‘Ò" -c "bb_QC_deleteAttr(0,\"bb_QC_extraCtrlTSL\")";
-                        menuItem -label "∑¥—°" -c "bb_QC_reverseSelAttr(\"bb_QC_extraCtrlTSL\")";
+                        menuItem -label "Âà†Èô§ÈÄâÊã©" -c "bb_QC_deleteAttr(0,\"bb_QC_extraCtrlTSL\")";
+                        menuItem -label "ÂèçÈÄâ" -c "bb_QC_reverseSelAttr(\"bb_QC_extraCtrlTSL\")";
                         menuItem -divider true;
-                        menuItem -label "«Âø’¡–±Ì" -c "bb_QC_deleteAttr(1,\"bb_QC_extraCtrlTSL\")";
+                        menuItem -label "Ê∏ÖÁ©∫ÂàóË°®" -c "bb_QC_deleteAttr(1,\"bb_QC_extraCtrlTSL\")";
                 
-                button -l "µº≥ˆ≈‰÷√" -bgc 0 0.3 0.45 -c bb_QC_setExport bb_QC_exportSetButton;
-                button -l "ƒ¨»œ…Ë÷√" -bgc 0.38 0.03 0.03 -c bb_QC_defaultSet bb_QC_defaultButton;
+                button -l "ÂØºÂá∫ÈÖçÁΩÆ" -bgc 0 0.3 0.45 -c bb_QC_setExport bb_QC_exportSetButton;
+                button -l "ÈªòËÆ§ËÆæÁΩÆ" -bgc 0.38 0.03 0.03 -c bb_QC_defaultSet bb_QC_defaultButton;
                 
             formLayout -edit
                 -attachForm     "bb_QC_setPathTX"     "top"   5
@@ -239,7 +239,7 @@ global proc bb_QCUI()
                 -attachControl  "bb_QC_separator1"     "top"   5 "bb_QC_setPathMenu"
                 -attachForm     "bb_QC_separator1"     "left"  5 
                 -attachForm     "bb_QC_separator1"     "right" 5
-                //÷ÿ√¸√˚
+                //ÈáçÂëΩÂêç
                 -attachControl  "bb_QC_renameTX"     "top"   5 "bb_QC_separator1"
                 -attachForm     "bb_QC_renameTX"     "left"  5 
                 
@@ -254,7 +254,7 @@ global proc bb_QCUI()
                 
                 -attachControl  "bb_QC_renameJointCB"     "top"   5  "bb_QC_separator1"
                 -attachControl  "bb_QC_renameJointCB"     "left"  10 "bb_QC_renameCurvesCB"  
-                //ƒ£–Õ∫Û◊∫
+                //Ê®°ÂûãÂêéÁºÄ
                 -attachControl  "bb_QC_modleSuffixTX"     "top"   10  "bb_QC_renameTX"
                 -attachForm     "bb_QC_modleSuffixTX"     "left"  5
                 
@@ -268,7 +268,7 @@ global proc bb_QCUI()
                 
                 -attachControl  "bb_QC_suffixNumCB"     "top"   10  "bb_QC_modleSuffixTX"
                 -attachForm     "bb_QC_suffixNumCB"     "left"  80
-                //œ‡ª˙
+                //Áõ∏Êú∫
                 -attachControl  "bb_QC_camTX"     "top"   10  "bb_QC_suffixNumCB"
                 -attachForm     "bb_QC_camTX"     "left"  5
                 
@@ -279,7 +279,7 @@ global proc bb_QCUI()
                 -attachControl  "bb_QC_camButton"     "top"   10  "bb_QC_suffixNumCB"
                 -attachControl  "bb_QC_camButton"     "left"  5   "bb_QC_camTF"  
                 -attachForm     "bb_QC_camButton"     "right" 5
-                //smooth∫Û◊∫
+                //smoothÂêéÁºÄ
                 -attachControl  "bb_QC_smoothSuffixTX"     "top"   10  "bb_QC_camTX"
                 -attachForm     "bb_QC_smoothSuffixTX"     "left"  5
                 
@@ -293,7 +293,7 @@ global proc bb_QCUI()
                 
                 -attachControl  "bb_QC_smoothConCB"     "top"   10  "bb_QC_smoothSuffixTX"
                 -attachForm     "bb_QC_smoothConCB"     "left"  80
-                //øÿ÷∆∆˜∫Û◊∫
+                //ÊéßÂà∂Âô®ÂêéÁºÄ
                 -attachControl  "bb_QC_ctrlSuffixTX"     "top"   10  "bb_QC_smoothConCB"
                 -attachForm     "bb_QC_ctrlSuffixTX"     "left"  5
                 
@@ -304,7 +304,7 @@ global proc bb_QCUI()
                 -attachControl  "bb_QC_ctrlSuffixButton"     "top"   10  "bb_QC_smoothConCB"
                 -attachControl  "bb_QC_ctrlSuffixButton"     "left"  5   "bb_QC_ctrlSuffixTF"  
                 -attachForm     "bb_QC_ctrlSuffixButton"     "right" 5
-                //øÿ÷∆∆˜ Ù–‘
+                //ÊéßÂà∂Âô®Â±ûÊÄß
                 -attachControl  "bb_QC_ctrlAttrButton"     "top"    5   "bb_QC_ctrlSuffixButton"
                 -attachForm     "bb_QC_ctrlAttrButton"     "left"   5
                 -attachPosition "bb_QC_ctrlAttrButton"     "right"  0 35
@@ -313,7 +313,7 @@ global proc bb_QCUI()
                 -attachForm     "bb_QC_ctrlAttrTSL"     "left"   5   
                 -attachPosition "bb_QC_ctrlAttrTSL"     "right"  0 35
                 -attachForm     "bb_QC_ctrlAttrTSL"     "bottom" 40
-                //∆‰À˚øÿ÷∆∆˜
+                //ÂÖ∂‰ªñÊéßÂà∂Âô®
                 -attachControl  "bb_QC_extraCtrlButton"     "top"    5   "bb_QC_ctrlSuffixButton"
                 -attachControl  "bb_QC_extraCtrlButton"     "left"   5   "bb_QC_ctrlAttrButton"
                 -attachForm     "bb_QC_extraCtrlButton"     "right"  5
@@ -322,7 +322,7 @@ global proc bb_QCUI()
                 -attachControl  "bb_QC_extraCtrlTSL"     "left"   5  "bb_QC_ctrlAttrTSL"
                 -attachForm     "bb_QC_extraCtrlTSL"     "right"  5
                 -attachForm     "bb_QC_extraCtrlTSL"     "bottom" 40
-                //µº≥ˆ&ª÷∏¥ƒ¨»œ
+                //ÂØºÂá∫&ÊÅ¢Â§çÈªòËÆ§
                 -attachControl  "bb_QC_exportSetButton"     "top"    5  "bb_QC_extraCtrlTSL"
                 -attachForm     "bb_QC_exportSetButton"     "left"   5
                 -attachForm     "bb_QC_exportSetButton"     "right"  60
@@ -343,8 +343,8 @@ global proc bb_QCUI()
                 -attachForm     "bb_QC_helpSF"     "right"  1
                 -attachForm     "bb_QC_helpSF"     "bottom" 1
             bb_QC_helpLayout;
-        tabLayout -edit -tabLabel bb_QC_informationLayout "–≈œ¢" -tabLabel bb_QC_outlineLayout "Outliner"
-                  -tabLabel bb_QC_setLayout "…Ë÷√" -tabLabel bb_QC_helpLayout "∞Ô÷˙" bb_QC_tabLayout;
+        tabLayout -edit -tabLabel bb_QC_informationLayout "‰ø°ÊÅØ" -tabLabel bb_QC_outlineLayout "Outliner"
+                  -tabLabel bb_QC_setLayout "ËÆæÁΩÆ" -tabLabel bb_QC_helpLayout "Â∏ÆÂä©" bb_QC_tabLayout;
         formLayout -edit
             -attachForm     "bb_QCUI_QC1Layout"     "top"    5
             -attachForm     "bb_QCUI_QC1Layout"     "left"   5

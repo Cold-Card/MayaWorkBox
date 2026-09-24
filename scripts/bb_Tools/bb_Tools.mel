@@ -40,13 +40,16 @@ bb_Tools;
 //提取路径
 global proc string bb_Tools_FilePath()
 {
-    string $melPath = `whatIs bb_Tools`;
-    string $melPathArray[] = stringToStringArray($melPath, "/");
-    stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
-    string $start[] = stringToStringArray($melPathArray[0], " ");
-    $melPathArray[0] = $start[size($start)-1];
-    string $path = stringArrayToString($melPathArray, "/") + "/";
-    //string $path = "D:/Script/bb_Tools/";
+    // string $melPath = `whatIs bb_Tools`;
+    // string $melPathArray[] = stringToStringArray($melPath, "/");
+    // stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
+    // string $start[] = stringToStringArray($melPathArray[0], " ");
+    // $melPathArray[0] = $start[size($start)-1];
+    // string $path = stringArrayToString($melPathArray, "/") + "/";
+
+    string $WRL_SCRIPTS = getenv("WRL_SCRIPTS");
+    string $path = $WRL_SCRIPTS + "/scripts/bb_Tools/";
+
     return $path;
 }
 

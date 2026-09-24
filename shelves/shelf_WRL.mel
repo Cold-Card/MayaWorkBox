@@ -102,7 +102,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "source \"AdvancedSkeleton6.600/AdvancedSkeleton.mel\";AdvancedSkeleton;" 
+        -command "source \"ADV/AdvancedSkeleton6.600/AdvancedSkeleton.mel\";AdvancedSkeleton;" 
         -sourceType "mel" 
         -commandRepeatable 1
         -flat 1
@@ -274,7 +274,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "import os\nimport sys\nimport maya.cmds as cmds\n#\nTH_TOOLS_FILE_PATH = '/home/wangruilong/maya/workBox/toolkits/ThRigTools'\n# 加入路徑\nif not os.path.exists(TH_TOOLS_FILE_PATH):\n    raise IOError(f'Cannot find: {TH_TOOLS_FILE_PATH}')\n#\nif TH_TOOLS_FILE_PATH not in sys.path:\n    sys.path.insert(0, TH_TOOLS_FILE_PATH)\n# 透過 Maya 的 MQtUtil 或內建指令來確保舊視窗存在時將其安全刪除，此處改用預防 GC 閃退的持久化清理\nif hasattr(cmds, \"thMainUiInstance\"):\n    try:\n        cmds.thMainUiInstance.close()\n        cmds.thMainUiInstance.deleteLater()\n    except:\n        pass\n#\nif hasattr(cmds, \"thLogoUiInstance\"):\n    try:\n        cmds.thLogoUiInstance.close()\n        cmds.thLogoUiInstance.deleteLater()\n    except:\n        pass\n# 在刪除模組前，先清理 QApplication 中的翻譯器\nif 'thRigToolsFiles.rig' in sys.modules:\n    try:\n        sys.modules['thRigToolsFiles.rig'].ThLanguage.setLanguageF('zh_TW')\n    except Exception as e:\n        print(f\"清理語言失敗: {e}\")\n# 強制清除模組\nfor mod in list(sys.modules.keys()):\n    if mod.startswith('thRigToolsFiles.rig'):\n        sys.modules.pop(mod)\n# 重新載入\nimport thRigToolsFiles.rig\n# 顯示 UI\nthRigToolsFiles.rig.ThInitUi.initDataF()\n# 將視窗實例動態註冊到 cmds 模組中，等同於 Blender 的 bpy.types 作法\ncmds.thMainUiInstance = thRigToolsFiles.rig.ThUiMain()\ncmds.thMainUiInstance.show()\n#\ncmds.thLogoUiInstance = thRigToolsFiles.rig.ThUiLogoShow()\ncmds.thLogoUiInstance.show()\n" 
+        -command "import os\nimport sys\nimport maya.cmds as cmds\n#\nWRL_SCRIPTS = os.path.normpath(os.environ.get(\"WRL_SCRIPTS\"))\nTH_TOOLS_FILE_PATH = os.path.join(WRL_SCRIPTS, 'toolkits/ThRigTools')\n# 加入路徑\nif not os.path.exists(TH_TOOLS_FILE_PATH):\n    raise IOError(f'Cannot find: {TH_TOOLS_FILE_PATH}')\n#\nif TH_TOOLS_FILE_PATH not in sys.path:\n    sys.path.insert(0, TH_TOOLS_FILE_PATH)\n# 透過 Maya 的 MQtUtil 或內建指令來確保舊視窗存在時將其安全刪除，此處改用預防 GC 閃退的持久化清理\nif hasattr(cmds, \"thMainUiInstance\"):\n    try:\n        cmds.thMainUiInstance.close()\n        cmds.thMainUiInstance.deleteLater()\n    except:\n        pass\n#\nif hasattr(cmds, \"thLogoUiInstance\"):\n    try:\n        cmds.thLogoUiInstance.close()\n        cmds.thLogoUiInstance.deleteLater()\n    except:\n        pass\n# 在刪除模組前，先清理 QApplication 中的翻譯器\nif 'thRigToolsFiles.rig' in sys.modules:\n    try:\n        sys.modules['thRigToolsFiles.rig'].ThLanguage.setLanguageF('zh_TW')\n    except Exception as e:\n        print(f\"清理語言失敗: {e}\")\n# 強制清除模組\nfor mod in list(sys.modules.keys()):\n    if mod.startswith('thRigToolsFiles.rig'):\n        sys.modules.pop(mod)\n# 重新載入\nimport thRigToolsFiles.rig\n# 顯示 UI\nthRigToolsFiles.rig.ThInitUi.initDataF()\n# 將視窗實例動態註冊到 cmds 模組中，等同於 Blender 的 bpy.types 作法\ncmds.thMainUiInstance = thRigToolsFiles.rig.ThUiMain()\ncmds.thMainUiInstance.show()\n#\ncmds.thLogoUiInstance = thRigToolsFiles.rig.ThUiLogoShow()\ncmds.thLogoUiInstance.show()\n" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -747,7 +747,7 @@ global proc shelf_WRL () {
     shelfButton
         -enableCommandRepeat 1
         -flexibleWidthType 3
-        -flexibleWidthValue 37
+        -flexibleWidthValue 32
         -enable 1
         -width 40
         -height 34
@@ -1277,7 +1277,7 @@ global proc shelf_WRL () {
     shelfButton
         -enableCommandRepeat 1
         -flexibleWidthType 3
-        -flexibleWidthValue 37
+        -flexibleWidthValue 32
         -enable 1
         -width 40
         -height 34
@@ -1794,7 +1794,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "import importlib    \nimport MuscleJointSystem_py3.main\nimportlib.reload(MuscleJointSystem_py3.main)\nif __name__ == '__main__':\n    try:\n        test.closeUI()\n    except:\n        pass\n    test = MuscleJointSystem_py3.main.MainWindow()\n    test.showUI()" 
+        -command "import MuscleJointSystem.main\ntry:\n    win.closeUI()\nexcept:\n    pass\nwin = MuscleJointSystem.main.MainWindow()\nwin.showUI()" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1

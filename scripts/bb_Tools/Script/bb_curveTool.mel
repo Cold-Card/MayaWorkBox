@@ -1,60 +1,60 @@
 //Author  :   LiuBen
 //Date    :   2017/02/06
-//Fix     :   2017/04/11   ĞŞÕıÉú³ÉÇúÃæÊ±£¬follicle¶¨Î»´íÎóµÄbug¡£ĞŞÕıµ¥¸ùÇúÏß²»»á±»ÖØ½¨µÄbug¡£
-//Fix     :   2017/12/19   ĞŞÕıÉú³É²»ÖØ½¨ÇúÏßµÄÇúÃæÊ±£¬follicle¶¨Î»´íÎóµÄbug¡£
-//Fix     :   2018/01/29   ĞŞÕıÉú³É¹Ç÷ÀÊ±£¬Éú³É·½Ïò²»Ö¸ÏòÏÂÒ»½Ú¹Ç÷ÀµÄÎÊÌâ¡£
-//Fix     :   2020/01/29   ĞÂÔöpoly,nurbs¿ÉÑ¡£¬·´Ïò½¨Á¢ÇúÏß¶¨µã¡¢¹Ç÷À¹¦ÄÜ£»ÇúÃæÉú³ÉÃ«ÄÒ¹¦ÄÜ¡£
-//Fix     :   2021/09/13   ĞŞÕı²»ÖØ½¨ÇúÏßÊ±£¬Ã«ÄÒÉú³ÉÎ»ÖÃ²»¶ÔµÄÎÊÌâ¡£
+//Fix     :   2017/04/11   ä¿®æ­£ç”Ÿæˆæ›²é¢æ—¶ï¼Œfollicleå®šä½é”™è¯¯çš„bugã€‚ä¿®æ­£å•æ ¹æ›²çº¿ä¸ä¼šè¢«é‡å»ºçš„bugã€‚
+//Fix     :   2017/12/19   ä¿®æ­£ç”Ÿæˆä¸é‡å»ºæ›²çº¿çš„æ›²é¢æ—¶ï¼Œfollicleå®šä½é”™è¯¯çš„bugã€‚
+//Fix     :   2018/01/29   ä¿®æ­£ç”Ÿæˆéª¨éª¼æ—¶ï¼Œç”Ÿæˆæ–¹å‘ä¸æŒ‡å‘ä¸‹ä¸€èŠ‚éª¨éª¼çš„é—®é¢˜ã€‚
+//Fix     :   2020/01/29   æ–°å¢poly,nurbså¯é€‰ï¼Œåå‘å»ºç«‹æ›²çº¿å®šç‚¹ã€éª¨éª¼åŠŸèƒ½ï¼›æ›²é¢ç”Ÿæˆæ¯›å›ŠåŠŸèƒ½ã€‚
+//Fix     :   2021/09/13   ä¿®æ­£ä¸é‡å»ºæ›²çº¿æ—¶ï¼Œæ¯›å›Šç”Ÿæˆä½ç½®ä¸å¯¹çš„é—®é¢˜ã€‚
 global proc bb_curveTool()
 {
     if (`window -q -exists bb_curveToolWindow`) deleteUI bb_curveToolWindow;
-    window -title "ÇúÏß¹¤¾ß" bb_curveToolWindow;
+    window -title "æ›²çº¿å·¥å…·" bb_curveToolWindow;
         columnLayout -adjustableColumn true -columnAttach "both" 3;
-            frameLayout -label "»ù±¾ÉèÖÃ";
+            frameLayout -label "åŸºæœ¬è®¾ç½®";
                 columnLayout;
                     rowLayout -numberOfColumns 2 -columnWidth2 50 200 ;
-                        text -label "Ãû³Æ: ";
+                        text -label "åç§°: ";
                         textField -w 152 -text "Name" bb_curveTool_nameTF;
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 100 50 50 ;
-                        checkBox -label "ÖØ½¨ÇúÏß" -value 1 bb_curveTool_rebuildCB;
-                        text -label "ÇúÏß¶ÎÊı: ";
+                        checkBox -label "é‡å»ºæ›²çº¿" -value 1 bb_curveTool_rebuildCB;
+                        text -label "æ›²çº¿æ®µæ•°: ";
                         intField -w 50 -min 1 -v 9 bb_curveTool_rebuildNumIF;
                     setParent ..;
-            frameLayout -label "´´½¨";
+            frameLayout -label "åˆ›å»º";
                 rowLayout -numberOfColumns 2 -columnWidth2 100 100 ;
                     columnLayout; 
-                        checkBox -label "Éú³ÉÇúÃæ" -value 0 bb_curveTool_surfacesCB;
-                        checkBox -label "±ÕºÏÇúÃæ" -value 0 bb_curveTool_surfacesCloseCB;
+                        checkBox -label "ç”Ÿæˆæ›²é¢" -value 0 bb_curveTool_surfacesCB;
+                        checkBox -label "é—­åˆæ›²é¢" -value 0 bb_curveTool_surfacesCloseCB;
                     setParent ..;
                     columnLayout; 
                         radioCollection bb_curveModeChoose;
-                            radioButton -label "´´½¨Nurbs" processMode_nurbs;
-                            radioButton -label "´´½¨Poly" processMode_poly;
+                            radioButton -label "åˆ›å»ºNurbs" processMode_nurbs;
+                            radioButton -label "åˆ›å»ºPoly" processMode_poly;
                         radioCollection -edit -select "processMode_poly" bb_curveModeChoose;
                     setParent ..;
                 setParent ..;
-                button -l "´´½¨" -w 203 -h 40 -bgc 0.1 0.1 0.1 -c bb_curveTool_apply;
-            frameLayout -label "ÆäËû";
+                button -l "åˆ›å»º" -w 203 -h 40 -bgc 0.1 0.1 0.1 -c bb_curveTool_apply;
+            frameLayout -label "å…¶ä»–";
                 columnLayout; 
                     rowLayout -numberOfColumns 2 -columnWidth2 97 100 ;
-                        checkBox -label "·´Ïò½¨Á¢" -value 0 bb_curveTool_ReverseCB;
-                        button -l "»ñÈ¡ÇúÏß/Ãæ¶ÎÊı" -w 100 -c bb_curveTool_getCVNum;
+                        checkBox -label "åå‘å»ºç«‹" -value 0 bb_curveTool_ReverseCB;
+                        button -l "è·å–æ›²çº¿/é¢æ®µæ•°" -w 100 -c bb_curveTool_getCVNum;
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 55 30 100;
-                        text -label "  ¶¨µãÊıÁ¿: ";
+                        text -label "  å®šç‚¹æ•°é‡: ";
                         intField -w 40 -v 1 -min 1 bb_curveTool_locNumIF;
-                        button -l "ÇúÏß¶¨µã" -w 100 -bgc 0.5 0.5 0.5 -c bb_curveTool_locApply;
+                        button -l "æ›²çº¿å®šç‚¹" -w 100 -bgc 0.5 0.5 0.5 -c bb_curveTool_locApply;
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 55 30 100;
-                        text -label "  ¹Ç÷ÀÊıÁ¿: ";
+                        text -label "  éª¨éª¼æ•°é‡: ";
                         intField -w 40 -v 1 -min 1 bb_curveTool_jointNumIF;
-                        button -l "ÇúÏßÉú³É¹Ç÷À" -w 100 -c bb_curveTool_jointApply;
+                        button -l "æ›²çº¿ç”Ÿæˆéª¨éª¼" -w 100 -c bb_curveTool_jointApply;
                     setParent ..;
                     rowLayout -numberOfColumns 3 -columnWidth3 55 30 100;
-                        text -label "  Ã«ÄÒÊıÁ¿: ";
+                        text -label "  æ¯›å›Šæ•°é‡: ";
                         intField -w 40 -v 1 -min 1 bb_curveTool_follicleNumIF;
-                        button -l "ÇúÃæÉú³ÉÃ«ÄÒ" -w 100 -c bb_curveTool_follicleOnFace;
+                        button -l "æ›²é¢ç”Ÿæˆæ¯›å›Š" -w 100 -c bb_curveTool_follicleOnFace;
                     setParent ..;
                 setParent ..;
     showWindow bb_curveToolWindow;

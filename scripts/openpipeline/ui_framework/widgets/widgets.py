@@ -30,10 +30,10 @@ class Widgets(object):
         except Exception:
             return None
 
-    def separator(self, parent, vertical=False):
+    def separator(self, parent, H=True):
         try:
             frame = QtWidgets.QFrame()
-            frame.setFrameShape(QtWidgets.QFrame.HLine if vertical else QtWidgets.QFrame.VLine)
+            frame.setFrameShape(QtWidgets.QFrame.HLine if H else QtWidgets.QFrame.VLine)
             frame.setFrameShadow(QtWidgets.QFrame.Sunken)
             frame.setLineWidth(1)
             if hasattr(parent, 'addWidget'):
@@ -41,11 +41,6 @@ class Widgets(object):
             return frame
         except Exception:
             return None
-
-    def create_text(self, text=''):
-        label = QtWidgets.QLabel(text)
-        label.setStyleSheet('color:#5285A6; font: bold 12px;')
-        return label
 
     def create_copyrightText(self, parent_layout, timestamp):
         self.separator(parent_layout, True)

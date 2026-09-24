@@ -1,35 +1,35 @@
 //Author  :   LiuBen
 //Date    :   03/14/2019
-//Fix     :   03/26/2019   Ôö¼Ó×ì²¿×Ü¿ØÖÆÆ÷¹¦ÄÜ
-//Fix     :   12/25/2019   Ôö¼Ó×ì½ÇÑÛ½Ç¹Ç÷À¡£
-//Fix     :   01/10/2020   ÕûÌå¹¦ÄÜÌáÉı¡£
+//Fix     :   03/26/2019   å¢åŠ å˜´éƒ¨æ€»æ§åˆ¶å™¨åŠŸèƒ½
+//Fix     :   12/25/2019   å¢åŠ å˜´è§’çœ¼è§’éª¨éª¼ã€‚
+//Fix     :   01/10/2020   æ•´ä½“åŠŸèƒ½æå‡ã€‚
 global proc bb_subFacialTool()
 {
     if (`window -q -exists bb_subFacialToolWindow`) deleteUI bb_subFacialToolWindow;
-    window -title "Ãæ²¿´Î¼¶¿ØÖÆ" -toolbox 1 bb_subFacialToolWindow;    
+    window -title "é¢éƒ¨æ¬¡çº§æ§åˆ¶" -toolbox 1 bb_subFacialToolWindow;    
         columnLayout -adjustableColumn true -columnAttach "both" 3 -columnAlign "left";
-            frameLayout -label "Ö÷Òª²½Öè";
+            frameLayout -label "ä¸»è¦æ­¥éª¤";
                 rowColumnLayout -numberOfColumns 3 -columnWidth 1 60 -columnWidth 2 60 -columnWidth 3 60;
-                    checkBox -label "×ì´½" -value 1 bb_subFacial_createJointLip;
-                    checkBox -label "ÑÛíú" -value 1 bb_subFacial_createJointEyelid;
-                    checkBox -label "Ã¼Ã«" -value 1 bb_subFacial_createJointBrow;
-                    checkBox -label "±Ç×Ó" -value 1 bb_subFacial_createJointNose;
-                    checkBox -label "Á³¼Õ" -value 1 bb_subFacial_createJointCheek;
-                    checkBox -label "ÏÂ°Í" -value 1 bb_subFacial_createJointChin;
-                    checkBox -label "¶ú¶ä" -value 1 bb_subFacial_createJointEar;
+                    checkBox -label "å˜´å”‡" -value 1 bb_subFacial_createJointLip;
+                    checkBox -label "çœ¼ç‘" -value 1 bb_subFacial_createJointEyelid;
+                    checkBox -label "çœ‰æ¯›" -value 1 bb_subFacial_createJointBrow;
+                    checkBox -label "é¼»å­" -value 1 bb_subFacial_createJointNose;
+                    checkBox -label "è„¸é¢Š" -value 1 bb_subFacial_createJointCheek;
+                    checkBox -label "ä¸‹å·´" -value 1 bb_subFacial_createJointChin;
+                    checkBox -label "è€³æœµ" -value 1 bb_subFacial_createJointEar;
                 setParent ..;
-                button -l "Éú³É¹Ç÷À" -h 30 -bgc 0.1 0.1 0.1 -c bb_subFacial_createJoint;
-                button -l "Ñ¡ÔñBaseÄ£ĞÍ£¬Éú³ÉÃ«ÄÒ" -h 30 -bgc 0.5 0.5 0.5 -c bb_subFacial_createFollice;
-                button -l "´´½¨¿ØÖÆÆ÷" -h 30 -bgc 0.1 0.1 0.1  -c bb_subFacial_createCtrl;
-                button -l "ÕûÀí²ã¼¶" -h 40 -bgc 0.9 0.9 0.9 -c bb_subFacial_cleanUp;
+                button -l "ç”Ÿæˆéª¨éª¼" -h 30 -bgc 0.1 0.1 0.1 -c bb_subFacial_createJoint;
+                button -l "é€‰æ‹©Baseæ¨¡å‹ï¼Œç”Ÿæˆæ¯›å›Š" -h 30 -bgc 0.5 0.5 0.5 -c bb_subFacial_createFollice;
+                button -l "åˆ›å»ºæ§åˆ¶å™¨" -h 30 -bgc 0.1 0.1 0.1  -c bb_subFacial_createCtrl;
+                button -l "æ•´ç†å±‚çº§" -h 40 -bgc 0.9 0.9 0.9 -c bb_subFacial_cleanUp;
                 separator -height 2 -style "in"; 
-                button -l "(Ñ¡¹Ç÷À)ÖØĞÂ¼ÓÔ¼Êø"  -bgc 0.5 0.5 0.5 -c bb_subFacial_reCon;
-            frameLayout -label "¾µÏñÊıÖµ";
-                text -label "×ó>>>ÓÒ¾µÏñÊıÖµ";
+                button -l "(é€‰éª¨éª¼)é‡æ–°åŠ çº¦æŸ"  -bgc 0.5 0.5 0.5 -c bb_subFacial_reCon;
+            frameLayout -label "é•œåƒæ•°å€¼";
+                text -label "å·¦>>>å³é•œåƒæ•°å€¼";
                 rowLayout -numberOfColumns 3 -columnWidth3 60 60 60;
-                    button -l "¹Ç÷À" -w 60 -h 30 -bgc 0.9 0.9 0.5 -c bb_subFacial_mirrorJoint;
-                    button -l "Ã«ÄÒ" -w 60 -h 30 -bgc 0.5 0.1 0.1 -c bb_subFacial_mirrorFollice;
-                    button -l "¿ØÖÆÆ÷" -w 60 -h 30 -bgc 0 0.3 0.45 -c bb_subFacial_mirrorCtrl;
+                    button -l "éª¨éª¼" -w 60 -h 30 -bgc 0.9 0.9 0.5 -c bb_subFacial_mirrorJoint;
+                    button -l "æ¯›å›Š" -w 60 -h 30 -bgc 0.5 0.1 0.1 -c bb_subFacial_mirrorFollice;
+                    button -l "æ§åˆ¶å™¨" -w 60 -h 30 -bgc 0 0.3 0.45 -c bb_subFacial_mirrorCtrl;
                 setParent ..;
     showWindow bb_subFacialToolWindow;
 }
@@ -206,7 +206,7 @@ global proc bb_subFacial_createCtrl()
     }
     
     for($i=0;$i<size($bb_subFacial_joint);$i++){
-        //½¨Á¢¿ØÖÆÆ÷
+        //å»ºç«‹æ§åˆ¶å™¨
         string $ctrl = substituteAllString($bb_subFacial_joint[$i], "Joint", "ctrl");
         string $Follicle = substituteAllString($bb_subFacial_joint[$i], "Joint", "Follicle");
         string $midJoint[] = {"LipUpperMid_Joint","LipLowerMid_Joint","BrowM_Joint","NoseMid_Joint","ChinMid_Joint","NoseUpper_Joint","NoseLower_Joint"};
@@ -245,7 +245,7 @@ global proc bb_subFacial_createCtrl()
         string $Constraint[] = `pointConstraint -weight 1 $Follicle ($ctrl+"Env")`;
         delete $Constraint;
     
-        //½¨Á¢Êı¾İ×é
+        //å»ºç«‹æ•°æ®ç»„
         createNode "transform" -n ($bb_subFacial_joint[$i] + "Env");
         createNode "transform" -n ($bb_subFacial_joint[$i] + "Reverse");
         createNode "transform" -n ($bb_subFacial_joint[$i] + "Value");
@@ -332,7 +332,7 @@ global proc bb_subFacial_createGroup(string $ctrlName)
 global proc bb_subFacial_createShape(int $shapeStyle,int $shapeColor,string $ctrlName)
 {
     switch($shapeStyle){
-        case 1://Çò
+        case 1://çƒ
             curve -d 1 -p 0 1 0 -p 0.5 0.866025 0 -p 0.866025 0.5 0 -p 1 0 0 -p 0.866025 -0.5 0 -p 0.5 -0.866025 0 -p 0 -1 0 -p -0.5 -0.866025 0 -p -0.866025 -0.5 0 
             -p -1 0 0 -p -0.866025 0.5 0 -p -0.5 0.866025 0 -p 0 1 0 -p 0 0.866025 -0.5 -p 0 0.5 -0.866025 -p 0 0 -1 -p 0 -0.5 -0.866025 -p 0 -0.866025 -0.5 
             -p 0 -1 0 -p 0 -0.866025 0.5 -p 0 -0.5 0.866025 -p 0 0 1 -p 0 0.5 0.866025 -p 0 0.866025 0.5 -p 0 1 0 -p 0 0.866025 -0.5 -p 0 0.5 -0.866025 -p 0 0 -1 
@@ -340,25 +340,25 @@ global proc bb_subFacial_createShape(int $shapeStyle,int $shapeColor,string $ctr
             -p -0.5 0 -0.866025 -p 0 0 -1 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 
             -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 -k 32 -k 33 -k 34 -k 35 -k 36 -k 37 -k 38 -k 39 -n $ctrlName;
             break;
-        case 2://Ô²»·
+        case 2://åœ†ç¯
             circle -nr 0 0 1 -c 0 0 0 -constructionHistory 0 -n $ctrlName;
             break;
-        case 3://±Ç×Ó
+        case 3://é¼»å­
             curve -d 3 -p -1 2 0 -p -1 1 0 -p -1 0 0 -p -1 -1 0 -p -1 -2 0 -p 0 -2 0 -p 1 -2 0 -p 1 -1 0 -p 1 0 0 -p 1 1 0 -p 1 2 0 -p 0 2 0 -k 0 
             -k 0 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 9 -k 9 -n $ctrlName;
             closeCurve -ch 1 -ps 0 -rpo 1 -bb 1 -bki 1 -p 0.1 $ctrlName;
             break;
-        case 4://×ì,Ã¼Ã«
+        case 4://å˜´,çœ‰æ¯›
             curve -d 3 -p -2 -1 0 -p -1 -1 0 -p 0 -1 0 -p 1 -1 0 -p 2 -1 0 -p 2 0 0 -p 2 1 0 -p 1 1 0 -p 0 1 0 -p -1 1 0 -p -2 1 0 -p -2 0 0 -k 0 
             -k 0 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 9 -k 9 -n $ctrlName;
             closeCurve -ch 1 -ps 0 -rpo 1 -bb 1 -bki 1 -p 0.1 $ctrlName;
             break;
-        case 5://¶ú¶ä
+        case 5://è€³æœµ
             curve -d 3 -p 0 2 0 -p 0 1.414213 -1.06066 -p 0 0 -1.5 -p 0 -1.414213 -1.06066 -p 0 -2 0 -p 0 -1.414214 1.06066 -p 0 0 1.5 -p 0 1.414213 1.06066 
             -k 0 -k 0 -k 0 -k 1.391147 -k 2.782293 -k 4.083702 -k 5.38511 -k 6.776257 -k 6.776257 -k 6.776257 -n $ctrlName;
             closeCurve -ch 1 -ps 0 -rpo 1 -bb 1 -bki 1 -p 0.1 $ctrlName;
             break;
-        case 7://×ì½Ç
+        case 7://å˜´è§’
             curve -d 1 -p -1 1 0 -p -1 -1 0 -p 1 0 0 -p -1 1 0 -k 0 -k 1 -k 2 -k 3 -n $ctrlName;
             break;    
     }
@@ -371,7 +371,7 @@ global proc bb_subFacial_createShape(int $shapeStyle,int $shapeColor,string $ctr
     }
 }
 
-//ÕûÀí²ã¼¶
+//æ•´ç†å±‚çº§
 global proc bb_subFacial_cleanUp()
 {
     global string $bb_subFacial_joint[];
@@ -459,7 +459,7 @@ global proc bb_subFacial_cleanUp()
     }
     setAttr "facial_folliceGrp.v" 0;
 }
-//×ì½ÇÁª¶¯
+//å˜´è§’è”åŠ¨
 global proc bb_subFacial_LipCorner()
 {
     string $JointLip[] = {"LipUpperMid_Joint","LipUpperLeft1_Joint","LipUpperLeft2_Joint","LipLowerLeft2_Joint","LipLowerLeft1_Joint","LipLeft_Joint",
@@ -506,7 +506,7 @@ global proc bb_subFacial_LipCorner()
     }
 }
 
-//¿ØÖÆÆ÷ÊıÖµ¹éENV²ã
+//æ§åˆ¶å™¨æ•°å€¼å½’ENVå±‚
 global proc bb_subFacial_data2Env(string $ctrl)
 {
     float $sx = `getAttr ($ctrl + "Env.sx")`;
@@ -528,7 +528,7 @@ global proc bb_subFacial_data2Env(string $ctrl)
     makeIdentity -apply true -s 1 -n 0 -pn 1 $ctrl;
 }
   
-//¿ØÖÆÆ÷×óÓÒ·½Ïò¾µÏñ
+//æ§åˆ¶å™¨å·¦å³æ–¹å‘é•œåƒ
 global proc bb_subFacial_mirrorCtrl()
 {
     string $sel[] = `ls -sl "*Left*"`;

@@ -61,6 +61,7 @@ cache/
 
 # Ignore all other files
 AdvancedSkeleton*/
+Maya_PY3_plug-in_2025/
 git_ignore/
 *.ce2-workspace
 

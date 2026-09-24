@@ -1,5 +1,5 @@
-//Ìí¼ÓÃû³ÆÓ¦ÓÃ
-//$nameType 0ÎªÈ«²¿Ãû³Æ£¬1Îªºó×º¡£
+//æ·»åŠ åç§°åº”ç”¨
+//$nameType 0ä¸ºå…¨éƒ¨åç§°ï¼Œ1ä¸ºåç¼€ã€‚
 global proc bb_QC_addApply(string $shapeType,string $textFieldName,int $nameType)
 {
     string $selTransforms[] = `ls -sl -type "transform"`;
@@ -59,7 +59,7 @@ global proc bb_QC_checkTextField(string $textFieldName)
     bb_QC_checkRule($text,$textFieldName);   
 }
 
-//Ìí¼ÓÊôĞÔ
+//æ·»åŠ å±æ€§
 global proc bb_QC_addAttr(int $mode)
 {
     string $selAttr[] = `channelBox -q -sma mainChannelBox`;
@@ -92,7 +92,7 @@ global proc bb_QC_addAttr(int $mode)
     $attrOutput = stringArrayRemoveDuplicates($attrOutput);
     bb_QC_attrConfirm($attrOutput,$mode);
 }
-//È·ÈÏÖØ¸´Ãû³Æ
+//ç¡®è®¤é‡å¤åç§°
 global proc bb_QC_attrConfirm(string $checkContent[],int $mode)
 {
     string $textScrollListName;
@@ -109,11 +109,11 @@ global proc bb_QC_attrConfirm(string $checkContent[],int $mode)
     }
 
     if($repetition != ""){
-        string $message = "ÓĞÒÔÏÂÊôĞÔÒÑ´æÔÚÁĞ±íÖĞ£¬ÊÇ·ñÌæ»»£¿" + $repetition;
-        string $confirm = `confirmDialog -title "Ğ¡ĞÄµÄÎÊÒ»ÏÂÏÂ!" -message $message
-        -button "ÊÇµÄ" -button "ÈİëŞÏëÏë" -defaultButton "ÊÇµÄ"
-        -cancelButton "ÈİëŞÏëÏë" -dismissString "ÈİëŞÏëÏë"`;
-        if($confirm == "ÊÇµÄ"){
+        string $message = "æœ‰ä»¥ä¸‹å±æ€§å·²å­˜åœ¨åˆ—è¡¨ä¸­ï¼Œæ˜¯å¦æ›¿æ¢ï¼Ÿ" + $repetition;
+        string $confirm = `confirmDialog -title "å°å¿ƒçš„é—®ä¸€ä¸‹ä¸‹!" -message $message
+        -button "æ˜¯çš„" -button "å®¹æœ•æƒ³æƒ³" -defaultButton "æ˜¯çš„"
+        -cancelButton "å®¹æœ•æƒ³æƒ³" -dismissString "å®¹æœ•æƒ³æƒ³"`;
+        if($confirm == "æ˜¯çš„"){
             string $deleteItems[] = stringToStringArray($repetition, "\n");
             int $j = 0;
             for($i=0;$i<size($originalItems);$i++){
@@ -132,7 +132,7 @@ global proc bb_QC_attrConfirm(string $checkContent[],int $mode)
     }
 }
 
-//²ğ·ÖÊôĞÔÃû³Æ
+//æ‹†åˆ†å±æ€§åç§°
 global proc string[] bb_QC_attrSeparate(string $attrInput[])
 {
     string $attrName[];
@@ -143,7 +143,7 @@ global proc string[] bb_QC_attrSeparate(string $attrInput[])
     return $attrName;
 }
 
-//Ğ´ÈëUI
+//å†™å…¥UI
 global proc bb_QC_attrWrite(string $attrInput[],string $textScrollListName)
 {
     int $spaceSize;
@@ -161,7 +161,7 @@ global proc bb_QC_attrWrite(string $attrInput[],string $textScrollListName)
         textScrollList -e -append ($separate[0] + $space + $separate[1]) $textScrollListName;
     }
 }
-//É¾³ıÁĞ±í
+//åˆ é™¤åˆ—è¡¨
 global proc bb_QC_deleteAttr(int $mode,string $textScrollListName)
 {
     if($mode == 0){
@@ -174,7 +174,7 @@ global proc bb_QC_deleteAttr(int $mode,string $textScrollListName)
         textScrollList -e -removeAll $textScrollListName;
     }
 }
-//¿ØÖÆÆ÷ÁĞ±í·´Ñ¡
+//æ§åˆ¶å™¨åˆ—è¡¨åé€‰
 global proc bb_QC_reverseSelAttr(string $textScrollListName)
 {
     string $selItems[] = `textScrollList -q -selectItem $textScrollListName`;
@@ -189,7 +189,7 @@ global proc bb_QC_reverseSelAttr(string $textScrollListName)
     }
 }
 
-//µ¼³öÅäÖÃ
+//å¯¼å‡ºé…ç½®
 global proc bb_QC_setExport()
 {
     string $file = "new";
@@ -224,7 +224,7 @@ global proc bb_QC_setExport()
                     $ctrlAttr + $extraCtrl;
     string $path = `bb_QC_setFilePath` + "/QC_sets";
     if(!`filetest -e $path`) sysFile -md $path;
-    string $saveFile[] = `fileDialog2 -dialogStyle 2 -caption "QC±£´æÅäÖÃ" -fileFilter "bb Files (*.bb)" -fileMode 0 
+    string $saveFile[] = `fileDialog2 -dialogStyle 2 -caption "QCä¿å­˜é…ç½®" -fileFilter "bb Files (*.bb)" -fileMode 0 
                         -startingDirectory ($path + "/" + $file + ".bb")`;
     if(size($saveFile)){
         string $fileName = $saveFile[0];
@@ -246,11 +246,11 @@ global proc string bb_QC_setExportTSL(string $textScrollListName)
     }
     return $writeString;  
 }
-//µ¼ÈëÅäÖÃ
+//å¯¼å…¥é…ç½®
 global proc bb_QC_loadFile()
 {
     string $path = `bb_QC_setFilePath` + "/QC_sets";
-    string $loadFile[] = `fileDialog2 -dialogStyle 2 -caption "bb_QC±£´æÅäÖÃ" -fileFilter "bb Files (*.bb)" -fileMode 1 
+    string $loadFile[] = `fileDialog2 -dialogStyle 2 -caption "bb_QCä¿å­˜é…ç½®" -fileFilter "bb Files (*.bb)" -fileMode 1 
                          -startingDirectory ($path + "/")`;
     if(size($loadFile)){
         string $fileName = basename($loadFile[0], ".bb");
@@ -261,7 +261,7 @@ global proc bb_QC_loadFile()
     }   
 }
 
-//ÅäÖÃµµ°¸²Ëµ¥
+//é…ç½®æ¡£æ¡ˆèœå•
 global proc bb_QC_setFileMenu()
 {
     string $path = `bb_QC_setFilePath` + "/QC_sets";
@@ -282,7 +282,7 @@ global proc bb_QC_setFileMenu()
     }
 }
 
-//¸ü»»ÅäÖÃ
+//æ›´æ¢é…ç½®
 global proc bb_QC_changeSetFile()
 {
     string $file = `optionMenu -q -v bb_QC_setPathMenu`;
@@ -290,7 +290,7 @@ global proc bb_QC_changeSetFile()
     bb_QC_setImport;
 }
 
-//¶ÁÈ¡ÅäÖÃ
+//è¯»å–é…ç½®
 global proc bb_QC_setImport()
 {
     int $numItems = `optionMenu -q -numberOfItems bb_QC_setPathMenu`;

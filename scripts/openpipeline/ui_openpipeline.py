@@ -191,7 +191,8 @@ def build_openpipeline_ui(main_window):
 
     version_title_layout = QtWidgets.QHBoxLayout()
     version_title_layout.addWidget(QtWidgets.QLabel(''))
-    self.version_count_text = _widgets.create_text('')
+    self.version_count_text = QtWidgets.QLabel('')
+    self.version_count_text.setStyleSheet('color:#5285A6; font: bold 12px;')
     self.version_count_text.setWordWrap(True)
     version_title_layout.addWidget(self.version_count_text)
     version_layout.addLayout(version_title_layout)

@@ -14,5 +14,5 @@ global proc DelDJJ()
     "        cmds.delete('vaccine_gene')" + "\n" + 
     "cleanTheVaccine()  ";
     python $DelDJJ;
-    confirmDialog -title "OK" -message "贼健康报错清除完成？\n   保存档案重开Maya" -button "好的！~";
+    confirmDialog -title "OK" -message "璐煎仴搴锋姤閿欐竻闄ゅ畬鎴愶紵\n   淇濆瓨妗ｆ閲嶅紑Maya" -button "濂界殑锛亊";
 }

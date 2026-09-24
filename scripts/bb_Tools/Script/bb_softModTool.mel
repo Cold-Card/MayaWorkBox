@@ -1,45 +1,45 @@
 //Author  :   LiuBen
 //Date    :   12/08/2016
-//Fix     :   09/10/2019   ĞŞ¸Ä¼ÓÔØ¿ØÖÆÆ÷Ãû³Æ²»¶ÔµÄbug¡£
+//Fix     :   09/10/2019   ä¿®æ”¹åŠ è½½æ§åˆ¶å™¨åç§°ä¸å¯¹çš„bugã€‚
 global proc bb_softModTool()
 {
     if (`window -q -exists bb_softModToolWindow`) deleteUI bb_softModToolWindow;
-    window -title "softMod¹¤¾ß" bb_softModToolWindow; 
+    window -title "softModå·¥å…·" bb_softModToolWindow; 
         tabLayout -innerMarginWidth 5 -innerMarginHeight 5 bb_softModTool_tabLayout;   
             columnLayout -adjustableColumn true bb_softModTool_createLayout;
                 rowLayout -numberOfColumns 2 -columnWidth2 50 200 ;
-                    text -label "Ãû³Æ: ";
+                    text -label "åç§°: ";
                     textField -w 200 -text "Name" softModNameTF;
                 setParent ..;
                 rowLayout -numberOfColumns 4 -columnWidth4 50 50 50 50;
-                    text -label "¸öÊı: ";
+                    text -label "ä¸ªæ•°: ";
                     intField -w 40 -minValue 1 -value 1 softModNumIF;
-                    text -label " ĞòÁĞ³õ:";
+                    text -label " åºåˆ—åˆ:";
                     intField -w 40 -minValue 0 -value 1 softModStartIF;
                 setParent ..;
                     rowLayout -numberOfColumns 2 -columnWidth2 127 175;
-                        optionMenu -label "Ó°ÏìÄ£Ê½:" falloffModeMenu;
-                            menuItem -label "Ìå»ı";
-                            menuItem -label "Ãæ";
-                        button -l "ÏÔÊ¾/Òş²Ø'MovCtrlEnv'" -bgc 0 0.3 0.45 -c bb_softMod_visMovCtrlEnv;
+                        optionMenu -label "å½±å“æ¨¡å¼:" falloffModeMenu;
+                            menuItem -label "ä½“ç§¯";
+                            menuItem -label "é¢";
+                        button -l "æ˜¾ç¤º/éšè—'MovCtrlEnv'" -bgc 0 0.3 0.45 -c bb_softMod_visMovCtrlEnv;
                     setParent ..;
                 separator -height 10 -style "in";
-                button -l "´´½¨" -w 253 -h 40 -bgc 0.1 0.1 0.1 -c bb_softMod_apply;
+                button -l "åˆ›å»º" -w 253 -h 40 -bgc 0.1 0.1 0.1 -c bb_softMod_apply;
             setParent ..;
             columnLayout -adjustableColumn true bb_softModTool_addLayout;
                 rowLayout -numberOfColumns 2 -columnWidth2 80 150 ;
-                    button -l "¿ØÖÆÆ÷>>>" -w 80 -bgc 0 0.3 0.45 -c bb_softMod_addRig;
+                    button -l "æ§åˆ¶å™¨>>>" -w 80 -bgc 0 0.3 0.45 -c bb_softMod_addRig;
                     textField -text "" -w 170 addSoftModRigTF;
                 setParent ..;
                 rowLayout -numberOfColumns 2 -columnWidth2 80 150 ;
-                    button -l "Ä£ĞÍ>>>"  -w 80 -bgc 0 0.3 0.45 -c bb_softMod_addGeo;
+                    button -l "æ¨¡å‹>>>"  -w 80 -bgc 0 0.3 0.45 -c bb_softMod_addGeo;
                     textField -text ""  -w 170 addSoftModGeoTF;
                 setParent ..;
                 separator -height 5 -style "in";
-                button -l "Ìí¼ÓÓ°Ïì" -w 253 -h 40 -bgc 0.1 0.1 0.1 -c "bb_softMod_addApply(1)";
-                button -l "É¾³ıÓ°Ïì" -w 253 -bgc 0.5 0.5 0.5 -c "bb_softMod_addApply(2)";
+                button -l "æ·»åŠ å½±å“" -w 253 -h 40 -bgc 0.1 0.1 0.1 -c "bb_softMod_addApply(1)";
+                button -l "åˆ é™¤å½±å“" -w 253 -bgc 0.5 0.5 0.5 -c "bb_softMod_addApply(2)";
             setParent ..;
-        tabLayout -edit -tabLabel bb_softModTool_createLayout "´´½¨" -tabLabel bb_softModTool_addLayout "Ìí¼Ó/É¾³ı" bb_softModTool_tabLayout;
+        tabLayout -edit -tabLabel bb_softModTool_createLayout "åˆ›å»º" -tabLabel bb_softModTool_addLayout "æ·»åŠ /åˆ é™¤" bb_softModTool_tabLayout;
     showWindow bb_softModToolWindow;
 }
 bb_softModTool;
@@ -76,7 +76,7 @@ global proc bb_softMod_apply()
         }        
     }
     else{
-        warning "Äã²»Ñ¡¸öÄ£ĞÍÏÈ£¿©µ( ¨‰§¥ ¨‰ )©±";
+        warning "ä½ ä¸é€‰ä¸ªæ¨¡å‹å…ˆï¼Ÿâ”‘( â–”Ğ” â–” )â”";
     }
 }
 
@@ -195,7 +195,7 @@ global proc bb_softMod_visMovCtrlEnv()
     }
 } 
 
-/*--------------------------------------------Ìí¼Ó--------------------------------------------*/
+/*--------------------------------------------æ·»åŠ --------------------------------------------*/
 
 global proc bb_softMod_addRig()
 {

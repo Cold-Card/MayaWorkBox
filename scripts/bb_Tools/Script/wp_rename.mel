@@ -54,8 +54,8 @@ External Scripts:
 //======================================================================
 /*
 Fix Author:         LiuBen
-Fix Date:	        2013.11.03  Ôö¼ÓABCĞòÁĞ·½Ê½
-Fix Date:	        2020.10.23  µ÷ÕûÎªÖĞÎÄ½çÃæ
+Fix Date:	        2013.11.03  å¢åŠ ABCåºåˆ—æ–¹å¼
+Fix Date:	        2020.10.23  è°ƒæ•´ä¸ºä¸­æ–‡ç•Œé¢
 */
 //======================================================================
 // entry procedure
@@ -87,7 +87,7 @@ columnLayout -adjustableColumn 0;
 				-w 320 -marginWidth 5 -marginHeight 5;
 				
 		columnLayout -adjustableColumn 1;
-			textFieldGrp -label "Ãû   ³Æ£º" -text "" -columnWidth 1 63 -columnWidth 2 240 WP_renameRenameTFG;
+			textFieldGrp -label "å   ç§°ï¼š" -text "" -columnWidth 1 63 -columnWidth 2 240 WP_renameRenameTFG;
 
    		 rowLayout -numberOfColumns 3 -columnWidth3 15 45 160;
 			text -l "" ;
@@ -100,8 +100,8 @@ columnLayout -adjustableColumn 0;
                
                columnLayout -adjustableColumn 1;
                    rowColumnLayout -numberOfColumns 2 -columnWidth 1 126 -columnWidth 2 170;
-				     intFieldGrp -label "ÆğÊ¼ #:" -v1 1 -columnWidth 1 40 -columnWidth 2 60 WP_renameStartIFG;
-				     intFieldGrp -label "ĞòÁĞÎ»Êı:" -v1 2 -columnWidth 1 50 -columnWidth 2 58 WP_renamePaddingIFG;
+				     intFieldGrp -label "èµ·å§‹ #:" -v1 1 -columnWidth 1 40 -columnWidth 2 60 WP_renameStartIFG;
+				     intFieldGrp -label "åºåˆ—ä½æ•°:" -v1 2 -columnWidth 1 50 -columnWidth 2 58 WP_renamePaddingIFG;
 			       setParent..;
 			       rowColumnLayout -numberOfColumns 2 -columnWidth 1 50 -columnWidth 2 185;
 				     textField -tx "A" -editable 0 text_ABC;
@@ -113,7 +113,7 @@ columnLayout -adjustableColumn 0;
                setParent..;
 
             setParent..;
-			button -h 23 -l "ÖØÃüÃûĞòÁĞ" -bgc 0.675 0.663 0.843 -c ben_letterList;
+			button -h 23 -l "é‡å‘½ååºåˆ—" -bgc 0.675 0.663 0.843 -c ben_letterList;
 			
 			text -l "" -h 7;
 			separator -style "in" -w 375;
@@ -122,16 +122,16 @@ columnLayout -adjustableColumn 0;
 			//======================================================================
 			// Remove
 			rowColumnLayout -numberOfColumns 3 -cs 1 10 -cs 3 4 -columnWidth 1 107 -columnWidth 2 92 -columnWidth 3 93;
-				text -label "ÒÆ³ı..." -align "left";
-				button -h 23 -l "ÒÆ³ıÊ××Ö·û" -bgc 0.675 0.663 0.843 -c "WP_remove_FirstChr()";
-				button -l "ÒÆ³ıÎ²×Ö·û" -bgc 0.675 0.663 0.843 -c "WP_remove_LastChr()";
+				text -label "ç§»é™¤..." -align "left";
+				button -h 23 -l "ç§»é™¤é¦–å­—ç¬¦" -bgc 0.675 0.663 0.843 -c "WP_remove_FirstChr()";
+				button -l "ç§»é™¤å°¾å­—ç¬¦" -bgc 0.675 0.663 0.843 -c "WP_remove_LastChr()";
 			setParent..;
 			
 			text -l "" -h 4;
 			
 			rowColumnLayout -numberOfColumns 2 -cs 1 10 -columnWidth 1 107 -columnWidth 2 189;
-				text -label "ÖØÃüÃû Shapes..." -align "left";
-				button -h 23 -l "Ö´ĞĞ" -bgc 0.675 0.663 0.843 -c "WP_renameSelectedShape(); WP_renameSelectedShape()";
+				text -label "é‡å‘½å Shapes..." -align "left";
+				button -h 23 -l "æ‰§è¡Œ" -bgc 0.675 0.663 0.843 -c "WP_renameSelectedShape(); WP_renameSelectedShape()";
 			setParent..;
 			
 			text -l "" -h 7;
@@ -139,16 +139,16 @@ columnLayout -adjustableColumn 0;
 			text -l "" -h 5;
 			
 			rowColumnLayout -numberOfColumns 3 -cs 1 10 -columnWidth 1 70 -columnWidth 2 171 -columnWidth 3 55;
-			text -l "¿ìËÙÖØÃüÃû£º  ";
+			text -l "å¿«é€Ÿé‡å‘½åï¼š  ";
 			textFieldGrp -label "" -text "name_####_suffix" -columnWidth 1 10 -columnWidth 2 155 wpRename_js_hashRenameTFG;
-			button -h 23 -l "ÖØÃüÃû" -bgc 0.675 0.663 0.843 -c "wpRename_js_hashRename_MainProc()";
+			button -h 23 -l "é‡å‘½å" -bgc 0.675 0.663 0.843 -c "wpRename_js_hashRename_MainProc()";
 			setParent..;
 		setParent..;
 	setParent..;
 	
 	//======================================================================
 	// Prefix - Suffix
-	frameLayout -label "Ç°×º - ºó×º"
+	frameLayout -label "å‰ç¼€ - åç¼€"
 				-collapse 0 -collapsable 1 
 				-collapseCommand "wp_RenameWindowHight(-1,69)"
 				-expandCommand "wp_RenameWindowHight(1,69)"
@@ -158,7 +158,7 @@ columnLayout -adjustableColumn 0;
 			text -l "" -h 3;
 			
 			rowColumnLayout -numberOfColumns 3 -cs 1 10 -columnWidth 1 35 -columnWidth 2 205 -columnWidth 3 56;
-			text -l "Ç° ×º£º";
+			text -l "å‰ ç¼€ï¼š";
 			textFieldGrp -label "" -text "prefix_" -columnWidth 1 10 -columnWidth 2 188 WP_prefixTFG;
 			button -h 23 -l "Add"  -bgc 0.675 0.663 0.843  -c "wpRename_mc_doRename(1)";
 			setParent..;
@@ -166,7 +166,7 @@ columnLayout -adjustableColumn 0;
 			text -l "" -h 4;
 		
 			rowColumnLayout -numberOfColumns 3 -cs 1 10 -columnWidth 1 35 -columnWidth 2 205 -columnWidth 3 56;
-			text -l "ºó ×º£º";
+			text -l "å ç¼€ï¼š";
 			textFieldGrp -label "" -text "_suffix" -columnWidth 1 10 -columnWidth 2 188 WP_suffixTFG;
 			button -h 23 -l "Add" -bgc 0.675 0.663 0.843 -c "wpRename_mc_doRename(2)";
 			setParent..;
@@ -176,7 +176,7 @@ columnLayout -adjustableColumn 0;
 
 	//======================================================================
 	// Quick suffix
-	frameLayout -label "¿ìËÙºó×º"
+	frameLayout -label "å¿«é€Ÿåç¼€"
 				-collapse 1 -collapsable 1 
 				-collapseCommand "wp_RenameWindowHight(-1,109)"
 				-expandCommand "wp_RenameWindowHight(1,109)"
@@ -215,16 +215,16 @@ columnLayout -adjustableColumn 0;
 	
 	//======================================================================
 	// Search and Replace
-	frameLayout -label "Ìæ»»"
+	frameLayout -label "æ›¿æ¢"
 				-collapse 0 -collapsable 1 
 				-collapseCommand "wp_RenameWindowHight(-1,111)"
 				-expandCommand "wp_RenameWindowHight(1,111)"
 				-w 320 -marginWidth 5 -marginHeight 5;
 				
 		columnLayout -adjustableColumn 1;
-			textFieldGrp -label "Ô´×Ö·û:" -text "pasted__" -columnWidth 1 70 -columnWidth 2 236 WP_SearchAndReplace_SearchTFG;
+			textFieldGrp -label "æºå­—ç¬¦:" -text "pasted__" -columnWidth 1 70 -columnWidth 2 236 WP_SearchAndReplace_SearchTFG;
 			text -l "" -h 4;
-			textFieldGrp -label "Ìæ»»×Ö·û:" -text "" -columnWidth 1 70 -columnWidth 2 236 WP_SearchAndReplace_ReplaceTFG;
+			textFieldGrp -label "æ›¿æ¢å­—ç¬¦:" -text "" -columnWidth 1 70 -columnWidth 2 236 WP_SearchAndReplace_ReplaceTFG;
 			text -l "" -h 4;
 			radioButtonGrp -numberOfRadioButtons 3 -label "" -sl 1 -labelArray3 "Hierarchy" "Selected" "All" -columnWidth 1 30 WP_SearchAndReplace_OptionRBG;
 			text -l "" -h 4;
@@ -247,7 +247,7 @@ global proc wp_RenameWindowHight(int $mod,int $hight)
 
 
 
-//×ÖÄ¸ĞòÁĞÊ××ÖÄ¸ÏÔÊ¾
+//å­—æ¯åºåˆ—é¦–å­—æ¯æ˜¾ç¤º
 global proc start_letter(int $letterList_start)
 {
 string $ABC[] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};

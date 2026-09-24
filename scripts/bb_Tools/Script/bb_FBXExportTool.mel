@@ -1,17 +1,17 @@
 //Author  :   LiuBen
 //Date    :   01/29/2019
-//Fix     :   02/13/2019   Ôö¼Óµ±Ç°ÖáÏòµÄÏÔÊ¾¹¦ÄÜ¡£
-//Fix     :   03/23/2019   ¸Äµôµ¼³ö¹¦ÄÜÎªµ¼Èëref²¢È¥µôrefÇ°×º£¬ĞŞ¸ÄÑ¡Ôñ¹Ç÷À¹¦ÄÜ,¡£
-//Fix     :   04/09/2019   ĞŞ¸Ä¡°¿ìËÙÑ¡Ôñ¡±£¬Ìí¼Óreference½øÈë¹æÔò¡£
-//Fix     :   11/22/2019   Ôö¼ÓlocÀàĞÍµÄºæ±ººÍ¶Ï¿ª¡£
-//Fix     :   12/11/2019   Ôö¼ÓÊı¾İ×ªÒÆ¹¦ÄÜ¡£
-//Fix     :   01/02/2020   ĞŞ¸ÄÊı¾İ×ªÒÆ¹¦ÄÜBUG¡£
+//Fix     :   02/13/2019   å¢åŠ å½“å‰è½´å‘çš„æ˜¾ç¤ºåŠŸèƒ½ã€‚
+//Fix     :   03/23/2019   æ”¹æ‰å¯¼å‡ºåŠŸèƒ½ä¸ºå¯¼å…¥refå¹¶å»æ‰refå‰ç¼€ï¼Œä¿®æ”¹é€‰æ‹©éª¨éª¼åŠŸèƒ½,ã€‚
+//Fix     :   04/09/2019   ä¿®æ”¹â€œå¿«é€Ÿé€‰æ‹©â€ï¼Œæ·»åŠ referenceè¿›å…¥è§„åˆ™ã€‚
+//Fix     :   11/22/2019   å¢åŠ locç±»å‹çš„çƒ˜ç„™å’Œæ–­å¼€ã€‚
+//Fix     :   12/11/2019   å¢åŠ æ•°æ®è½¬ç§»åŠŸèƒ½ã€‚
+//Fix     :   01/02/2020   ä¿®æ”¹æ•°æ®è½¬ç§»åŠŸèƒ½BUGã€‚
 global proc bb_FBXExportTool()
 {
     if (`window -q -exists bb_FBXExportToolWindow`) deleteUI bb_FBXExportToolWindow;
-    window -title "FBX¹¤¾ß" bb_FBXExportToolWindow;    
+    window -title "FBXå·¥å…·" bb_FBXExportToolWindow;    
         columnLayout -adjustableColumn true -columnAttach "both" 3;
-            frameLayout -label "¶Ï¿ª/ºæ±º";
+            frameLayout -label "æ–­å¼€/çƒ˜ç„™";
                 columnLayout -rowSpacing 3;
                     rowLayout -numberOfColumns 3 -columnWidth3 90 50 50;
                         checkBox -label "BlendShape" -value 1 bb_FBXExport_blendShapeCB;
@@ -19,31 +19,31 @@ global proc bb_FBXExportTool()
                         checkBox -label "Locator" -value 1 bb_FBXExport_LocatorCB;
                     setParent ..;
                     rowLayout -numberOfColumns 2 -columnWidth2 100 100 ;
-                        button -l "¶Ï¿ª" -w 102 -h 40 -bgc 0.9 0.9 0.9 -c bb_FBXExport_DisConApply;
-                        button -l "ºæ±º" -w 102 -h 40 -bgc 0.5 0.1 0.1 -c bb_FBXExport_BakeApply;
+                        button -l "æ–­å¼€" -w 102 -h 40 -bgc 0.9 0.9 0.9 -c bb_FBXExport_DisConApply;
+                        button -l "çƒ˜ç„™" -w 102 -h 40 -bgc 0.5 0.1 0.1 -c bb_FBXExport_BakeApply;
                     setParent ..;
                 setParent ..;
-            frameLayout -label "µ¼³öFBX";
+            frameLayout -label "å¯¼å‡ºFBX";
                 rowLayout -numberOfColumns 3 -columnWidth3 80 60 60;
-                    text -l "  µ±Ç°ÖáÏò£º";
+                    text -l "  å½“å‰è½´å‘ï¼š";
                     radioCollection bb_FBXExport_UpAxis;
                         radioButton -label "Y" bb_FBXExport_UpAxisY;
                         radioButton -label "Z" bb_FBXExport_UpAxisZ;
                 setParent ..;
                 rowLayout -numberOfColumns 2 -columnWidth2 80 120;
-                    button -l "ZÖá³¯ÉÏ" -w 125  -c bb_FBXExport_ZUp;
-                    button -l "»¹Ô­mayaYÖá" -w 80  -c ("setUpAxis \"y\";bb_FBXExport_UpAxisDisplay;");
+                    button -l "Zè½´æœä¸Š" -w 125  -c bb_FBXExport_ZUp;
+                    button -l "è¿˜åŸmayaYè½´" -w 80  -c ("setUpAxis \"y\";bb_FBXExport_UpAxisDisplay;");
                 setParent ..;
                 rowLayout -numberOfColumns 2 -columnWidth2 80 120 ;
-                    button -l "¿ìËÙÑ¡Ôñ" -w 80 -h 40 -bgc 0.1 0.1 0.1 -c bb_FBXExport_Selcet;
-                    button -l "µ¼Èë+È¥Ç°×º" -w 125 -h 40 -bgc 0 0.3 0.45 -c bb_FBXExport_importRename;
+                    button -l "å¿«é€Ÿé€‰æ‹©" -w 80 -h 40 -bgc 0.1 0.1 0.1 -c bb_FBXExport_Selcet;
+                    button -l "å¯¼å…¥+å»å‰ç¼€" -w 125 -h 40 -bgc 0 0.3 0.45 -c bb_FBXExport_importRename;
                 setParent ..;
-            frameLayout -label "Êı¾İ×ªÒÆ£¨±£³ÖReference×´Ì¬£©";
+            frameLayout -label "æ•°æ®è½¬ç§»ï¼ˆä¿æŒReferenceçŠ¶æ€ï¼‰";
                 rowLayout -numberOfColumns 2 -columnWidth2 100 110 ;
-                    button -l "ÔØÈëÊı¾İÇ°×º>>>" -w 100 -bgc 0.5 0.5 0.5 -c bb_FBXExport_loadRef;
-                    textField -w 110 -text "Ñ¡ÔñÊı¾İµÄÈÎÒ»Îï¼ş£¬ÔØÈë" bb_FBXExport_sourceTF;
+                    button -l "è½½å…¥æ•°æ®å‰ç¼€>>>" -w 100 -bgc 0.5 0.5 0.5 -c bb_FBXExport_loadRef;
+                    textField -w 110 -text "é€‰æ‹©æ•°æ®çš„ä»»ä¸€ç‰©ä»¶ï¼Œè½½å…¥" bb_FBXExport_sourceTF;
                 setParent ..;
-                button -l "Ö´ĞĞ" -h 40 -bgc 0.0 0.5 0.45 -c bb_FBXExport_data2FBX;
+                button -l "æ‰§è¡Œ" -h 40 -bgc 0.0 0.5 0.45 -c bb_FBXExport_data2FBX;
     showWindow bb_FBXExportToolWindow;
     bb_FBXExport_UpAxisDisplay;
 }
@@ -51,12 +51,12 @@ bb_FBXExportTool;
 
 global string $bb_FBXExport_sourceRef;
 
-global proc bb_FBXExport_loadRef() //ref¶ÁÈ¡
+global proc bb_FBXExport_loadRef() //refè¯»å–
 {
     global string $bb_FBXExport_sourceRef;
     string $sel[] = `ls -sl`;
     if(size($sel) == 0){
-        confirmDialog -title "È¥Äã´óÒ¯" -message "ÄãËµÄãÉ¶¶¼²»Ñ¡£¬ÎÒÕ¦Ö´ĞĞ£¿\n   ¦²(¤Ã¡ã§¥¡ã;)¤Ã£¿£¿£¿" -button "ÎÒ´íÁË£¡~";
+        confirmDialog -title "å»ä½ å¤§çˆ·" -message "ä½ è¯´ä½ å•¥éƒ½ä¸é€‰ï¼Œæˆ‘å’‹æ‰§è¡Œï¼Ÿ\n   Î£(ã£Â°Ğ”Â°;)ã£ï¼Ÿï¼Ÿï¼Ÿ" -button "æˆ‘é”™äº†ï¼~";
     }
     else{
         if(`referenceQuery -isNodeReferenced $sel[0]`){
@@ -65,7 +65,7 @@ global proc bb_FBXExport_loadRef() //ref¶ÁÈ¡
             textField -e -text $sourceNamespace bb_FBXExport_sourceTF;
         }
         else{
-            confirmDialog -title "È¥Äã´óÒ¯" -message "ÄãÑ¡µÄ²»ÊÇReferenceµÄÎï¼şß¹£¿\n   Í¹¨A_¨@#£¿£¿£¿" -button "ÎÒ~ÎÒÊÖ¶¶ÁË£¡~";
+            confirmDialog -title "å»ä½ å¤§çˆ·" -message "ä½ é€‰çš„ä¸æ˜¯Referenceçš„ç‰©ä»¶å–ï¼Ÿ\n   å‡¸Ë‹_ËŠ#ï¼Ÿï¼Ÿï¼Ÿ" -button "æˆ‘~æˆ‘æ‰‹æŠ–äº†ï¼~";
         }
     } 
 }
@@ -179,7 +179,7 @@ global proc bb_FBXExport_ZUp()
     bb_FBXExport_UpAxisDisplay;
 }
 
-//¶Ï¿ª
+//æ–­å¼€
 global proc bb_FBXExport_DisConApply()
 {
     int $blendValue = `checkBox -q -value bb_FBXExport_blendShapeCB`;
@@ -244,7 +244,7 @@ global proc bb_FBXExport_disconnect( string $attr )
     if(size($destination))
         delete -icn $destination;
 }
-//ºæ±º
+//çƒ˜ç„™
 global proc bb_FBXExport_BakeApply()
 {
     int $blendValue = `checkBox -q -value bb_FBXExport_blendShapeCB`;

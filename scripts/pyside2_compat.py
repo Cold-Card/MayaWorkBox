@@ -7,14 +7,14 @@ IMPORTANT
 Do NOT name this file "PySide2.py".
 
 Recommended filename:
-    maya_pyside2_compat.py
+    pyside2_compat.py
 
 Reason:
     A file named PySide2.py inside Maya's scripts path can shadow Maya's
     real PySide2 package and break Maya 2022 during startup.
 
 Usage:
-    import maya_pyside2_compat as compat
+    import pyside2_compat as compat
     compat.install()
 
 Only Maya 2026 needs the compatibility layer. Maya 2022 is left completely

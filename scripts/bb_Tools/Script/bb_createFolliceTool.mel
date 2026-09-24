@@ -1,18 +1,18 @@
 global proc bb_createFolliceTool()
 {
     if (`window -q -exists bb_createFolliceToolWindow`) deleteUI bb_createFolliceToolWindow;
-    window -title "´´½¨Ã«ÄÒ¹¤¾ß" -toolbox 1  bb_createFolliceToolWindow;    
+    window -title "åˆ›å»ºæ¯›å›Šå·¥å…·" -toolbox 1  bb_createFolliceToolWindow;    
         columnLayout -adjustableColumn true -columnAttach "both" 3;
             rowLayout -numberOfColumns 2 -columnWidth2 150 80 ;
                 textField -w 150 -text "" bb_createFolliceTool_meshTF;
-                button -w 80 -label "<<<ÔØÈëÄ£ÐÍ" -bgc 1 0.95 0.5 -c "bb_createFollice_loadGeo(0)";
+                button -w 80 -label "<<<è½½å…¥æ¨¡åž‹" -bgc 1 0.95 0.5 -c "bb_createFollice_loadGeo(0)";
             setParent ..;
             rowLayout -numberOfColumns 2 -columnWidth2 150 80 ;
                 textField -w 150 -text "" bb_createFolliceTool_locTF;
                 button -w 80 -label "<<<Locator" -bgc 1 0.95 0.5 -c "bb_createFollice_loadGeo(1)";
             setParent ..;
             separator -height 10 -style "in"; 
-            button -l "Ö´ÐÐ" -h 40 -w 115 -bgc 0.1 0.1 0.1 -c bb_createFollice;
+            button -l "æ‰§è¡Œ" -h 40 -w 115 -bgc 0.1 0.1 0.1 -c bb_createFollice;
     showWindow bb_createFolliceToolWindow;
 }
 bb_createFolliceTool;
@@ -31,13 +31,13 @@ global proc bb_createFollice_loadGeo(int $mode)
     }
 }
 
-//¸ù¾Ýµã´´½¨Ã«ÄÒ
+//æ ¹æ®ç‚¹åˆ›å»ºæ¯›å›Š
 global proc bb_createFollice()
 {
     string $loc = `textField -q -text bb_createFolliceTool_locTF`;
-    string $bb_loc[] = stringToStringArray($loc, ",");//Î»ÖÃ
+    string $bb_loc[] = stringToStringArray($loc, ",");//ä½ç½®
     
-    string $baseMod = `textField -q -text bb_createFolliceTool_meshTF`;//Ä£ÐÍÃû³Æ
+    string $baseMod = `textField -q -text bb_createFolliceTool_meshTF`;//æ¨¡åž‹åç§°
     if(!`objExists "bb_folliceGrp"`){
         createNode "transform" -n "bb_folliceGrp";
     }
@@ -76,7 +76,7 @@ global proc bb_createFollice()
         
         expression -s $exp -o $folliceNode -ae 1 -uc all -n ($folliceTran[0] + "_Exp");
         
-        string $newName = $folliceTran[0];//ºó×º¸ÄÃû
+        string $newName = $folliceTran[0];//åŽç¼€æ”¹å
         rename $folliceTran[0] $newName;
         parent $newName "bb_folliceGrp" ;
     }

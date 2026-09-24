@@ -3,7 +3,7 @@ global proc bb_FixError()
     OutlineError;
     CgAbBlastPanelOptChangeCallbackError;
     DelDJJ;
-    confirmDialog -title "OK" -message "报错清除完成！\n请保存档案重开Maya" -button "好的！~";
+    confirmDialog -title "OK" -message "鎶ラ敊娓呴櫎瀹屾垚锛乗n璇蜂繚瀛樻。妗堥噸寮�Maya" -button "濂界殑锛亊";
 }
 
 global proc OutlineError()

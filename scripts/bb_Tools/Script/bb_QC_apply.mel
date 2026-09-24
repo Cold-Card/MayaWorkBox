@@ -1,4 +1,4 @@
-//´óQC
+//å¤§QC
 global proc bb_QC_allQC(int $mode)
 {
     scrollField -e -clear bb_QC_informationSF;
@@ -24,7 +24,7 @@ global proc bb_QC_allQC(int $mode)
     }
 }
 
-//½¨Á¢set
+//å»ºç«‹set
 global proc bb_QC_sets(string $setName,string $setElement[])
 {
     if(`objExists $setName`) delete $setName;
@@ -32,39 +32,39 @@ global proc bb_QC_sets(string $setName,string $setElement[])
     sets -n $setName;
     sets -addElement $setName $setElement;  
 }
-//Êä³öĞÅÏ¢
+//è¾“å‡ºä¿¡æ¯
 global proc bb_QC_informationOutput(int $checkItem,int $conclusion,int $setNum,string $setName)
 {
-    string $checkOk[] = {"Unkown ¼ì²é---------------------------OK£¡£¡£¡",
-                         "Intremedia Obj ¼ì²é-------------------OK£¡£¡£¡",
-                         "ÎŞ¶¥µãÄ£ĞÍ ¼ì²é-------------------------OK£¡£¡£¡",
-                         "ÉùÒô ¼ì²é------------------------------OK£¡£¡£¡",
-                         "PolygonsÖØÃüÃû ¼ì²é--------------------OK£¡£¡£¡",
-                         "SurfacesÖØÃüÃû ¼ì²é--------------------OK£¡£¡£¡",
-                         "CurvesÖØÃüÃû ¼ì²é----------------------OK£¡£¡£¡",
-                         "JointÖØÃüÃû ¼ì²é-----------------------OK£¡£¡£¡",
-                         "Ä£ĞÍºó×º ¼ì²é---------------------------OK£¡£¡£¡",
-                         "Ä£ĞÍËøÊôĞÔ ¼ì²é-------------------------OK£¡£¡£¡",
-                         "Ä£ĞÍÏÔÊ¾ ¼ì²é---------------------------OK£¡£¡£¡",
-                         "µÆ¹â ¼ì²é------------------------------OK£¡£¡£¡",
-                         "ÉãÏñ»ú ¼ì²é----------------------------OK£¡£¡£¡",
-                         "¿ØÖÆÆ÷ÊıÖµ ¼ì²é-------------------------OK£¡£¡£¡",
-                         "Ñ¡ÃæÌù ¼ì²é----------------------------OK£¡£¡£¡",
-                         "¶¯»­Ö¡ ¼ì²é----------------------------OK£¡£¡£¡",
-                         "ÏÔÊ¾²ã ¼ì²é----------------------------OK£¡£¡£¡",
-                         "SmoothÌí¼Ó ¼ì²é------------------------OK£¡£¡£¡",
-                         "SmoothÎ»ÖÃ ¼ì²é------------------------OK£¡£¡£¡",
-                         "SmoothÁ¬½Ó ¼ì²é------------------------OK£¡£¡£¡",
-                         "ÎŞÓ°Ïì¹Ç÷À ¼ì²é-------------------------OK£¡£¡£¡"};
-    string $checkNoPass[] = {"Unkown ¼ì²é£º","Intremedia Obj ¼ì²é£º","ÎŞ¶¥µãÄ£ĞÍ ¼ì²é£º","ÉùÒô ¼ì²é£º",
-                             "PolygonsÖØÃüÃû ¼ì²é£º","SurfacesÖØÃüÃû ¼ì²é£º","CurvesÖØÃüÃû ¼ì²é£º","JointÖØÃüÃû ¼ì²é£º",
-                             "Ä£ĞÍºó×º ¼ì²é£º","Ä£ĞÍËøÊôĞÔ ¼ì²é£º","Ä£ĞÍÏÔÊ¾ ¼ì²é£º","µÆ¹â ¼ì²é£º","ÉãÏñ»ú ¼ì²é£º",
-                             "¿ØÖÆÆ÷ÊıÖµ ¼ì²é£º","Ñ¡ÃæÌù ¼ì²é£º","¶¯»­Ö¡ ¼ì²é£º","ÏÔÊ¾²ã ¼ì²é£º",
-                             "SmoothÌí¼Ó ¼ì²é£º","SmoothÎ»ÖÃ ¼ì²é£º","SmoothÁ¬½Ó ¼ì²é£º","ÎŞÓ°Ïì¹Ç÷À ¼ì²é£º"};
+    string $checkOk[] = {"Unkown æ£€æŸ¥---------------------------OKï¼ï¼ï¼",
+                         "Intremedia Obj æ£€æŸ¥-------------------OKï¼ï¼ï¼",
+                         "æ— é¡¶ç‚¹æ¨¡å‹ æ£€æŸ¥-------------------------OKï¼ï¼ï¼",
+                         "å£°éŸ³ æ£€æŸ¥------------------------------OKï¼ï¼ï¼",
+                         "Polygonsé‡å‘½å æ£€æŸ¥--------------------OKï¼ï¼ï¼",
+                         "Surfacesé‡å‘½å æ£€æŸ¥--------------------OKï¼ï¼ï¼",
+                         "Curvesé‡å‘½å æ£€æŸ¥----------------------OKï¼ï¼ï¼",
+                         "Jointé‡å‘½å æ£€æŸ¥-----------------------OKï¼ï¼ï¼",
+                         "æ¨¡å‹åç¼€ æ£€æŸ¥---------------------------OKï¼ï¼ï¼",
+                         "æ¨¡å‹é”å±æ€§ æ£€æŸ¥-------------------------OKï¼ï¼ï¼",
+                         "æ¨¡å‹æ˜¾ç¤º æ£€æŸ¥---------------------------OKï¼ï¼ï¼",
+                         "ç¯å…‰ æ£€æŸ¥------------------------------OKï¼ï¼ï¼",
+                         "æ‘„åƒæœº æ£€æŸ¥----------------------------OKï¼ï¼ï¼",
+                         "æ§åˆ¶å™¨æ•°å€¼ æ£€æŸ¥-------------------------OKï¼ï¼ï¼",
+                         "é€‰é¢è´´ æ£€æŸ¥----------------------------OKï¼ï¼ï¼",
+                         "åŠ¨ç”»å¸§ æ£€æŸ¥----------------------------OKï¼ï¼ï¼",
+                         "æ˜¾ç¤ºå±‚ æ£€æŸ¥----------------------------OKï¼ï¼ï¼",
+                         "Smoothæ·»åŠ  æ£€æŸ¥------------------------OKï¼ï¼ï¼",
+                         "Smoothä½ç½® æ£€æŸ¥------------------------OKï¼ï¼ï¼",
+                         "Smoothè¿æ¥ æ£€æŸ¥------------------------OKï¼ï¼ï¼",
+                         "æ— å½±å“éª¨éª¼ æ£€æŸ¥-------------------------OKï¼ï¼ï¼"};
+    string $checkNoPass[] = {"Unkown æ£€æŸ¥ï¼š","Intremedia Obj æ£€æŸ¥ï¼š","æ— é¡¶ç‚¹æ¨¡å‹ æ£€æŸ¥ï¼š","å£°éŸ³ æ£€æŸ¥ï¼š",
+                             "Polygonsé‡å‘½å æ£€æŸ¥ï¼š","Surfacesé‡å‘½å æ£€æŸ¥ï¼š","Curvesé‡å‘½å æ£€æŸ¥ï¼š","Jointé‡å‘½å æ£€æŸ¥ï¼š",
+                             "æ¨¡å‹åç¼€ æ£€æŸ¥ï¼š","æ¨¡å‹é”å±æ€§ æ£€æŸ¥ï¼š","æ¨¡å‹æ˜¾ç¤º æ£€æŸ¥ï¼š","ç¯å…‰ æ£€æŸ¥ï¼š","æ‘„åƒæœº æ£€æŸ¥ï¼š",
+                             "æ§åˆ¶å™¨æ•°å€¼ æ£€æŸ¥ï¼š","é€‰é¢è´´ æ£€æŸ¥ï¼š","åŠ¨ç”»å¸§ æ£€æŸ¥ï¼š","æ˜¾ç¤ºå±‚ æ£€æŸ¥ï¼š",
+                             "Smoothæ·»åŠ  æ£€æŸ¥ï¼š","Smoothä½ç½® æ£€æŸ¥ï¼š","Smoothè¿æ¥ æ£€æŸ¥ï¼š","æ— å½±å“éª¨éª¼ æ£€æŸ¥ï¼š"};
     string $information;
     if($conclusion == 0){
-        $information = $checkNoPass[$checkItem] + " ÓĞ " + $setNum + 
-                       " ¸öÎïÌåÎ´Í¨¹ı£¬ÒÑSetµ½ " +  $setName + " ¡£\n\n";
+        $information = $checkNoPass[$checkItem] + " æœ‰ " + $setNum + 
+                       " ä¸ªç‰©ä½“æœªé€šè¿‡ï¼Œå·²Setåˆ° " +  $setName + " ã€‚\n\n";
     }
     else if($conclusion == 1){
         $information = $checkOk[$checkItem] + "\n\n";;
@@ -86,15 +86,15 @@ global proc bb_QC_deleteFix(string $setName)
         bb_QC_noneQC;
     }
 }
-//ÌáÊ¾ÏÈQC
+//æç¤ºå…ˆQC
 global proc bb_QC_noneQC()
 {
-    string $information[] = {"ÄãµÃÏÈQC°¡£¡£¡","Ã»ÓĞ¿ÉĞŞ¸ÄµÄÎïÌå£¡£¡","¶¼Ã»ÓĞQC£¬ÔõÃ´ĞŞ¸Ä£¬‡å£¡£¡",
-                          "µãÁËQCÔÙÀ´µãÎÒ£¡£¡"};
+    string $information[] = {"ä½ å¾—å…ˆQCå•Šï¼ï¼","æ²¡æœ‰å¯ä¿®æ”¹çš„ç‰©ä½“ï¼ï¼","éƒ½æ²¡æœ‰QCï¼Œæ€ä¹ˆä¿®æ”¹ï¼Œå›§ï¼ï¼",
+                          "ç‚¹äº†QCå†æ¥ç‚¹æˆ‘ï¼ï¼"};
     int $i = `rand 0 (size($information))`;
     scrollField -e -insertText ($information[$i]+"\n\n") bb_QC_informationSF;
 }
-//setÓ¦ÓÃ
+//setåº”ç”¨
 global proc bb_QC_setApply(string $setObj[],string $setName,int $list)
 {
     int $nums = size($setObj);
@@ -106,7 +106,7 @@ global proc bb_QC_setApply(string $setObj[],string $setName,int $list)
         bb_QC_informationOutput($list,1,0,"");
     }
 }
-//shapeÕÒtransforms
+//shapeæ‰¾transforms
 global proc string[] bb_QC_shapes2transforms(string $shapeType)
 {
     string $shapes[] = `ls -l -type $shapeType`;
@@ -155,7 +155,7 @@ global proc bb_QC_intermediaObjQC()
 }
 
 
-//------------------------------ÎŞ¶¥µãÄ£ĞÍ------------------------------//
+//------------------------------æ— é¡¶ç‚¹æ¨¡å‹------------------------------//
 global proc bb_QC_zeroVertexObjQC()
 {
     string $mesh[] = `ls -l -type "mesh"`;
@@ -171,13 +171,13 @@ global proc bb_QC_zeroVertexObjQC()
     bb_QC_setApply($obj,"QC_zeroVertexObjSets",2);
 }
 
-//------------------------------ÉùÒô------------------------------//
+//------------------------------å£°éŸ³------------------------------//
 global proc bb_QC_audioQC()
 {
     string $audioNode[] = `ls -l -type "audio"`;
     bb_QC_setApply($audioNode,"QC_audioSets",3);
 }
-//------------------------------ÖØÃüÃû------------------------------//
+//------------------------------é‡å‘½å------------------------------//
 global proc bb_QC_repeatedNameQC()
 {
     int $ply = `checkBox -q -v bb_QC_renamePlyCB`;
@@ -272,7 +272,7 @@ global proc bb_QC_repeatedNameFixApply(string $setName)
         }
     }
 }
-//------------------------------Ä£ĞÍºó×º------------------------------//
+//------------------------------æ¨¡å‹åç¼€------------------------------//
 global proc bb_QC_modleSuffixQC()
 {
     if(`objExists "QC_modleSuffixSets"`) delete "QC_modleSuffixSets";
@@ -280,7 +280,7 @@ global proc bb_QC_modleSuffixQC()
     bb_QC_setApply($falseObj,"QC_modleSuffixSets",8);
 }
 
-//ºó×ºQCÓ¦ÓÃ
+//åç¼€QCåº”ç”¨
 global proc string[] bb_QC_suffixQCApply(string $textField,string $shapeType,int $returnType)
 {
     string $suffixTx = `textField -q -tx $textField`;
@@ -323,7 +323,7 @@ global proc string[] bb_QC_suffixQCApply(string $textField,string $shapeType,int
     if($returnType == 1) return $trueObj;
 }
 
-//------------------------------Ä£ĞÍËøÊôĞÔ------------------------------//
+//------------------------------æ¨¡å‹é”å±æ€§------------------------------//
 global proc bb_QC_attrLockQC()
 {
     if(`objExists "QC_attrLockSets"`) delete "QC_attrLockSets";
@@ -358,7 +358,7 @@ global proc bb_QC_attrLockFix()
     }
 }
 
-//------------------------------Ä£ĞÍÏÔÊ¾------------------------------//
+//------------------------------æ¨¡å‹æ˜¾ç¤º------------------------------//
 global proc bb_QC_modleVisQC()
 {
     if(`objExists "QC_modleVisSets"`) delete "QC_modleVisSets";
@@ -410,7 +410,7 @@ global proc bb_QC_modleVisFix()
         bb_QC_noneQC;
     }
 }
-//------------------------------µÆ¹â------------------------------//
+//------------------------------ç¯å…‰------------------------------//
 global proc bb_QC_lightQC()
 {
     if(`objExists "QC_lightSets"`) delete "QC_lightSets";
@@ -422,7 +422,7 @@ global proc bb_QC_lightQC()
     }
     bb_QC_setApply($light,"QC_lightSets",11);
 }
-//------------------------------ÉãÏñ»ú------------------------------//
+//------------------------------æ‘„åƒæœº------------------------------//
 global proc bb_QC_camQC()
 {
     if(`objExists "QC_cameraSets"`) delete "QC_cameraSets";
@@ -440,7 +440,7 @@ global proc bb_QC_camQC()
     }
     bb_QC_setApply($setObj,"QC_cameraSets",12);
 }
-//------------------------------¿ØÖÆÆ÷ÊıÖµ------------------------------//
+//------------------------------æ§åˆ¶å™¨æ•°å€¼------------------------------//
 global proc bb_QC_ctrlValueQC()
 {
     if(`objExists "QC_ctrlValueSets"`) delete "QC_ctrlValueSets";    
@@ -519,7 +519,7 @@ global proc bb_QC_ctrlValueFix()
     }
 }
 
-//------------------------------Ñ¡ÃæÌù------------------------------//
+//------------------------------é€‰é¢è´´------------------------------//
 global proc bb_QC_faceMappingQC()
 {
     if(`objExists "QC_faceMappingSets"`) delete "QC_faceMappingSets";
@@ -535,7 +535,7 @@ global proc bb_QC_faceMappingQC()
     bb_QC_setApply($setObj,"QC_faceMappingSets",14);
 }
 
-//------------------------------¶¯»­Ö¡------------------------------//
+//------------------------------åŠ¨ç”»å¸§------------------------------//
 global proc bb_QC_animKeyQC()
 {
     if(`objExists "QC_animKeySets"`) delete "QC_animKeySets";
@@ -572,7 +572,7 @@ global proc bb_QC_animKeyFix()
         bb_QC_noneQC;
     }
 }
-//------------------------------ÏÔÊ¾²ã------------------------------//
+//------------------------------æ˜¾ç¤ºå±‚------------------------------//
 global proc bb_QC_layerQC()
 {
     if(`objExists "QC_layerSets"`) delete "QC_layerSets";
@@ -668,7 +668,7 @@ global proc bb_QC_smoothFixAddApply(string $obj,int $mode)
         }
     }
 }
-//------------------------------ÎŞÓ°Ïì¹Ç÷À------------------------------//
+//------------------------------æ— å½±å“éª¨éª¼------------------------------//
 global proc bb_QC_unusedQC()
 {
     if(`objExists "QC_unusedSets"`) delete "QC_unusedSets";

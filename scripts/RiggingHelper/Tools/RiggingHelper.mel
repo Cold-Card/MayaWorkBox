@@ -20,7 +20,8 @@ global float $asPreDiameter;
 global string $asScriptRoute;
 int $conWorkspace;
 
-$asScriptRoute="/home/wangruilong/maya/workBox/scripts/RiggingHelper/";
+string $WRL_SCRIPTS = getenv("WRL_SCRIPTS");
+$asScriptRoute= $WRL_SCRIPTS + "/scripts/RiggingHelper/";
 string $files=$asScriptRoute+"ControllerFiles";
 string $ListShape[]=`getFileList -fld $files -fs "*.cs"`;
 
@@ -30,7 +31,7 @@ if(!$asColorIndex)
 	$asColorIndex=1;
 	
 //asRunProgram "Program";
-source "/home/wangruilong/maya/workBox/scripts/RiggingHelper/Tools/Program.mel";
+source "RiggingHelper/Tools/Program.mel";
 if(!$asInitialState){
 	$asInitialState=1;
 	$asViewport=1;
@@ -1054,11 +1055,11 @@ if(`asMayaVersionAsFloat`>2016){
 
 	if(`asMayaVersionAsFloat`>2016){
 		rowLayout -adj 1 -nc 2 -cw2 1 28 ;
-			button -h 30 -l "单关节权重计算" -c "source \"/home/wangruilong/maya/workBox/scripts/RiggingHelper/Tools/WeightCalculation.mel\";" ;
+			button -h 30 -l "单关节权重计算" -c "source \"RiggingHelper/Tools/WeightCalculation.mel\";" ;
 			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_SingleJointWeightCalculation";
 		setParent..;
 		rowLayout -adj 1 -nc 2 -cw2 1 28 ;
-			button -h 30 -l "环关节权重计算" -c "source \"/home/wangruilong/maya/workBox/scripts/RiggingHelper/Tools/CalculationOfEyeringWeight.mel\";" ;
+			button -h 30 -l "环关节权重计算" -c "source \"RiggingHelper/Tools/CalculationOfEyeringWeight.mel\";" ;
 			iconTextButton -i `Icons "asHelp"` -c "asHelp sg_Fixed_Help";
 		setParent..;
 	}
@@ -1085,7 +1086,7 @@ if(`asMayaVersionAsFloat`>2016){
 	text -l "\n交流QQ群：121273755\n";
 	text -l ("版本："+$version+"\n最后修改日期："+$date+"\n");
 
-	button -l "更新日志" -c "source \"/home/wangruilong/maya/workBox/scripts/RiggingHelper/Tools/UpdateLog.mel\";" ;
+	button -l "更新日志" -c "source \"RiggingHelper/Tools/UpdateLog.mel\";" ;
 	separator -h 5;
 
 	formLayout  asWinSwitching;

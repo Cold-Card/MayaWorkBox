@@ -18,10 +18,10 @@ global proc cdkMakeDynamicChainUI()
      columnLayout -adj 1 -rs 5 ;
          text -l "select the joint chain";
          textField -tx "name_" -w 100 dynamicsName;
-         checkBox -label "²»Ô¼ÊøÄ¿±ê¹Ç÷À" -value 0 cdkFKJointConstrainCB;
+         checkBox -label "ä¸çº¦æŸç›®æ ‡éª¨éª¼" -value 0 cdkFKJointConstrainCB;
          button -l "<<-- Make Dynamic -->>" -c ("cdkMakeDynamicChainUserInput") -h 30 -bgc 0.1 0.3 0.5 makeDynBut;
          separator;
-         text -l "Ñ¡ÔñÏàÓ¦µÄ¶¯Á¦Ñ§ÊôĞÔ¿ØÖÆÆ÷";
+         text -l "é€‰æ‹©ç›¸åº”çš„åŠ¨åŠ›å­¦å±æ€§æ§åˆ¶å™¨";
          button -l "$$  Bake dynamics  $$" -c ("cdkJointBake(0)");
          button -l "$$  UnBake dynamics  $$" -c ("cdkJointBake(1)")-bgc 0.5 0.5 0.5;
      showWindow cdkMakeDynamicUI;

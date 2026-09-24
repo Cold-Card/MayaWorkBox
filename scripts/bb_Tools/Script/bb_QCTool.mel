@@ -8,15 +8,19 @@ global proc bb_QCTool()
     bb_QCUI;
 }
 bb_QCTool;
-//ÌáÈ¡Â·¾¶
+
 global proc string bb_QC_setFilePath()
 {
-    string $melPath = `whatIs bb_QCTool`;
-    string $melPathArray[] = stringToStringArray($melPath, "/");
-    stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
-    string $start[] = stringToStringArray($melPathArray[0], " ");
-    $melPathArray[0] = $start[size($start)-1];
-    string $path = stringArrayToString($melPathArray, "/");
+    // string $melPath = `whatIs bb_QCTool`;
+    // string $melPathArray[] = stringToStringArray($melPath, "/");
+    // stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
+    // string $start[] = stringToStringArray($melPathArray[0], " ");
+    // $melPathArray[0] = $start[size($start)-1];
+    // string $path = stringArrayToString($melPathArray, "/");
+
+    string $WRL_SCRIPTS = getenv("WRL_SCRIPTS");
+    string $path = $WRL_SCRIPTS + "/scripts/bb_Tools/Script";
+
     return $path;
 }
 

@@ -1,26 +1,26 @@
 //Author  :   LiuBen
 //QQ      :   304092968
 //Date    :   2020/06/05
-//Fix     :   2021/02/22   ĞŞÕıÌáÈ¡ÎŞÈ¨ÖØ¹Ç÷ÀµãĞÅÏ¢Ê±£¬´æÔÚ¡°/¡±£¬µ¼ÖÂ²»ÄÜµ¼ÈëÈ¨ÖØĞÅÏ¢µÄ´íÎó¡£
+//Fix     :   2021/02/22   ä¿®æ­£æå–æ— æƒé‡éª¨éª¼ç‚¹ä¿¡æ¯æ—¶ï¼Œå­˜åœ¨â€œ/â€ï¼Œå¯¼è‡´ä¸èƒ½å¯¼å…¥æƒé‡ä¿¡æ¯çš„é”™è¯¯ã€‚
 global proc bb_skin2Deform()
 {
     if (`window -q -exists bb_skin2DeformWindow`) deleteUI bb_skin2DeformWindow;
-    window -title "È¨ÖØ×ª»»" -resizeToFitChildren 1 bb_skin2DeformWindow;
+    window -title "æƒé‡è½¬æ¢" -resizeToFitChildren 1 bb_skin2DeformWindow;
         columnLayout -adjustableColumn true;
-            frameLayout -label "SkinÈ¨ÖØ×ªDeformÈ¨ÖØ";
+            frameLayout -label "Skinæƒé‡è½¬Deformæƒé‡";
                 columnLayout -adjustableColumn true;
-                    button -l "¼ÓÔØskinÄ£ĞÍ" -h 35 -bgc 0.9 0.9 0.9 -c "bb_skin2Deform_loadSkin" bb_skin2Deform_loadSkinButton;
+                    button -l "åŠ è½½skinæ¨¡å‹" -h 35 -bgc 0.9 0.9 0.9 -c "bb_skin2Deform_loadSkin" bb_skin2Deform_loadSkinButton;
                     rowColumnLayout -numberOfColumns 2 -columnWidth 1 60 -columnWidth 2 160 bb_skin2Deform_rowColumnLayout;
-                        text -l "Skin½Úµã£º";
+                        text -l "SkinèŠ‚ç‚¹ï¼š";
                         textField -tx "None" bb_skin2Deform_skinNode;
-                        text -l "Shape£º";
+                        text -l "Shapeï¼š";
                         textField -tx "None" bb_skin2Deform_shape;
                     setParent ..;
-            frameLayout -label "Ìí¼Ó×Ó´°¿Ú";
+            frameLayout -label "æ·»åŠ å­çª—å£";
                 columnLayout -adjustableColumn true bb_skin2Deform_columnLayout;
                     rowColumnLayout -numberOfColumns 2 -columnWidth 1 110 -columnWidth 2 110;
-                        button -l "Ñ¡¹Ç÷ÀÌí¼Ó" -bgc 0.5 0.5 0.5 -c "bb_skin2Deform_addLayout(0)";
-                        button -l "Ìí¼ÓËùÓĞ¹Ç÷À" -c "bb_skin2Deform_addLayout(1)";
+                        button -l "é€‰éª¨éª¼æ·»åŠ " -bgc 0.5 0.5 0.5 -c "bb_skin2Deform_addLayout(0)";
+                        button -l "æ·»åŠ æ‰€æœ‰éª¨éª¼" -c "bb_skin2Deform_addLayout(1)";
                     setParent ..;
                     separator -height 10 -style "in";
     showWindow bb_skin2DeformWindow;
@@ -84,7 +84,7 @@ global proc bb_skin2Deform_addLayout(int $mod)
         }
     }
     if (`button -exists bb_skin2Deform_applyButton`) deleteUI bb_skin2Deform_applyButton;
-    button -p bb_skin2Deform_addColumnLayout -l "Ö´ĞĞ" -h 40 -bgc 0.1 0.1 0.1 -c "bb_skin2Deform_apply" bb_skin2Deform_applyButton;
+    button -p bb_skin2Deform_addColumnLayout -l "æ‰§è¡Œ" -h 40 -bgc 0.1 0.1 0.1 -c "bb_skin2Deform_apply" bb_skin2Deform_applyButton;
 }
 
 global proc bb_skin2Deform_addLayoutApply(string $joint,int $listNum)
@@ -92,9 +92,9 @@ global proc bb_skin2Deform_addLayoutApply(string $joint,int $listNum)
     rowColumnLayout -p bb_skin2Deform_addColumnLayout -numberOfColumns 3 -columnWidth 1 90 -columnWidth 2 30 -columnWidth 3 100 ("bb_skin2Deform_addRowColumnLayoutA"+$listNum);
         text -l $joint ("bb_skin2Deform_loadJointTx" + $listNum);
         text -l "--->>" -bgc 0.15 0.15 0.15;
-        button -l "¼ÓÔØÄ¿±êÄ£ĞÍ" -h 25 -c ("bb_skin2Deform_loadDeform("+$listNum+")") ("bb_skin2Deform_loadDeformButton" + $listNum);
+        button -l "åŠ è½½ç›®æ ‡æ¨¡å‹" -h 25 -c ("bb_skin2Deform_loadDeform("+$listNum+")") ("bb_skin2Deform_loadDeformButton" + $listNum);
     rowColumnLayout -p bb_skin2Deform_addColumnLayout -numberOfColumns 2 -columnWidth 1 50 -columnWidth 2 170 ("bb_skin2Deform_addRowColumnLayoutB"+$listNum);
-        text -l "Deform£º";
+        text -l "Deformï¼š";
         textField -en 0 -tx "None" ("bb_skin2Deform_Node" + $listNum);
         setParent ..;
     separator -height 10 -style "in";
@@ -159,7 +159,7 @@ global proc bb_skin2Deform_loadDeformBS(string $listNum,string $nodeName)
 
 global proc bb_skin2Deform_apply()
 {
-    //µ¼³ö
+    //å¯¼å‡º
     string $melPath = `whatIs bb_skin2Deform`;
     string $melPathArray[] = stringToStringArray($melPath, "/");
     stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
@@ -176,7 +176,7 @@ global proc bb_skin2Deform_apply()
     global string $bb_skin2Deform_bindJsList[];
     global int $bb_skin2Deform_addLayoutNum;
     
-    //¶ÁÈ¡»ù±¾ĞÅÏ¢
+    //è¯»å–åŸºæœ¬ä¿¡æ¯
     int $numVtx[] = `polyEvaluate -vertex $skinShape`;
     string $file = $filePath + "bb_skin2Deform_weight.xml";
     int $fileId = `fopen $file "r"`;
@@ -184,7 +184,7 @@ global proc bb_skin2Deform_apply()
     string $write1[],$write2[],$writeArray[];
     string $information,$informationFix;
     int $x = 0;
-    bb_skin2Deform_progress(($numVtx[0]+5),("ÕıÔÚÌáÈ¡µãĞÅÏ¢..."));
+    bb_skin2Deform_progress(($numVtx[0]+5),("æ­£åœ¨æå–ç‚¹ä¿¡æ¯..."));
     while ( size($nextWord) > 0 ) {
         if(!`gmatch $nextWord "  <weights*"`){
             $write1[$x] = $nextWord;
@@ -220,7 +220,7 @@ global proc bb_skin2Deform_apply()
             }
             $write2[0] = $informationFix;
             string $Joint = `text -q -l ("bb_skin2Deform_loadJointTx" + $i)`;
-            bb_skin2Deform_progress($numVtx[0],("ÕıÔÚÌáÈ¡" + $Joint + "È¨ÖØĞÅÏ¢..."));
+            bb_skin2Deform_progress($numVtx[0],("æ­£åœ¨æå–" + $Joint + "æƒé‡ä¿¡æ¯..."));
             for ($j=0; $j<$numVtx[0]; $j++){
                 string $objVtx = ($skinShape + ".vtx["+ $j +"]");
                 float $weight = `skinPercent -transform $Joint -query $skinNode $objVtx`;
@@ -230,7 +230,7 @@ global proc bb_skin2Deform_apply()
             $write2[size($write2)] = "  </weights>" + "\n</deformerWeight>";
             $writeArray = stringArrayCatenate($write1, $write2);
             
-            bb_skin2Deform_progress(size($writeArray),("ÕıÔÚĞ´Èë" + $Deform + "È¨ÖØĞÅÏ¢..."));
+            bb_skin2Deform_progress(size($writeArray),("æ­£åœ¨å†™å…¥" + $Deform + "æƒé‡ä¿¡æ¯..."));
             string $fileNew = $filePath + "bb_skin2Deform_weight" + $i + ".xml";
             int $fileId = `fopen $fileNew "w"`;
             for($j=0; $j<size($writeArray); $j++){
@@ -239,7 +239,7 @@ global proc bb_skin2Deform_apply()
             }
             fclose $fileId;
             deleteUI bb_skin2Deform_progressWindow;
-            //µ¼Èë
+            //å¯¼å…¥
             select -r $DeformShape;
             deformerWeights -import -method "index" -deformer $DeformArray[0] -path $filePath ("bb_skin2Deform_weight" + $i + ".xml");
             sysFile -delete ($filePath + "bb_skin2Deform_weight" + $i + ".xml");

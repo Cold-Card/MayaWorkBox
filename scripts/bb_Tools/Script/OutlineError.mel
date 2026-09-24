@@ -11,5 +11,5 @@ global proc OutlineError()
     "    if sel_cmd.startswith('<function selCom at '):" + "\n" +
     "        pm.outlinerEditor(items, edit=True, selectCommand='')";
     python $Outliner;
-    confirmDialog -title "OK" -message "大纲报错清除完成？\n   保存档案重开Maya" -button "好的！~";
+    confirmDialog -title "OK" -message "澶х翰鎶ラ敊娓呴櫎瀹屾垚锛焅n   淇濆瓨妗ｆ閲嶅紑Maya" -button "濂界殑锛亊";
 }

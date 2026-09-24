@@ -1,20 +1,20 @@
 //Author  :   LiuBen
 //Date    :   03/21/2019
-//Fix     :   02/21/2020   ĞŞÕı¶à¸ötargetÌí¼ÓÊ±£¬Ìí¼Ó²»ÉÏÈ¥µÄBUG¡£
-//Fix     :   07/25/2020   ¸Ä´°¿Ú£¬¿ÉÒÔ×îĞ¡»¯¡£
-//Fix     :   10/10/2020   ĞŞÕıBSĞòÁĞ²»Á¬ĞøÊ±£¬Ôì³ÉµÄ¸÷ÖÖbug¡£
+//Fix     :   02/21/2020   ä¿®æ­£å¤šä¸ªtargetæ·»åŠ æ—¶ï¼Œæ·»åŠ ä¸ä¸Šå»çš„BUGã€‚
+//Fix     :   07/25/2020   æ”¹çª—å£ï¼Œå¯ä»¥æœ€å°åŒ–ã€‚
+//Fix     :   10/10/2020   ä¿®æ­£BSåºåˆ—ä¸è¿ç»­æ—¶ï¼Œé€ æˆçš„å„ç§bugã€‚
 global proc bb_blendShapeTool()
 {    
     if (`window -q -exists bb_blendShapeToolWindow`) deleteUI bb_blendShapeToolWindow;
-    window -title "blendShape¹¤¾ß" bb_blendShapeToolWindow; 
+    window -title "blendShapeå·¥å…·" bb_blendShapeToolWindow; 
         formLayout bb_BS_form;
             columnLayout -adjustableColumn true bb_BS_nameLayout;
-                button -l "¼ÓÔØÄ£ĞÍ" -bgc 0.9 0.9 0.5 -c bb_BS_reloadBlendShape bb_BS_name;
+                button -l "åŠ è½½æ¨¡å‹" -bgc 0.9 0.9 0.5 -c bb_BS_reloadBlendShape bb_BS_name;
             setParent ..;
             treeView -abr false bb_BS_TV;
-            button -l "Ìí¼ÓIn-between" -bgc 0.44 0.93 0.44 -c bb_BS_inBetween bb_BS_inBetweenAdd;
+            button -l "æ·»åŠ In-between" -bgc 0.44 0.93 0.44 -c bb_BS_inBetween bb_BS_inBetweenAdd;
             floatSliderGrp -columnWidth2 40 80 -field true -minValue 0.0 -maxValue 1.0 -value 0.5 -step 0.001 bb_BS_FSG;
-            button -l "Ìí¼Ó" -h 40 -bgc 0.1 0.1 0.1 -c bb_BS_apply  bb_BS_Add;
+            button -l "æ·»åŠ " -h 40 -bgc 0.1 0.1 0.1 -c bb_BS_apply  bb_BS_Add;
             
             formLayout -edit
             -attachForm     "bb_BS_nameLayout"     "top"    5
@@ -41,13 +41,13 @@ global proc bb_blendShapeTool()
             -attachForm     "bb_BS_Add"     "right"  5
             bb_BS_form;
             popupMenu -p "bb_BS_TV";
-                menuItem -label "µ¼³ö" -c "bb_BS_regenerate(0)";
-                menuItem -label "µ¼³öÈ«²¿" -c "bb_BS_regenerate(1)";
+                menuItem -label "å¯¼å‡º" -c "bb_BS_regenerate(0)";
+                menuItem -label "å¯¼å‡ºå…¨éƒ¨" -c "bb_BS_regenerate(1)";
                 menuItem -divider true;
-                menuItem -label "É¾³ı" -c bb_BS_delete;
+                menuItem -label "åˆ é™¤" -c bb_BS_delete;
                 menuItem -divider true;
-                menuItem -label "È«²¿Õ¹¿ª" -c "bb_BS_expandItem(1)";
-                menuItem -label "È«²¿ÊÕÆğ" -c "bb_BS_expandItem(0)";
+                menuItem -label "å…¨éƒ¨å±•å¼€" -c "bb_BS_expandItem(1)";
+                menuItem -label "å…¨éƒ¨æ”¶èµ·" -c "bb_BS_expandItem(0)";
     showWindow bb_blendShapeToolWindow;
 }
 bb_blendShapeTool;

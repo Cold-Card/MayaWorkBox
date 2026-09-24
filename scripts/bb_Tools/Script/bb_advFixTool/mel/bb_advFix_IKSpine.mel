@@ -78,7 +78,7 @@ global proc bb_advFix_IKSpineFix2()
     loft -ch 0 -u 1 -c 0 -ar 1 -d 3 -ss 1 -rn 0 -po 0 -rsn true -n bb_Spine_Surf bb_advFix_SpineCrvSkin1 bb_advFix_SpineCrvSkin2;
     string $Shape[] = `listRelatives -shapes "bb_Spine_Surf"`;
     
-    string $FollicleArray[];//创建毛囊
+    string $FollicleArray[];//鍒涘缓姣涘泭
     for($i=0;$i<$spineNum;$i++){
         if(!`objExists "bb_Spine_FollicleGrp"`)
             createNode "transform" -n "bb_Spine_FollicleGrp";
@@ -97,7 +97,7 @@ global proc bb_advFix_IKSpineFix2()
         string $cpomNode = `createNode "closestPointOnSurface" -n ($bb_advFix_SpineJoint[$spineNum-1-$i] + "_CPS")`;
         connectAttr -f ($Shape[0] + ".worldSpace") ($cpomNode + ".inputSurface");
         connectAttr -f ($loc[0] + ".translate") ($cpomNode + ".inPosition");
-        //定位毛囊
+        //瀹氫綅姣涘泭
         float $parameterU = getAttr ($cpomNode + ".result.parameterU");
         float $parameterV = 0.5;
         setAttr ($follicleShape+".parameterU") $parameterU;
@@ -112,7 +112,7 @@ global proc bb_advFix_IKSpineFix2()
         delete ("IKOffsetcvSpine" + $i + "_M_parentConstraint1");
         parentConstraint -mo -weight 1 $FollicleArray[$i] ("IKOffsetcvSpine"+$i+"_M");
     }
-    //处理曲面权重
+    //澶勭悊鏇查潰鏉冮噸
     select -r bb_Spine_Joint0 bb_Spine_Joint1 bb_Spine_Joint2 bb_Spine_Joint3;
     select -tgl "bb_Spine_Surf";
     SmoothBindSkin;
@@ -141,7 +141,7 @@ global proc bb_advFix_IKSpineFix2()
     parent IKhybridOffsetSpine3_M1 IKhybridSpine1_M;
     orientConstraint -mo -weight 1 IKhybridSpine2_M IKhybridOffsetSpine3_M1;
     duplicate -parentOnly -n "IKhybridOffsetSpine2_M1" "IKhybridOffsetSpine2_M";
-    //整理层级
+    //鏁寸悊灞傜骇
     addAttr -ln "ikCvVis" -at long  -min 0 -max 1 -dv 0 IKhybridSpine3_M;
     setAttr -e -keyable false -channelBox true "IKhybridSpine3_M.ikCvVis";
     addAttr -ln "volume" -at double  -min 0 -max 10 -dv 10 IKhybridSpine3_M;

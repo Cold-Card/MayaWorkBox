@@ -13,7 +13,7 @@ proc bb_attribute_initialization()
 global proc bb_attributeTool()
 {    
     if (`window -q -exists bb_attributeToolWindow`) deleteUI bb_attributeToolWindow;
-    window -title "ÊôĞÔ¹¤¾ß" bb_attributeToolWindow; 
+    window -title "å±æ€§å·¥å…·" bb_attributeToolWindow; 
         formLayout bb_attributeTool_form;
             text -l "" bb_attributeTool_obj;
             textScrollList -ams 1 -dcc bb_attr_Fix bb_attributeTool_attrDisTSL;
@@ -26,13 +26,13 @@ global proc bb_attributeTool()
                     menuItem -label "Keyable" -c "bb_attr_edit(6)";
                     menuItem -divider true;
                     menuItem -label "Delete" -c "bb_attr_edit(7)";
-                    menuItem -label "·ÅÆúĞŞ¸Ä" -c "bb_attr_FixUI(1)";
+                    menuItem -label "æ”¾å¼ƒä¿®æ”¹" -c "bb_attr_FixUI(1)";
         tabLayout -innerMarginWidth 5 -innerMarginHeight 5 bb_attrTool_tabLayout;
                 columnLayout -adjustableColumn true bb_attributeTool_createLayout;
                     rowColumnLayout -numberOfColumns 2 -columnWidth 1 140 -columnWidth 2 30;
                         textField -text "Name" bb_attr_name;
                             popupMenu -p bb_attr_name -pmc ("bb_attr_nameSelect()") bb_attr_popupMenu;
-                        button -l "±£´æ" -bgc 0.44 0.93 0.44 -c bb_attr_save;
+                        button -l "ä¿å­˜" -bgc 0.44 0.93 0.44 -c bb_attr_save;
                     setParent ..;
                     rowColumnLayout -numberOfColumns 2 -columnWidth 1 70 -columnWidth 2 70;
                         radioCollection bb_attr_dataTypeChoose;
@@ -51,7 +51,7 @@ global proc bb_attributeTool()
                                 menuItem -label "1" -c ("floatField -e -v "+"1"+" bb_attr_minFF");
                                 menuItem -label "10" -c ("floatField -e -v "+"10"+" bb_attr_minFF");
                         text -label "  ";
-                        checkBox -label "Ëø¶¨×îĞ¡" -v 1 -onc "floatField -e -en 1 bb_attr_minFF;"
+                        checkBox -label "é”å®šæœ€å°" -v 1 -onc "floatField -e -en 1 bb_attr_minFF;"
                                  -ofc "floatField -e -en 0 bb_attr_minFF;" bb_attr_minLockCB;
                         text -label "Max:";
                         floatField -w 60 -value 1 bb_attr_maxFF;
@@ -62,24 +62,24 @@ global proc bb_attributeTool()
                                 menuItem -label "1" -c ("floatField -e -v "+"1"+" bb_attr_maxFF");
                                 menuItem -label "10" -c ("floatField -e -v "+"10"+" bb_attr_maxFF");
                         text -label "  ";
-                        checkBox -label "Ëø¶¨×î´ó" -v 1 -onc "floatField -e -en 1 bb_attr_maxFF;"
+                        checkBox -label "é”å®šæœ€å¤§" -v 1 -onc "floatField -e -en 1 bb_attr_maxFF;"
                                  -ofc "floatField -e -en 0 bb_attr_maxFF;" bb_attr_maxLockCB;
                     setParent ..;
                         textField  -en 0 -text "one,two" bb_attr_enumTF;
                     separator -height 10 -style "in";
-                    button -l "´´½¨" -h 40 -bgc 0.1 0.1 0.1 -c bb_attr_CreateFix bb_attr_CreateFixBTN;
+                    button -l "åˆ›å»º" -h 40 -bgc 0.1 0.1 0.1 -c bb_attr_CreateFix bb_attr_CreateFixBTN;
                     separator -height 10 -style "in";
                     rowColumnLayout -numberOfColumns 4 -columnWidth 1 42 -columnWidth 2 42 -columnWidth 3 42 -columnWidth 4 42;
                         checkBox -label ".t" -v 1 bb_attr_VisTCB;
                         checkBox -label ".r" -v 1 bb_attr_VisRCB;
                         checkBox -label ".s" -v 1 bb_attr_VisSCB;
-                        checkBox -label "ÆäËû" -v 1 bb_attr_VisUCB;
+                        checkBox -label "å…¶ä»–" -v 1 bb_attr_VisUCB;
                     setParent ..;
-                    button -l "ÏÔÊ¾ÊôĞÔ"  -bgc 0.9 0.9 0.9 -c "bb_attr_edit(0)";
+                    button -l "æ˜¾ç¤ºå±æ€§"  -bgc 0.9 0.9 0.9 -c "bb_attr_edit(0)";
                     separator -height 10 -style "in";
                     rowColumnLayout -numberOfColumns 2 -columnWidth 1 85 -columnWidth 2 85;
-                        button -l "ÊôĞÔÉÏÒÆ¡ü" -h 30 -bgc 0.9 0.9 0.5 -c bb_attr_upApply bb_attributeTool_up;
-                        button -l "ÊôĞÔÏÂÒÆ¡ı" -h 30 -bgc 0.9 0.9 0.5 -c bb_attr_downApply bb_attributeTool_dn;    
+                        button -l "å±æ€§ä¸Šç§»â†‘" -h 30 -bgc 0.9 0.9 0.5 -c bb_attr_upApply bb_attributeTool_up;
+                        button -l "å±æ€§ä¸‹ç§»â†“" -h 30 -bgc 0.9 0.9 0.5 -c bb_attr_downApply bb_attributeTool_dn;    
                     setParent ..;
                 setParent ..;
                 formLayout bb_attributeTool_saveLayout;
@@ -98,7 +98,7 @@ global proc bb_attributeTool()
                     -attachForm     "bb_attributeTool_saveDisTSL"     "bottom" 2
                     bb_attributeTool_saveLayout;
             setParent ..;
-        tabLayout -edit -tabLabel bb_attributeTool_createLayout "´´½¨" -tabLabel bb_attributeTool_saveLayout "±£´æ" bb_attrTool_tabLayout;
+        tabLayout -edit -tabLabel bb_attributeTool_createLayout "åˆ›å»º" -tabLabel bb_attributeTool_saveLayout "ä¿å­˜" bb_attrTool_tabLayout;
 
         formLayout -edit
             -attachForm     "bb_attrTool_tabLayout"     "top"    5
@@ -125,10 +125,10 @@ bb_attributeTool;
 global proc bb_attr_CreateFix()
 {
     string $mod = `button -q -l bb_attr_CreateFixBTN`;
-    if($mod == "´´½¨") bb_attr_addApply;
-    else if($mod == "ĞŞ¸Ä") bb_attr_FixApply; 
+    if($mod == "åˆ›å»º") bb_attr_addApply;
+    else if($mod == "ä¿®æ”¹") bb_attr_FixApply; 
 }
-//ĞŞ¸Ä
+//ä¿®æ”¹
 global proc bb_attr_Fix()
 {
     string $mod = `button -q -l bb_attr_CreateFixBTN`;
@@ -137,8 +137,8 @@ global proc bb_attr_Fix()
     string $selAttr[] = `textScrollList -q -selectItem bb_attributeTool_attrDisTSL`;
     string $Attr = substituteAllString($selAttr[0], " ", "");
     int $fixMod = 1;
-    if($mod == "´´½¨") $fixMod = 0;
-    if($mod == "ĞŞ¸Ä" && $oldAttr != $Attr) $fixMod = 0;
+    if($mod == "åˆ›å»º") $fixMod = 0;
+    if($mod == "ä¿®æ”¹" && $oldAttr != $Attr) $fixMod = 0;
     if($fixMod == 0){
         string $generalAttr[] = {"translateX","translateY","translateZ","rotateX","rotateY","rotateZ","scaleX","scaleY","scaleZ","visibility"};
         bb_attr_FixUI(0);
@@ -191,11 +191,11 @@ global proc bb_attr_FixUI(int $mod)
     string $Btn_L;
     float $bgc;
     if($mod == 1){
-        $Btn_L = "´´½¨";
+        $Btn_L = "åˆ›å»º";
         $bgc = 0.1;
     }
     else{
-        $Btn_L = "ĞŞ¸Ä";
+        $Btn_L = "ä¿®æ”¹";
         $bgc = 0.5; 
     }
     radioButton -e -en $mod bb_attr_dataType_int;
@@ -252,7 +252,7 @@ global proc bb_attr_FixApply()
 }
 
 
-//¶ÁÈ¡
+//è¯»å–
 global proc bb_attr_reloadGeo()
 {
 	string $getSelection[] = `ls -sl`;
@@ -323,7 +323,7 @@ global proc bb_attr_UIChange()
         floatField -e -en $max bb_attr_maxFF;
     }
 }
-//Ìí¼ÓÊôĞÔ
+//æ·»åŠ å±æ€§
 global proc bb_attr_addApply()
 {
     string $attrType = `radioCollection -q -select bb_attr_dataTypeChoose`;
@@ -369,7 +369,7 @@ global proc bb_attr_addApply()
     bb_attr_reloadGeo;
 }
 
-//Ìí¼ÓÊôĞÔÖ´ĞĞ
+//æ·»åŠ å±æ€§æ‰§è¡Œ
 global proc bb_attr_addAttr(string $obj,string $attrInfo[])
 {
     if($attrInfo[1] == "Int"){
@@ -400,7 +400,7 @@ global proc bb_attr_addAttr(string $obj,string $attrInfo[])
     }
 }
 
-//±£´æÊôĞÔ
+//ä¿å­˜å±æ€§
 global proc bb_attr_save()
 {
     global string $bb_attribute_save;
@@ -434,7 +434,7 @@ global proc bb_attr_save()
     optionVar -stringValue bb_attribute_save $bb_attribute_save;
     
 }
-//±à¼­ÊôĞÔ
+//ç¼–è¾‘å±æ€§
 global proc bb_attr_edit(int $edit)
 {
     string $selObj[] = `ls -sl`;
@@ -489,7 +489,7 @@ global proc bb_attr_edit(int $edit)
     }
     bb_attr_reloadGeo;  
 }
-//·µ»ØÓÒ²àÊôĞÔÃû³Æ
+//è¿”å›å³ä¾§å±æ€§åç§°
 global proc string[] bb_attributeTool_attrNameReturn(string $attrArray[])
 {
     string $attrReturn[];
@@ -500,7 +500,7 @@ global proc string[] bb_attributeTool_attrNameReturn(string $attrArray[])
     return $attrReturn;
 }
 
-//±£´æÊôĞÔÌí¼Ó
+//ä¿å­˜å±æ€§æ·»åŠ 
 global proc bb_attr_saveAdd()
 {
     string $selAttr[] = `textScrollList -q -selectItem bb_attributeTool_saveDisTSL`;
@@ -515,7 +515,7 @@ global proc bb_attr_saveAdd()
     bb_attr_reloadGeo;
 }
 
-//±£´æÊôĞÔ±à¼­
+//ä¿å­˜å±æ€§ç¼–è¾‘
 global proc bb_attr_saveEdit()
 {
     string $selAttr[] = `textScrollList -q -selectItem bb_attributeTool_saveDisTSL`;
@@ -553,7 +553,7 @@ global proc bb_attr_saveEditApply(string $item)
 }
 
 
-//±£´æÊôĞÔÉ¾³ı
+//ä¿å­˜å±æ€§åˆ é™¤
 global proc bb_attr_saveDelete(int $mod)
 {
     bb_attribute_initialization;
@@ -576,7 +576,7 @@ global proc bb_attr_saveDelete(int $mod)
     }
 }
 
-//ÓÒ¼ü²Ëµ¥
+//å³é”®èœå•
 global proc bb_attr_nameSelect()
 {
     menu -e -dai bb_attr_popupMenu;
@@ -589,7 +589,7 @@ global proc bb_attr_nameSelect()
 }
 
 
-//ÏòÉÏ
+//å‘ä¸Š
 global proc bb_attr_upApply()
 {
     string $selObj[] = `ls -sl`;
@@ -635,7 +635,7 @@ global proc bb_attr_upApply()
     }
 }
 
-//ÏòÏÂ
+//å‘ä¸‹
 global proc bb_attr_downApply()
 {
     string $selObj[] = `ls -sl`;

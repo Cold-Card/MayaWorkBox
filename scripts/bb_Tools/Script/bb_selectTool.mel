@@ -1,16 +1,16 @@
 //Author  :   LiuBen
 //Date    :   10/29/2018
-//Fix    :    08/09/2019       ĞŞ¸ÄÖØÃûÑ¡²»ÉÏµÄÎÊÌâ
+//Fix    :    08/09/2019       ä¿®æ”¹é‡åé€‰ä¸ä¸Šçš„é—®é¢˜
 global proc bb_selectTool()
 {
     if (`window -q -exists bb_selectToolWindow`) deleteUI bb_selectToolWindow;
-    window -title "Ñ¡Ôñ¹¤¾ß" bb_selectToolWindow;    
+    window -title "é€‰æ‹©å·¥å…·" bb_selectToolWindow;    
         columnLayout -adjustableColumn true -columnAttach "both" 3;
             rowLayout -numberOfColumns 2 -columnWidth2 150 80 ;
                 textField -w 150 -text "" bb_selectTool_nodeTypeTF;
-                button -w 80 -label "<<<ÔØÈë½Úµã" -bgc 1 0.95 0.5 -c bb_select_loadNode;  
+                button -w 80 -label "<<<è½½å…¥èŠ‚ç‚¹" -bgc 1 0.95 0.5 -c bb_select_loadNode;  
             setParent ..;
-            checkBox -label "tansformÓëshapeºÏ²¢¼ÆËã" -v 1 bb_select_shapeCB;
+            checkBox -label "tansformä¸shapeåˆå¹¶è®¡ç®—" -v 1 bb_select_shapeCB;
             rowLayout -numberOfColumns 3 -columnWidth3 80 80 80 ;
                 radioCollection modeChoose;
                     radioButton -label "Hierarchy" mode_hierarchy;
@@ -20,8 +20,8 @@ global proc bb_selectTool()
             setParent ..;
             separator -height 10 -style "in"; 
             rowLayout -numberOfColumns 2 -columnWidth2 115 115 ;
-                button -l "Ñ¡Ôñ" -h 40 -w 115 -bgc 0.5 0.5 0.5 -c "bb_select_apply(0)";
-                button -l "·´Ñ¡" -h 40 -w 115 -bgc 0.1 0.1 0.1 -c "bb_select_apply(1)";
+                button -l "é€‰æ‹©" -h 40 -w 115 -bgc 0.5 0.5 0.5 -c "bb_select_apply(0)";
+                button -l "åé€‰" -h 40 -w 115 -bgc 0.1 0.1 0.1 -c "bb_select_apply(1)";
             setParent ..;
     showWindow bb_selectToolWindow;
 }

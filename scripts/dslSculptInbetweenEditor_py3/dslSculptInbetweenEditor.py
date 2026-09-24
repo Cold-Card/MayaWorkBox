@@ -71,8 +71,8 @@ from functools import partial
 import maya.cmds as cmds
 import maya.OpenMaya as om
 import maya.mel as mm
-import dslSculptInbetweenEditor_py3.dslReverseShape as dslRs
-import dslSculptInbetweenEditor_py3.dslDeltaOptions as dslDo
+from . import dslReverseShape as dslRs
+from . import dslDeltaOptions as dslDo
 import webbrowser
 import time
 import sys

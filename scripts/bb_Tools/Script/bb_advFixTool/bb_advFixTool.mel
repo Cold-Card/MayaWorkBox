@@ -1,14 +1,14 @@
 //Author  :   LiuBen
 //Date    :   2020/03/13
-//Fix     :   2020/07/27   ÊÊÅäADV5.74°æ±¾¡£
-//Fix     :   2020/08/05   Ìí¼Ó¿ØÖÆÆ÷ÏÔÊ¾Òş²Ø¹¦ÄÜ¡£
-//Fix     :   2020/08/18   Õë¶Ô5.74ÊÖÖ¸¼ÓÈë²ã¼¶ĞŞ¸Ä¹¦ÄÜ,Ìí¼ÓĞŞ¸ÄÑÛ¾¦ÉÏ²ã×éscale²»Îª1µÄ¹¦ÄÜ¡£
-//Fix     :   2020/08/19   ĞŞ¸ÄÇû¸ÉIK³öÎÊÌâµÄBUG¡£
-//Fix     :   2020/10/21   ÖØĞÂÉè¼Æ½çÃæ£¬¡®Çû¸É·½ÏòĞŞ¸Ä¡¯¸ÄÎª¡®ĞŞ¸ÄIK¿ØÖÆÆ÷ÎªÍ³Ò»Ñü²¿¿ØÖÆÆ÷¡¯¡£
-//Fix     :   2021/03/11   Ìí¼Ó×ì´½ÔÂÑÀ´Î¼¶¹¦ÄÜ¡£
-//Fix     :   2021/06/16   1£¬ĞŞÕı²±×ÓÊ±£¬É¾³ıÔ­À´Í·¿ØÖÆÆ÷µÄshape£¨Ô­À´ÊÇÒş²Ø£©¡£2£¬ĞŞ¸ÄÑü²¿Ê±£¬Ëø×¡ÇĞ»»ÊôĞÔ¡£3,Ìí¼ÓautoPressÊôĞÔ¡£
-//Fix     :   2021/07/06   Ìí¼ÓÃ¼Ã«ĞŞ¸Ä¹¦ÄÜ¡£
-//Fix     :   2021/11/03   É¾³ı²¿·Ö¹¦ÄÜ£¬ĞŞ¸Ä²±×Ó¹¦ÄÜbug¡£
+//Fix     :   2020/07/27   é€‚é…ADV5.74ç‰ˆæœ¬ã€‚
+//Fix     :   2020/08/05   æ·»åŠ æ§åˆ¶å™¨æ˜¾ç¤ºéšè—åŠŸèƒ½ã€‚
+//Fix     :   2020/08/18   é’ˆå¯¹5.74æ‰‹æŒ‡åŠ å…¥å±‚çº§ä¿®æ”¹åŠŸèƒ½,æ·»åŠ ä¿®æ”¹çœ¼ç›ä¸Šå±‚ç»„scaleä¸ä¸º1çš„åŠŸèƒ½ã€‚
+//Fix     :   2020/08/19   ä¿®æ”¹èº¯å¹²IKå‡ºé—®é¢˜çš„BUGã€‚
+//Fix     :   2020/10/21   é‡æ–°è®¾è®¡ç•Œé¢ï¼Œâ€˜èº¯å¹²æ–¹å‘ä¿®æ”¹â€™æ”¹ä¸ºâ€˜ä¿®æ”¹IKæ§åˆ¶å™¨ä¸ºç»Ÿä¸€è…°éƒ¨æ§åˆ¶å™¨â€™ã€‚
+//Fix     :   2021/03/11   æ·»åŠ å˜´å”‡æœˆç‰™æ¬¡çº§åŠŸèƒ½ã€‚
+//Fix     :   2021/06/16   1ï¼Œä¿®æ­£è„–å­æ—¶ï¼Œåˆ é™¤åŸæ¥å¤´æ§åˆ¶å™¨çš„shapeï¼ˆåŸæ¥æ˜¯éšè—ï¼‰ã€‚2ï¼Œä¿®æ”¹è…°éƒ¨æ—¶ï¼Œé”ä½åˆ‡æ¢å±æ€§ã€‚3,æ·»åŠ autoPresså±æ€§ã€‚
+//Fix     :   2021/07/06   æ·»åŠ çœ‰æ¯›ä¿®æ”¹åŠŸèƒ½ã€‚
+//Fix     :   2021/11/03   åˆ é™¤éƒ¨åˆ†åŠŸèƒ½ï¼Œä¿®æ”¹è„–å­åŠŸèƒ½bugã€‚
 global proc bb_advFixTool()
 {
     string $melPath = `bb_advFix_setFilePath`;
@@ -17,53 +17,57 @@ global proc bb_advFixTool()
     bb_advFixUI;
 }
 bb_advFixTool;
-//ÌáÈ¡Â·¾¶
+//æå–è·¯å¾„
 global proc string bb_advFix_setFilePath()
 {
-    string $melPath = `whatIs bb_advFixTool`;
-    string $melPathArray[] = stringToStringArray($melPath, "/");
-    stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
-    string $start[] = stringToStringArray($melPathArray[0], " ");
-    $melPathArray[0] = $start[size($start)-1];
-    string $path = stringArrayToString($melPathArray, "/");
+    // string $melPath = `whatIs bb_advFixTool`;
+    // string $melPathArray[] = stringToStringArray($melPath, "/");
+    // stringArrayRemoveAtIndex((size($melPathArray)-1), $melPathArray);
+    // string $start[] = stringToStringArray($melPathArray[0], " ");
+    // $melPathArray[0] = $start[size($start)-1];
+    // string $path = stringArrayToString($melPathArray, "/");
+
+    string $WRL_SCRIPTS = getenv("WRL_SCRIPTS");
+    string $path = $WRL_SCRIPTS + "/scripts/bb_Tools/Script/bb_advFixTool";
+
     return $path;
 }
 global proc bb_advFixUI()
 {
     if (`window -q -exists bb_advFixToolWindow`) deleteUI bb_advFixToolWindow;
-    window -title "ADV²å¼şÓÅ»¯¹¤¾ß" -toolbox 1 bb_advFixToolWindow;    
+    window -title "ADVæ’ä»¶ä¼˜åŒ–å·¥å…·" -toolbox 1 bb_advFixToolWindow;    
         columnLayout -adjustableColumn true -columnAttach "both" 2;
-            frameLayout -label "ÊÊÅäADV5.74°æ±¾";
+            frameLayout -label "é€‚é…ADV5.74ç‰ˆæœ¬";
                 rowColumnLayout -numberOfColumns 2 -columnWidth 1 110 -columnWidth 2 100 -rowSpacing 1 5 -columnAlign 1 "left";
-                    text -l "1£¬Ëø¿ØÖÆÆ÷.v£º";
-                    button -l "Ëø¿ØÖÆÆ÷.v" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_lockCtrlV;
-                    text -l "2£¬¼ç°ò¿ØÖÆÆ÷·½Ïò£º";
-                    button -l "¼ç°ò¿ØÖÆÆ÷·½Ïò" -w 80 -c bb_advFix_Scapula;
-                    text -l "3£¬Çû¸É¿ØÖÆÆ÷ĞŞ¸Ä£º";
+                    text -l "1ï¼Œé”æ§åˆ¶å™¨.vï¼š";
+                    button -l "é”æ§åˆ¶å™¨.v" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_lockCtrlV;
+                    text -l "2ï¼Œè‚©è†€æ§åˆ¶å™¨æ–¹å‘ï¼š";
+                    button -l "è‚©è†€æ§åˆ¶å™¨æ–¹å‘" -w 80 -c bb_advFix_Scapula;
+                    text -l "3ï¼Œèº¯å¹²æ§åˆ¶å™¨ä¿®æ”¹ï¼š";
                     rowLayout -numberOfColumns 2 -columnWidth2 50 50;
-                        button -l "1.¶¨Î»" -w 50 -bgc 0.5 0.5 0.5 -c bb_advFix_IKSpineFix1;
-                        button -l "2.ÕûÀí" -w 50 -bgc 0.5 0.5 0.5 -c bb_advFix_IKSpineFix2;
+                        button -l "1.å®šä½" -w 50 -bgc 0.5 0.5 0.5 -c bb_advFix_IKSpineFix1;
+                        button -l "2.æ•´ç†" -w 50 -bgc 0.5 0.5 0.5 -c bb_advFix_IKSpineFix2;
                     setParent ..;
-                    text -l "4£¬²±×ÓĞŞ¸Ä£º";
-                    button -l "²±×ÓĞŞ¸Ä" -w 80 -c bb_advFix_Neck;
-                    text -l "5£¬¿ç²¿ÕûÀí£º";
-                    button -l "¿ç²¿ÕûÀí" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_Hip;
-                    text -l "6£¬ÊÖÖ¸¶îÍâ²ã¼¶£º";
-                    button -l "ÊÖÖ¸¶îÍâ²ã¼¶" -w 80 -c bb_advFix_Finger0Fix;
-                    text -l "7£¬ÑÛ¾¦¿ØÖÆÆ÷£º";
-                    button -l "ÑÛ¾¦¿ØÖÆÆ÷" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_AimEye;
-                    text -l "8£¬×ì´½´Î¼¶£º";
-                    button -l "×ì´½´Î¼¶" -w 80 -c ("bb_advFix_FacialSubCtrl;bb_advFix_autoLipPress;");
-                    text -l "9£¬Ã¼Ã«ĞŞ¸Ä£º";
-                    button -l "Ã¼Ã«ĞŞ¸Ä" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_Brow;
+                    text -l "4ï¼Œè„–å­ä¿®æ”¹ï¼š";
+                    button -l "è„–å­ä¿®æ”¹" -w 80 -c bb_advFix_Neck;
+                    text -l "5ï¼Œè·¨éƒ¨æ•´ç†ï¼š";
+                    button -l "è·¨éƒ¨æ•´ç†" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_Hip;
+                    text -l "6ï¼Œæ‰‹æŒ‡é¢å¤–å±‚çº§ï¼š";
+                    button -l "æ‰‹æŒ‡é¢å¤–å±‚çº§" -w 80 -c bb_advFix_Finger0Fix;
+                    text -l "7ï¼Œçœ¼ç›æ§åˆ¶å™¨ï¼š";
+                    button -l "çœ¼ç›æ§åˆ¶å™¨" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_AimEye;
+                    text -l "8ï¼Œå˜´å”‡æ¬¡çº§ï¼š";
+                    button -l "å˜´å”‡æ¬¡çº§" -w 80 -c ("bb_advFix_FacialSubCtrl;bb_advFix_autoLipPress;");
+                    text -l "9ï¼Œçœ‰æ¯›ä¿®æ”¹ï¼š";
+                    button -l "çœ‰æ¯›ä¿®æ”¹" -w 80 -bgc 0.5 0.5 0.5 -c bb_advFix_Brow;
                 setParent ..;
-            frameLayout -label "ĞŞĞÍÇı¶¯";
-                button -l "µ¼ÈëÇı¶¯" -w 160 -h 35 -bgc 0 0.3 0.5 -c bb_advFix_Drv;
-            frameLayout -label "¿ØÖÆÆ÷ÏÔÊ¾/Òş²Ø";
-                button -l "´´½¨ÊôĞÔ" -w 160 -bgc 1 0.95 0.5 -c bb_advFix_VisCreate;
+            frameLayout -label "ä¿®å‹é©±åŠ¨";
+                button -l "å¯¼å…¥é©±åŠ¨" -w 160 -h 35 -bgc 0 0.3 0.5 -c bb_advFix_Drv;
+            frameLayout -label "æ§åˆ¶å™¨æ˜¾ç¤º/éšè—";
+                button -l "åˆ›å»ºå±æ€§" -w 160 -bgc 1 0.95 0.5 -c bb_advFix_VisCreate;
                 rowLayout -numberOfColumns 2 -columnWidth2 105 105;
-                    button -l "µÚÒ»²ãÏÔÊ¾" -en 0 -w 105 -h 35 -bgc 0.5 0.5 0.5 -c "bb_advFix_VisCon(1)" bb_advFix_Vis1_Button;
-                    button -l "µÚ¶ş²ãÏÔÊ¾" -en 0 -w 105 -h 35  -c "bb_advFix_VisCon(2)" bb_advFix_Vis2_Button;
+                    button -l "ç¬¬ä¸€å±‚æ˜¾ç¤º" -en 0 -w 105 -h 35 -bgc 0.5 0.5 0.5 -c "bb_advFix_VisCon(1)" bb_advFix_Vis1_Button;
+                    button -l "ç¬¬äºŒå±‚æ˜¾ç¤º" -en 0 -w 105 -h 35  -c "bb_advFix_VisCon(2)" bb_advFix_Vis2_Button;
                 setParent ..;
     showWindow bb_advFixToolWindow;
     if(`objExists "Main.CtrlVis"`){
@@ -72,7 +76,7 @@ global proc bb_advFixUI()
     }
 }
 
-//¼ç°ò
+//è‚©è†€
 global proc bb_advFix_Scapula()
 {
     string $Constraint[];
@@ -91,7 +95,7 @@ global proc bb_advFix_Scapula()
     parent $Constraint[0] "ConstraintSystem";  
 }
 
-//´ó»·
+//å¤§ç¯
 global proc bb_advFix_AddMov()
 {
     circle -nr 0 1 0 -c 0 0 0 -radius 7 -constructionHistory 0 -n "Move";
@@ -107,7 +111,7 @@ global proc bb_advFix_AddMov()
     setAttr -lock true -keyable false -channelBox false "Move.sz";
     setAttr -lock true -keyable false -channelBox false "Move.v";    
 }
-//²±×Ó
+//è„–å­
 global proc bb_advFix_Neck()
 {
     delete FKXNeckPart1_M_orientConstraint1 FKXNeckPart2_M_orientConstraint1 FKXNeck_M_orientConstraint1;
@@ -191,7 +195,7 @@ global proc bb_advFix_Neck()
     connectAttr -f "FKGlobalHeadDrv_M1.t" "ReFKExtraHead_MD.input1";
     connectAttr -f "ReFKExtraHead_MD.output" "FKExtraHead_M.t";
 }
-//ÊÖÖ¸
+//æ‰‹æŒ‡
 global proc bb_advFix_Finger0Fix()
 {
     string $finger0[] = `ls "FKOffset*Finger0_*"`;
@@ -203,7 +207,7 @@ global proc bb_advFix_Finger0Fix()
         parent $extra $SDK;
     } 
 }
-//ÑÛ¾¦
+//çœ¼ç›
 global proc bb_advFix_AimEye()
 {
     if(`objExists "AimEyeOffset_M"`){
@@ -211,7 +215,7 @@ global proc bb_advFix_AimEye()
         channelBoxCommand -freezeScale;
     } 
 }
-//Ëøvisibility
+//é”visibility
 global proc bb_advFix_lockCtrlV()
 {
     string $suffixArray[] = {"_L", "_R", "_M", "Main"};
@@ -258,7 +262,7 @@ global proc bb_advFix_RenameExtra(string $defPrefix,string $defSuffix,string $ai
         rename $renameJoint[$i] ($aimName+$endNum);
     }
 }
-//¿çĞŞ¸Ä
+//è·¨ä¿®æ”¹
 global proc bb_advFix_Hip()
 {
     bb_advFix_HipApply("L");
@@ -280,7 +284,7 @@ global proc bb_advFix_HipApply(string $Orientation)
     rename $newShape[0] $oldShape[0];
     delete FKHipExtra_advFix;
 }
-//µ¼ÈëÇı¶¯
+//å¯¼å…¥é©±åŠ¨
 global proc bb_advFix_Drv()
 {
     string $melPath = `bb_advFix_setFilePath`;
@@ -324,7 +328,7 @@ global proc bb_advFix_Drv()
         }
     }
 }
-//¿ØÖÆÆ÷ÏÔÊ¾Òş²Ø
+//æ§åˆ¶å™¨æ˜¾ç¤ºéšè—
 global proc bb_advFix_VisCreate()
 {
     if(`objExists Main`){
@@ -396,7 +400,7 @@ global proc bb_advFix_VisCon(int $mod)
     }  
 }
 
-//×ì´½´Î¼¶
+//å˜´å”‡æ¬¡çº§
 global proc bb_advFix_FacialSubCtrl()
 {
     string $upper[] = {"upperLip_M","upperLipASubtract","upperLipA","upperLipJoint","upperupperLipClusterHandle_M","upperLipASubtractMD_M"};
@@ -428,7 +432,7 @@ global proc bb_advFix_FacialSubCtrlApply(string $Aim[])
     } 
 }
 
-//à½×ì¿ØÖÆ
+//å˜Ÿå˜´æ§åˆ¶
 global proc bb_advFix_autoLipPress()
 {
     addAttr -ln "autoPress" -at double -min -10 -max 0 -dv -10 -keyable true "ctrlMouth_M";
@@ -436,7 +440,7 @@ global proc bb_advFix_autoLipPress()
     connectAttr -f "ctrlMouth_M.autoPress" "upperLipPressSetRange.minY"; 
 }
 
-//Ã¼Ã«ĞŞ¸Ä
+//çœ‰æ¯›ä¿®æ”¹
 global proc bb_advFix_Brow()
 {
     setAttr EyeBrowInner_L.EyeBrowMid1Joint 0;
