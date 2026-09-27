@@ -338,8 +338,8 @@ global proc shelf_WRL () {
         -font "plainLabelFont" 
         -overlayLabelColor 0.8 0.8 0.8 
         -overlayLabelBackColor 0 0 0 0.5 
-        -image "/home/wangruilong/maya/workBox/scripts/bb_Tools/Icon/BB.png" 
-        -image1 "/home/wangruilong/maya/workBox/scripts/bb_Tools/Icon/BB.png" 
+        -image "BB_icon.png" 
+        -image1 "BB_icon.png" 
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
@@ -372,8 +372,8 @@ global proc shelf_WRL () {
         -font "plainLabelFont" 
         -overlayLabelColor 0.8 0.8 0.8 
         -overlayLabelBackColor 0 0 0 0.5 
-        -image "/home/wangruilong/maya/workBox/scripts/bb_Tools/Icon/List.png" 
-        -image1 "/home/wangruilong/maya/workBox/scripts/bb_Tools/Icon/List.png" 
+        -image "BB_List_icon.png" 
+        -image1 "BB_List_icon.png" 
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
@@ -1654,7 +1654,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "from sdd_UIDesignerNew_py3.scripts import sdd_UIDNew\nsdd_UIDNew.UIDesigner('/home/wangruilong/maya/workBox/toolkits/sdd_UIDesignerNew_py3/scripts').show()" 
+        -command "\nWRL_SCRIPTS = os.path.normpath(os.environ.get(\"WRL_SCRIPTS\"))\npath = os.path.join(WRL_SCRIPTS, 'toolkits/sdd_UIDesignerNew_py3/scripts')\nfrom sdd_UIDesignerNew_py3.scripts import sdd_UIDNew\nsdd_UIDNew.UIDesigner(path).show()" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -2665,7 +2665,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "import os\nimport sys\nfrom maya import cmds\n\npath = 'L:\\VVSArtistFile\\wangruilong\\workBox\\scripts\\dwpicker'\n\nif not os.path.exists(path):\n    message = (\n        \"DreamWall Picker folder is missing!\\n\"\n        \"Did you moved the installation folder ?\\n\"\n        \"Please re-install.\")\n    cmds.confirmDialog(message=message, button=[\"ok\"])\n    raise FileNotFoundError('DreamWall Picker is gone :/')\n\nif path not in sys.path:\n    sys.path.insert(0, path)\n\nimport dwpicker\ndwpicker.show(editable=False,pickers=None,ignore_scene_pickers=True)\n" 
+        -command "import os\nimport sys\nfrom maya import cmds\n\nWRL_SCRIPTS = os.path.normpath(os.environ.get(\"WRL_SCRIPTS\"))\npath = os.path.join(WRL_SCRIPTS, 'toolkits/dwpicker')\n\nif not os.path.exists(path):\n    message = (\n        \"DreamWall Picker folder is missing!\\n\"\n        \"Did you moved the installation folder ?\\n\"\n        \"Please re-install.\")\n    cmds.confirmDialog(message=message, button=[\"ok\"])\n    raise FileNotFoundError('DreamWall Picker is gone :/')\n\nif path not in sys.path:\n    sys.path.insert(0, path)\n\nimport dwpicker\ndwpicker.show(editable=False,pickers=None,ignore_scene_pickers=True)\n" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -2768,7 +2768,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "import os\nimport sys\n\nif not os.path.exists(r'/home/wangruilong/maya/workBox/scripts/birdRigTool'):\n    raise IOError(r'The source path \"/home/wangruilong/maya/workBox/scripts/birdRigTool\" does not exist!')\n\nif r'/home/wangruilong/maya/workBox/scripts/birdRigTool' not in sys.path:\n    sys.path.insert(0, r'/home/wangruilong/maya/workBox/scripts/birdRigTool')\n    \nfrom birdRigTool import ui\n\nui.show()" 
+        -command "from birdRigTool import ui\n\nui.show()" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -2802,7 +2802,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "\nimport os\nimport sys\n\nif not os.path.exists(r'/home/wangruilong/maya/workBox/scripts/snakeRigTool'):\n    raise IOError(r'The source path \"/home/wangruilong/maya/workBox/scripts/snakeRigTool\" does not exist!')\n\nif r'/home/wangruilong/maya/workBox/scripts/snakeRigTool' not in sys.path:\n    sys.path.insert(0, r'/home/wangruilong/maya/workBox/scripts/snakeRigTool')\n    \nfrom snakeRigTool import ui\n\nui.show()\n" 
+        -command "from snakeRigTool import ui\n\nui.show()\n" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
