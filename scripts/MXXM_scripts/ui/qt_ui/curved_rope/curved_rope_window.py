@@ -7,31 +7,23 @@ import inspect
 from pathlib import Path  # Maya 2022+ (Python 3) 内置，Maya 2020及以下也可用
 
 # 获取当前文件路径并转为 Path 对象
-current_file = Path(os.path.abspath(inspect.getsourcefile(lambda: 0)))
+current_file = Path(__file__).resolve()
 
 # 文件路径
 file_path = current_file.parent
 
-# 根路径：.parent 就相当于退一层，连续 .parent.parent.parent 退 3 层
-root_path = current_file.parent.parent.parent.parent
+# 连续退 3 层
+root_path = file_path.parent.parent.parent
 
 print(root_path)
-
-# 版本号
-maya_version = cmds.about(version=True)
-maya_version_int = int(maya_version)
-
-for i in range(30):
-    test_version = maya_version_int - i
-    maya_version = str(test_version)
+ 
+# 使用 / 操作符直接拼接路径
+library_path = root_path / 'core'
     
-    # 使用 / 操作符直接拼接路径（pathlib的特性，非常优雅且跨平台）
-    library_path = root_path / maya_version
-    
-    if library_path.is_dir():  # pathlib 自带的判断目录方法
-        sys.path.append(str(library_path))  # sys.path 需要字符串，所以转一下
-        maya_version_int = test_version
-        break
+if library_path.is_dir():  # pathlib 自带的判断目录方法
+    sys.path.append(str(library_path))  # sys.path 需要字符串，所以转一下
+else:
+    cmds.warning(f"Library path does not exist: {library_path}")
     
 import general_settings
 from general_settings import *
@@ -64,17 +56,16 @@ class Window(QtWidgets.QMainWindow):
         # maya版本
         self.maya_version = cmds.about(version=True)
         # 获取当前文件路径并转为 Path 对象
-        current_file = Path(os.path.abspath(inspect.getsourcefile(lambda: 0)))
+        current_file = Path(__file__).resolve()
         # 文件路径
         self.file_path = current_file.parent
         # 根路径
-        self.root_path = current_file.parent.parent.parent.parent
+        self.root_path = self.file_path.parent.parent.parent
 
         # 库路径
-        self.library_path = self.root_path / maya_version
+        self.library_path = self.root_path / 'core'
         # 样条库路径
         self.curve_library_path = os.path.join(self.library_path, 'curve_library')
-        print(self.curve_library_path)
 
         self.curve_library = CreateAndEditCurve()
         self.controller = CurveControllerEdit()

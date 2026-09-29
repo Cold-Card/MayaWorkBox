@@ -747,7 +747,7 @@ global proc shelf_WRL () {
     shelfButton
         -enableCommandRepeat 1
         -flexibleWidthType 3
-        -flexibleWidthValue 32
+        -flexibleWidthValue 37
         -enable 1
         -width 40
         -height 34
@@ -1277,7 +1277,7 @@ global proc shelf_WRL () {
     shelfButton
         -enableCommandRepeat 1
         -flexibleWidthType 3
-        -flexibleWidthValue 32
+        -flexibleWidthValue 37
         -enable 1
         -width 40
         -height 34
@@ -1411,7 +1411,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "from Maya_PY3_plug.ui.qt_ui.new_rope import new_rope_window\nnew_rope_window.window.show()" 
+        -command "from MXXM_scripts.ui.qt_ui.new_rope import new_rope_window\nnew_rope_window.window.show()" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1

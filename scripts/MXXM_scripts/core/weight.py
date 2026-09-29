@@ -5,33 +5,6 @@ import sys
 import inspect
 import importlib
 
-from pathlib import Path  # Maya 2022+ (Python 3) 内置，Maya 2020及以下也可用
-
-# 获取当前文件路径并转为 Path 对象
-current_file = Path(os.path.abspath(inspect.getsourcefile(lambda: 0)))
-
-# 文件路径
-file_path = current_file.parent
-
-# 根路径：.parent 就相当于退一层，连续 .parent.parent.parent 退 1 层
-root_path = current_file.parent.parent
-
-# 版本号
-maya_version = cmds.about(version=True)
-maya_version_int = int(maya_version)
-
-for i in range(30):
-    test_version = maya_version_int - i
-    maya_version = str(test_version)
-    
-    # 使用 / 操作符直接拼接路径（pathlib的特性，非常优雅且跨平台）
-    library_path = root_path / maya_version
-    
-    if library_path.is_dir():  # pathlib 自带的判断目录方法
-        sys.path.append(str(library_path))  # sys.path 需要字符串，所以转一下
-        maya_version_int = test_version
-        break
- 
 import general_settings
 from general_settings import *
 importlib.reload(general_settings)
