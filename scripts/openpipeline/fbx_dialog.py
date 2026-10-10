@@ -4,8 +4,12 @@
 FBX导出设置对话框模块
 独立的非模态对话框，解决界面阻塞问题。
 """
-from openpipeline.ui_framework.core.qtCompat import *
-from openpipeline.ui_framework.widgets.widgets import Widgets, PyouPersistentWindow
+
+from .ui_framework.widgets.widgets import Widgets, PyouPersistentWindow
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 try:
     import maya.cmds as cmds

@@ -15,21 +15,25 @@ except ImportError:
     mel = None
     IN_MAYA = False
 
-from openpipeline.version_context import (show_asset_context_menu, show_subtype_context_menu, show_version_context_menu)
-from openpipeline.version import VERSION, TIMESTAMP
-from openpipeline.asset_info import PROJECTS_XML
-from openpipeline.ui_openpipeline import build_openpipeline_ui
-from openpipeline.Pipeline import file_operations as fops
-from openpipeline.Pipeline.pipelineConfig import OpenPipelineConfig
-from openpipeline.Pipeline.projectManager import ProjectManager
-from openpipeline.Pipeline.pipelineUtils import (
+from .version_context import (show_asset_context_menu, show_subtype_context_menu, show_version_context_menu)
+from .version import VERSION, TIMESTAMP
+from .asset_info import PROJECTS_XML
+from .ui_openpipeline import build_openpipeline_ui
+from .Pipeline import file_operations as fops
+from .Pipeline.pipelineConfig import OpenPipelineConfig
+from .Pipeline.projectManager import ProjectManager
+from .Pipeline.pipelineUtils import (
     load_projects_from_xml, get_projects_xml_path, ensure_projects_xml,
     add_project_to_xml, open_folder_in_explorer, open_file_in_explorer
 )
 
-from openpipeline.ui_framework.core.qtCompat import *
-from openpipeline.ui_framework.widgets.widgets import Widgets, PyouPersistentWindow
+from .ui_framework.widgets.widgets import Widgets, PyouPersistentWindow
 
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+    
 _widgets = Widgets()
 
 

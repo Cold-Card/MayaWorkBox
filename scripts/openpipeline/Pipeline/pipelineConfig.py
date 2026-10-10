@@ -11,7 +11,7 @@ class OpenPipelineConfig(object):
         self.config = {}
         self.config_file_path = config_file or os.path.join(
             os.path.dirname(__file__),
-            '.py_openpipeline_config.json'
+            '.openpipeline_config.json'
         )
         self.load()
 

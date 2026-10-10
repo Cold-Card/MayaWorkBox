@@ -33,7 +33,7 @@ global proc shelf_WRL () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "import openpipeline.pyopenpipeline as openpipeline\nopenpipeline.main()" 
+        -command "import openpipeline.openpipeline as openpipeline\nopenpipeline.main()" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1

@@ -3,8 +3,17 @@
 import os
 from datetime import datetime
 
-from openpipeline.ui_framework.core.qtCompat import *
-from openpipeline.ui_framework.widgets.widgets import Widgets
+from .ui_framework.widgets.widgets import Widgets
+
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
+
+try:
+    from .ui_framework.widgets.Qt_style import apply_style
+except ImportError:
+    from Qt_style import apply_style
 
 _widgets = Widgets()
 
@@ -12,7 +21,11 @@ _widgets = Widgets()
 def build_openpipeline_ui(main_window):
 
     self = main_window
-    _widgets.apply_openpipeline_style(self)
+    #_widgets.apply_openpipeline_style(self)
+    try:
+        apply_style(self)
+    except:
+        print("未找到样式表，使用默认样式")
     main_layout = QtWidgets.QVBoxLayout(self)
     main = QtWidgets.QVBoxLayout()
     main_layout.addLayout(main)

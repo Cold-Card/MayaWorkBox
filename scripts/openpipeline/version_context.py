@@ -9,15 +9,18 @@ try:
 except ImportError:
     pass
 
-from openpipeline.ui_framework.core.qtCompat import *
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
-from openpipeline.Pipeline import file_operations as file_ops
-from openpipeline.Pipeline.pipelineConfig import OpenPipelineConfig
-from openpipeline.Pipeline.projectManager import ProjectManager
+from .Pipeline import file_operations as file_ops
+from .Pipeline.pipelineConfig import OpenPipelineConfig
+from .Pipeline.projectManager import ProjectManager
 
 try:
-    from openpipeline.Pipeline.pipelineUtils import *
-    from openpipeline.Pipeline.pipelineUtils import (
+    from .Pipeline.pipelineUtils import *
+    from .Pipeline.pipelineUtils import (
         load_projects_from_xml,
         get_projects_xml_path,
         ensure_projects_xml,

@@ -5,7 +5,7 @@ import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
-from openpipeline.asset_info import PROJECTS_XML
+from ..asset_info import PROJECTS_XML
 
 
 def get_projects_xml_path(cfg):
