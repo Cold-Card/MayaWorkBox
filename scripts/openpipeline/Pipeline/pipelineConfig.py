@@ -21,7 +21,7 @@ class OpenPipelineConfig(object):
         return value.replace('\\', '/')
 
     def _ensure_defaults(self):
-        self.config.setdefault('project_root_path', '')
+        self.config.setdefault('work_path', '')
         self.config.setdefault('projects', [])
         self.config.setdefault('asset_types', [])
         self.config.setdefault('library_folder', 'lib')
@@ -57,11 +57,11 @@ class OpenPipelineConfig(object):
     def get_config_file_path(self):
         return self.config_file_path
 
-    def get_project_root_path(self):
-        return self._normalize_path(self.config.get('project_root_path', ''))
+    def get_work_path(self):
+        return self._normalize_path(self.config.get('work_path', ''))
 
-    def set_project_root_path(self, path):
-        self.config['project_root_path'] = self._normalize_path(path)
+    def set_work_path(self, path):
+        self.config['work_path'] = self._normalize_path(path)
         return self.save()
 
     def get_last_project(self):

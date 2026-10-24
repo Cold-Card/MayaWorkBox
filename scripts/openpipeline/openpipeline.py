@@ -4,15 +4,12 @@ import os
 import json
 import shutil
 import xml.etree.ElementTree as ET
-from datetime import datetime
 
 try:
     import maya.cmds as cmds
-    import maya.mel as mel
     IN_MAYA = True
 except ImportError:
     cmds = None
-    mel = None
     IN_MAYA = False
 
 from .version_context import (show_asset_context_menu, show_subtype_context_menu, show_version_context_menu)
@@ -27,7 +24,7 @@ from .Pipeline.pipelineUtils import (
     add_project_to_xml, open_folder_in_explorer, open_file_in_explorer
 )
 
-from .ui_framework.widgets.widgets import Widgets, PyouPersistentWindow
+from .ui_framework.widgets.widgets import Widgets, PersistentWindow
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
@@ -37,9 +34,9 @@ except ImportError:
 _widgets = Widgets()
 
 
-class PYPenpipelineDialog(PyouPersistentWindow):
+class OpenPipeLineDialog(PersistentWindow):
     def __init__(self, parent=_widgets.maya_main_window()):
-        super(PYPenpipelineDialog, self).__init__("PYPenpipelineDlgApp", "PYPenpipelineDialog", parent)
+        super(OpenPipeLineDialog, self).__init__("openpipelineDlgApp", "OpenPipeLineDialog", parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.setWindowFlags(QtCore.Qt.Window |
@@ -52,7 +49,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         self.timeStamp = TIMESTAMP
         self.WINDOW_NAME = 'OpenPipeline v{} (Maya{})'.format(VERSION, cmds.about(version=True))
 
-        self.pm = None
+        self.pmgr = None
         self.current_project_path = u''
         self.current_project_name = u''
         self.current_asset_type = u''
@@ -106,7 +103,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         show_version_context_menu(self, position)
 
     def update_root_path_label(self):
-        root_path = self.cfg.get_project_root_path()
+        root_path = self.cfg.get_work_path()
         if root_path:
             normalized_path = root_path.replace('\\', '/')
             self.root_path_label.setText(normalized_path)
@@ -133,7 +130,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
 
             message = u"配置文件路径: {}\n".format(config_file)
             message += u"配置文件存在: {}\n".format(config_exists)
-            message += u"项目根路径: {}\n".format(self.cfg.get_project_root_path())
+            message += u"工作路径: {}\n".format(self.cfg.get_work_path())
             message += u"上次选择的项目: {}\n".format(self.cfg.get_last_project())
             message += u"配置文件内容:\n{}\n".format(json.dumps(config_content, indent=4) if isinstance(config_content, dict) else config_content)
             self.show_info(u'配置检查', message)
@@ -184,13 +181,13 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                                new_settings[0], new_settings[1]))
         self._fbx_dialog = None
 
-    def set_project_root_path(self):
-        current_root = self.cfg.get_project_root_path()
+    def set_work_path(self):
+        current_root = self.cfg.get_work_path()
         start_dir = current_root if current_root else ''
-        root_path = QtWidgets.QFileDialog.getExistingDirectory(self, u'选择项目根路径', start_dir)
+        root_path = QtWidgets.QFileDialog.getExistingDirectory(self, u'选择工作路径', start_dir)
         if root_path:
             normalized_path = root_path.replace('\\', '/')
-            success = self.cfg.set_project_root_path(normalized_path)
+            success = self.cfg.set_work_path(normalized_path)
             if success:
                 self.cfg = OpenPipelineConfig()
             else:
@@ -214,9 +211,9 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                     self.load_projects()
 
     def check_projects_in_root(self):
-        root_path = self.cfg.get_project_root_path()
+        root_path = self.cfg.get_work_path()
         if not root_path:
-            self.show_warning(u'提示', u'请先设置项目根路径')
+            self.show_warning(u'提示', u'请先设置工作路径')
             return
 
         xml_path = os.path.join(root_path, PROJECTS_XML)
@@ -236,7 +233,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             else:
                 missing_projects.append(u'✗ {name}: {path} (路径不存在)'.format(name=name, path=path))
 
-        message = u'项目根路径: {root_path}\n'.format(root_path=root_path)
+        message = u'工作路径: {root_path}\n'.format(root_path=root_path)
         message += u'XML文件: {xml_path}\n'.format(xml_path=xml_path)
         message += u'找到 {count} 个项目定义\n\n'.format(count=len(projects))
 
@@ -256,9 +253,9 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         self.project_combo.clear()
         self.project_combo.addItem('', '')
 
-        root_path = self.cfg.get_project_root_path()
+        root_path = self.cfg.get_work_path()
         if not root_path:
-            self.project_combo.addItem(u'请先设置项目根路径', '')
+            self.project_combo.addItem(u'请先设置工作路径', '')
             return
 
         xml_projects = load_projects_from_xml(self.cfg)
@@ -270,76 +267,54 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             self.project_combo.addItem(name, path)
 
     def select_last_project(self):
-        last_project_path = self.cfg.get_last_project()
-        last_assetType = self.cfg.get_last_select_type()
-        last_asset = self.cfg.get_last_select_asset()
-        last_subtype = self.cfg.get_last_select_subtype()
+        last_project = (self.cfg.get_last_project() or '').replace('\\', '/').rstrip('/')
+        if not last_project:
+            return
 
-        if last_project_path:
-            normalized_last_path = last_project_path.replace('\\', '/').rstrip('/')
-            print(u"尝试选择上次的项目: {}".format(normalized_last_path))
+        idx = next(
+            (i for i in range(self.project_combo.count())
+            if (self.project_combo.itemData(i) or '').replace('\\', '/').rstrip('/') == last_project),
+            -1,
+        )
+        if idx < 0:
+            return
+        self.project_combo.setCurrentIndex(idx)
 
-            for i in range(self.project_combo.count()):
-                item_data = self.project_combo.itemData(i)
-                if item_data:
-                    normalized_item_data = item_data.replace('\\', '/').rstrip('/')
-                    if normalized_item_data == normalized_last_path:
-                        self.project_combo.setCurrentIndex(i)
-                        print(u"已自动选择上次的项目: {}".format(self.project_combo.itemText(i)))
-                        QtCore.QTimer.singleShot(100,lambda: self._select_last_type_and_asset(last_assetType, last_asset, last_subtype))
-                        break
+        self._select_combo_text(self.type_combo,   self.cfg.get_last_select_type())
+        self._select_list_text(self.asset_list,    self.cfg.get_last_select_asset(),  self.on_asset_clicked)
+        self._select_list_text(self.subtype_list,  self.cfg.get_last_select_subtype(), self.on_subtype_clicked)
 
-    def _select_last_type_and_asset(self, last_assetType, last_asset, last_subtype):
-        if last_assetType:
-            for t in range(self.type_combo.count()):
-                type_text = self.type_combo.itemText(t)
-                if type_text == last_assetType:
-                    self.type_combo.setCurrentIndex(t)
-                    print(u"已自动选择上次的项目类型: {}".format(last_assetType))
-                    QtCore.QTimer.singleShot(100, lambda: self._select_last_asset(last_asset, last_subtype))
-                    break
+    @staticmethod
+    def _select_combo_text(combo, text):
+        if not text:
+            return
+        i = combo.findText(text)
+        if i >= 0:
+            combo.setCurrentIndex(i)
 
-    def _select_last_asset(self, last_asset, last_subtype):
-        if last_asset:
-            for a in range(self.asset_list.count()):
-                item = self.asset_list.item(a)
-                if item and item.text() == last_asset:
-                    self.asset_list.setCurrentRow(a)
-                    self.selected_asset = last_asset
-                    self.on_asset_clicked(item)
-                    #self.load_subtypes()
-                    #self.show_asset_preview(self.current_asset_type, last_asset)
-                    print(u"已自动选择上次的项目资产: {}".format(last_asset))
-                    QtCore.QTimer.singleShot(100, lambda: self._select_last_subtype(last_subtype))
-                    break
-
-    def _select_last_subtype(self, last_subtype):
-            if last_subtype:
-                for s in range(self.subtype_list.count()):
-                    item = self.subtype_list.item(s)
-                    if item and item.text() == last_subtype:
-                        self.subtype_list.setCurrentRow(s)
-                        self.selected_subtype = last_subtype
-                        self.on_subtype_clicked(item)
-                        print(u"已自动选择上次的子类型: {}".format(last_subtype))
-                        break
+    @staticmethod
+    def _select_list_text(lst, text, on_select):
+        if not text:
+            return
+        for i in range(lst.count()):
+            item = lst.item(i)
+            if item and item.text() == text:
+                lst.setCurrentRow(i)
+                on_select(item)     # setCurrentRow 不发 itemClicked，手动调
+                return
 
     def on_project_changed(self, text):
-        if not text or text == '-- 选择项目 --' or text == u'请先设置项目根路径' or text == u'没有找到项目':
-            self.pm = None
+        if not text or text == '-- 选择项目 --' or text == u'请先设置工作路径' or text == u'没有找到项目':
+            self.pmgr = None
             self.current_project_path = ''
             self.current_project_name = ''
-            self.btn_create_asset.setEnabled(False)
-            self.btn_delete_asset.setEnabled(False)
-            self.btn_delete_asset.setVisible(False)
-            self.btn_add_sub.setEnabled(False)
-            self.btn_del_sub.setEnabled(False)
-            self.btn_rename_sub.setEnabled(False)
-            self.btn_snapshot.setEnabled(False)
+            self.current_asset_type = ''          # 防御：显式清空
+            self.selected_asset = None
+            self.selected_subtype = None
             self.asset_list.clear()
             self.subtype_list.clear()
-            self.clear_right()
-            self.type_combo.clear()
+            self.type_combo.clear()               # 触发 on_asset_type_changed → clear_right → refresh
+            self.clear_right()                    # refresh
             return
 
         path = self.project_combo.currentData()
@@ -350,13 +325,8 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                 self.current_project_name = text
                 self.cfg.set_last_project(normalized_path)
                 lib = self.get_library_folder_from_xml(text)
-                self.pm = ProjectManager(normalized_path, text, lib)
+                self.pmgr = ProjectManager(normalized_path, text, lib)
                 self.update_asset_type_combo()
-                self.btn_create_asset.setEnabled(bool(self.current_asset_type))
-                self.btn_add_sub.setEnabled(False)
-                self.btn_del_sub.setEnabled(False)
-                self.btn_rename_sub.setEnabled(False)
-                self.btn_snapshot.setEnabled(False)
                 self.cfg.add_project_path(normalized_path)
                 self.load_assets()
             else:
@@ -384,9 +354,9 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         return self.cfg.config.get('library_folder', 'lib')
 
     def open_existing_project(self):
-        root_path = self.cfg.get_project_root_path()
+        root_path = self.cfg.get_work_path()
         if not root_path:
-            self.show_warning(u'提示', u'请先设置项目根路径')
+            self.show_warning(u'提示', u'请先设置工作路径')
             return
 
         project_dir = QtWidgets.QFileDialog.getExistingDirectory(self, u'选择项目文件夹', root_path)
@@ -394,7 +364,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             normalized_dir = project_dir.replace('\\', '/')
             if not normalized_dir.startswith(root_path.replace('\\', '/')):
                 self.show_warning(u'错误',
-                                  u'选择的项目不在项目根路径下:\n\n项目根路径: {root}\n项目路径: {project}'.format(
+                                  u'选择的项目不在工作路径下:\n\n工作路径: {root}\n项目路径: {project}'.format(
                                       root=root_path, project=normalized_dir))
                 return
 
@@ -421,9 +391,9 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                         self.project_combo.setCurrentIndex(idx)
 
     def create_project_dialog(self):
-        root_path = self.cfg.get_project_root_path()
+        root_path = self.cfg.get_work_path()
         if not root_path:
-            self.show_warning(u'提示', u'请先设置项目根路径')
+            self.show_warning(u'提示', u'请先设置工作路径')
             return
 
         dlg = QtWidgets.QDialog(self)
@@ -436,7 +406,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         row1.addWidget(self.new_proj_name)
 
         row2 = QtWidgets.QHBoxLayout()
-        row2.addWidget(QtWidgets.QLabel(u'项目根路径:'))
+        row2.addWidget(QtWidgets.QLabel(u'工作路径:'))
         self.new_proj_path = QtWidgets.QLabel(root_path)
         self.new_proj_path.setStyleSheet('padding:4px; color: #5285A6;')
         row2.addWidget(self.new_proj_path, 1)
@@ -466,7 +436,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
 
     def _create_project(self, dlg):
         name = self.new_proj_name.text().strip()
-        root_path = self.cfg.get_project_root_path()
+        root_path = self.cfg.get_work_path()
         lib = self.new_proj_lib.text().strip()
 
         if not name:
@@ -489,7 +459,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         project_dir = project_root.rstrip('/')
         if os.path.exists(project_dir):
             reply = QtWidgets.QMessageBox.question(self, u'文件夹已存在',
-                                                   u'文件夹"{name}"已存在于项目根路径下，是否继续？'.format(name=name),
+                                                   u'文件夹"{name}"已存在于工作路径下，是否继续？'.format(name=name),
                                                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
             if reply == QtWidgets.QMessageBox.No:
                 return
@@ -510,11 +480,11 @@ class PYPenpipelineDialog(PyouPersistentWindow):
 
     def get_current_asset_types(self):
         asset_types = []
-        if not self.pm:
+        if not self.pmgr:
             return asset_types
 
         try:
-            lib_path = os.path.join(self.pm.project_root, self.pm.library_folder)
+            lib_path = os.path.join(self.pmgr.project_root, self.pmgr.library_folder)
             if os.path.exists(lib_path):
                 for item in os.listdir(lib_path):
                     item_path = os.path.join(lib_path, item)
@@ -528,7 +498,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
 
     def update_asset_type_combo(self):
         self.type_combo.clear()
-        if not self.pm:
+        if not self.pmgr:
             return
 
         asset_types = self.get_current_asset_types()
@@ -542,7 +512,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             self.current_asset_type = ''
 
     def add_asset_type(self):
-        if not self.pm:
+        if not self.pmgr:
             self.show_warning(u'错误', u'请先选择项目')
             return
 
@@ -555,7 +525,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                 return
 
             try:
-                lib_path = os.path.join(self.pm.project_root, self.pm.library_folder)
+                lib_path = os.path.join(self.pmgr.project_root, self.pmgr.library_folder)
                 new_type_path = os.path.join(lib_path, t)
                 if not os.path.exists(lib_path):
                     os.makedirs(lib_path)
@@ -569,7 +539,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                 self.show_warning(u'错误', u'创建资产类型失败: {error}'.format(error=str(e)))
 
     def delete_asset_type(self):
-        if not self.pm:
+        if not self.pmgr:
             self.show_warning(u'错误', u'请先选择项目')
             return
 
@@ -578,7 +548,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             self.show_warning(u'提示', u'请先选择一个资产类型')
             return
 
-        lib_path = os.path.join(self.pm.project_root, self.pm.library_folder)
+        lib_path = os.path.join(self.pmgr.project_root, self.pmgr.library_folder)
         type_path = os.path.join(lib_path, current_type)
 
         if not os.path.exists(type_path):
@@ -623,9 +593,9 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         self.info_label.setText(u'未选择资产')
         self.clear_right()
         self.show_version_count(0)
-        if not self.pm or not self.current_asset_type:
+        if not self.pmgr or not self.current_asset_type:
             return
-        assets = self.pm.list_assets(self.current_asset_type)
+        assets = self.pmgr.list_assets(self.current_asset_type)
         if assets:
             self.asset_list.addItems(assets)
 
@@ -638,13 +608,6 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             self.subtype_list.clear()
             self.info_label.setText(u'未选择资产')
             self.clear_right()
-            self.btn_create_asset.setEnabled(False)
-            self.btn_add_sub.setEnabled(False)
-            self.btn_del_sub.setEnabled(False)
-            self.btn_rename_sub.setEnabled(False)
-            self.btn_delete_asset.setEnabled(False)
-            self.btn_delete_asset.setVisible(False)
-            self.btn_snapshot.setEnabled(False)
             return
 
         self.current_asset_type = text
@@ -652,14 +615,6 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         self.selected_subtype = None
         self.info_label.setText(u'未选择资产')
         self.load_assets()
-        self.clear_right()
-        self.btn_create_asset.setEnabled(True)
-        self.btn_add_sub.setEnabled(False)
-        self.btn_del_sub.setEnabled(False)
-        self.btn_rename_sub.setEnabled(False)
-        self.btn_delete_asset.setEnabled(False)
-        self.btn_delete_asset.setVisible(False)
-        self.btn_snapshot.setEnabled(False)
         self.cfg.set_last_select_type(self.current_asset_type)
 
     def filter_assets(self, text):
@@ -668,7 +623,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             it.setHidden(text.lower() not in it.text().lower())
 
     def create_asset_dialog(self):
-        if not self.pm or not self.current_asset_type:
+        if not self.pmgr or not self.current_asset_type:
             self.show_warning(u'提示', u'请先选择有效的资产类型')
             return
         dlg = QtWidgets.QDialog(self)
@@ -697,12 +652,10 @@ class PYPenpipelineDialog(PyouPersistentWindow):
 
     def _create_asset(self, dlg):
         name = self.new_asset_name.text().strip()
-        self.btn_delete_asset.setEnabled(False)
-        self.btn_delete_asset.setVisible(False)
         if not name:
             self.show_warning(u'错误', u'请输入资产名称')
             return
-        if self.pm.create_asset(self.current_asset_type, name):
+        if self.pmgr.create_asset(self.current_asset_type, name):
             dlg.accept()
             self.load_assets()
             item_list = self.asset_list.findItems(name, QtCore.Qt.MatchExactly)
@@ -714,7 +667,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             self.show_warning(u'失败', u'资产已存在或创建失败')
 
     def delete_asset_dialog(self):
-        if not self.pm or not self.current_asset_type:
+        if not self.pmgr or not self.current_asset_type:
             self.show_warning(u'错误', u'请先选择项目及资产类型')
             return
 
@@ -722,7 +675,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             self.show_warning(u'错误', u'请先选择要删除的资产')
             return
 
-        asset_dir = self.pm.get_asset_dir(self.current_asset_type, self.selected_asset)
+        asset_dir = self.pmgr.get_asset_dir(self.current_asset_type, self.selected_asset)
         if not os.path.exists(asset_dir):
             self.show_warning(u'错误', u'资产路径不存在:\n{}'.format(asset_dir))
             return
@@ -782,35 +735,34 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         except Exception as e:
             return False, u'删除过程中发生错误: {}'.format(str(e))
 
-    def show_asset_preview(self, asset_type, asset):
-        preview = os.path.join(self.pm.get_asset_dir(asset_type, asset), 'preview.png')
-        if os.path.exists(preview):
+    def _show_preview_from_dir(self, directory):
+        """统一加载资产/子类型预览，优先 PNG，再尝试 JPG。"""
+        for filename in ('preview.png', 'preview.jpg', 'preview.jpeg'):
+            preview = os.path.join(directory, filename)
+            if not os.path.isfile(preview):
+                continue
             pix = QtGui.QPixmap(preview)
-            self.preview_label.setPixmap(pix.scaled(self.preview_label.size(),
-                                                    QtCore.Qt.KeepAspectRatio,
-                                                    QtCore.Qt.SmoothTransformation))
-        else:
-            preview = os.path.join(self.pm.get_asset_dir(asset_type, asset), 'preview.jpg')
-            if os.path.exists(preview):
-                pix = QtGui.QPixmap(preview)
-                self.preview_label.setPixmap(pix.scaled(self.preview_label.size(),
-                                                        QtCore.Qt.KeepAspectRatio,
-                                                        QtCore.Qt.SmoothTransformation))
-            else:
-                self.preview_label.clear()
-                self.preview_label.setText('No Preview')
+            if pix.isNull():
+                continue
+            self.preview_label.setPixmap(pix.scaled(
+                self.preview_label.size(), QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.SmoothTransformation
+            ))
+            return
+        self.preview_label.clear()
+        self.preview_label.setText('No Preview')
+
+    def show_asset_preview(self, asset_type, asset):
+        self._show_preview_from_dir(self.pmgr.get_asset_dir(asset_type, asset))
+
+    def show_subtype_preview(self, asset_type, asset, subtype):
+        self._show_preview_from_dir(self.pmgr.get_subtype_dir(asset_type, asset, subtype))
 
     def on_asset_clicked(self, item):
         self.selected_asset = item.text()
         self.selected_subtype = None
         self.info_label.setText(u'资产: {asset}'.format(asset=self.selected_asset))
         self.load_subtypes()
-        self.btn_delete_asset.setEnabled(True)
-        self.btn_delete_asset.setVisible(True)
-        self.btn_add_sub.setEnabled(True)
-        self.btn_del_sub.setEnabled(False)
-        self.btn_rename_sub.setEnabled(False)
-        self.btn_snapshot.setEnabled(True)
         self.show_asset_preview(self.current_asset_type, self.selected_asset)
         self.clear_right()
         self.show_version_count(0)
@@ -819,18 +771,18 @@ class PYPenpipelineDialog(PyouPersistentWindow):
 
     def load_subtypes(self):
         self.subtype_list.clear()
-        if not (self.pm and self.selected_asset):
+        if not (self.pmgr and self.selected_asset):
             return
-        subs = self.pm.list_subtypes(self.current_asset_type, self.selected_asset)
+        subs = self.pmgr.list_subtypes(self.current_asset_type, self.selected_asset)
         self.subtype_list.addItems(subs)
 
     def add_subtype_dialog(self):
-        if not (self.pm and self.selected_asset):
+        if not (self.pmgr and self.selected_asset):
             self.show_warning(u'提示', u'请先选择资产')
             return
         text, ok = QtWidgets.QInputDialog.getText(self, u'添加子类型', u'输入子类型名称:')
         if ok and text.strip():
-            if self.pm.create_subtype(self.current_asset_type, self.selected_asset, text.strip()):
+            if self.pmgr.create_subtype(self.current_asset_type, self.selected_asset, text.strip()):
                 #self.show_info(u'成功', u'子类型创建成功')
                 self.load_subtypes()
                 item_list = self.subtype_list.findItems(text.strip(), QtCore.Qt.MatchExactly)
@@ -841,12 +793,12 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                 self.show_warning(u'失败', u'创建失败或已存在')
 
     def delete_subtype(self):
-        if not (self.pm and self.selected_asset):
+        if not (self.pmgr and self.selected_asset):
             self.show_warning(u'提示', u'请先选择资产')
             return
         text, ok = QtWidgets.QInputDialog.getText(self, u'删除子类型', u'输入子类型名称:')
         if ok and text.strip():
-            p = os.path.join(self.pm.get_asset_dir(self.current_asset_type, self.selected_asset), 'components',
+            p = os.path.join(self.pmgr.get_asset_dir(self.current_asset_type, self.selected_asset), 'components',
                              text.strip())
             if os.path.exists(p):
                 r = QtWidgets.QMessageBox.question(self, u'确认', u'将删除该子类型及其所有内容，是否继续?',
@@ -866,7 +818,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                 self.show_warning(u'失败', u'找不到该子类型')
 
     def rename_subtype(self):
-        if not (self.pm and self.selected_asset and self.selected_subtype):
+        if not (self.pmgr and self.selected_asset and self.selected_subtype):
             self.show_warning(u'提示', u'请先选择资产和子类型')
             return
 
@@ -880,12 +832,12 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                 self.show_warning(u'提示', u'新名称与当前名称相同')
                 return
 
-            existing_subs = self.pm.list_subtypes(self.current_asset_type, self.selected_asset)
+            existing_subs = self.pmgr.list_subtypes(self.current_asset_type, self.selected_asset)
             if new_name in existing_subs:
                 self.show_warning(u'失败', u'子类型 "{new_name}" 已存在'.format(new_name=new_name))
                 return
 
-            success, message = self.pm.rename_subtype(
+            success, message = self.pmgr.rename_subtype(
                 self.current_asset_type,
                 self.selected_asset,
                 self.selected_subtype,
@@ -903,53 +855,105 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             else:
                 self.show_warning(u'失败', message)
 
+    def _clear_note_highlight(self):
+        if hasattr(self, 'notes_text'):
+            self.notes_text.setExtraSelections([])
+
+    def _scroll_range_into_view(self, start_cursor, end_cursor):
+        """让 [start_cursor, end_cursor] 对应的文本范围尽量完整显示在视口内"""
+        text_edit = self.notes_text
+        viewport = text_edit.viewport()
+
+        text_edit.setTextCursor(start_cursor)
+        text_edit.ensureCursorVisible()
+
+        sb = text_edit.verticalScrollBar()
+        vh = viewport.height()
+        if vh <= 0:
+            return
+
+        start_rect = text_edit.cursorRect(start_cursor)
+        end_rect = text_edit.cursorRect(end_cursor)
+
+        start_top_doc = sb.value() + start_rect.top()
+        end_bottom_doc = sb.value() + end_rect.bottom()
+        block_height = end_bottom_doc - start_top_doc
+
+        if block_height <= vh:
+            target = start_top_doc - (vh - block_height) // 2  # 居中
+        else:
+            target = start_top_doc - 4                         # 顶部对齐
+
+        sb.setValue(max(sb.minimum(), min(sb.maximum(), target)))
+        text_edit.setTextCursor(start_cursor)
+
+
+    def highlight_note_for_version(self, version_name):
+        if not hasattr(self, 'notes_text') or not version_name:
+            return
+        if not (self.pmgr and self.selected_asset and self.selected_subtype):
+            return
+
+        # 从 ProjectManager 拿 notes 文本 + 精确定位（版本号来自 JSON）
+        notes_text, info = self.pmgr.get_notes(
+            self.current_asset_type,
+            self.selected_asset,
+            self.selected_subtype,
+            version_name,
+        )
+
+        # 保证文本与定位信息一致（外部可能改过 json）
+        if self.notes_text.toPlainText() != notes_text:
+            self.notes_text.setPlainText(notes_text)
+
+        if info is None:
+            self._clear_note_highlight()
+            return
+
+        doc = self.notes_text.document()
+
+        # 高亮 Version: xxx 整行（不含换行）
+        highlight_cursor = QtGui.QTextCursor(doc)
+        highlight_cursor.setPosition(info['version_char_start'])
+        highlight_cursor.setPosition(info['version_char_end'], QtGui.QTextCursor.KeepAnchor)
+
+        extra_selection = QtWidgets.QTextEdit.ExtraSelection()
+        extra_selection.cursor = highlight_cursor
+        fmt = QtGui.QTextCharFormat()
+        #fmt.setBackground(QtGui.QBrush(QtGui.QColor('#FFD700')))
+        fmt.setForeground(QtGui.QBrush(QtGui.QColor('#FFD700')))
+        extra_selection.format = fmt
+        self.notes_text.setExtraSelections([extra_selection])
+
+        # 滚动，让整组信息完整显示
+        start_cursor = QtGui.QTextCursor(doc)
+        start_cursor.setPosition(info['group_char_start'])
+        end_cursor = QtGui.QTextCursor(doc)
+        end_cursor.setPosition(info['group_char_end'])
+        self._scroll_range_into_view(start_cursor, end_cursor)
+
     def on_subtype_clicked(self, item):
         st = item.text()
         self.selected_subtype = st
         self.info_label.setText(u'选中: {asset}.{subtype}'.format(asset=self.selected_asset, subtype=st))
 
-        versions = self.pm.get_workshop_versions(self.current_asset_type, self.selected_asset, st)
+        versions = self.pmgr.get_workshop_versions(self.current_asset_type, self.selected_asset, st)
         self.version_list.clear()
         if versions:
             self.version_list.addItems(versions)
 
         self.show_version_count(len(versions))
-        notes = self.pm.get_notes(self.current_asset_type, self.selected_asset, st)
+        notes, _ = self.pmgr.get_notes(self.current_asset_type, self.selected_asset, st)
         self.notes_text.setPlainText("{}".format(notes))
+        self._clear_note_highlight()
         self.cfg.set_last_select_subtype(st)
-
-        has_versions = bool(versions)
-        self.btn_save_new_version.setEnabled(True)
-        self.btn_set_master.setEnabled(has_versions)
-        self.btn_snapshot.setEnabled(True)
-        self.btn_open_master.setEnabled(True)
-        self.btn_reference_master.setEnabled(True)
-        self.btn_del_sub.setEnabled(True)
-        self.btn_rename_sub.setEnabled(True)
-
-        preview = os.path.join(self.pm.get_asset_dir(self.current_asset_type, self.selected_asset), 'components', st,
-                               'preview.png')
-        if os.path.exists(preview):
-            pix = QtGui.QPixmap(preview)
-            self.preview_label.setPixmap(pix.scaled(self.preview_label.size(),
-                                                    QtCore.Qt.KeepAspectRatio,
-                                                    QtCore.Qt.SmoothTransformation))
-        else:
-            preview = os.path.join(self.pm.get_asset_dir(self.current_asset_type, self.selected_asset), 'components',
-                                   st, 'preview.jpg')
-            if os.path.exists(preview):
-                pix = QtGui.QPixmap(preview)
-                self.preview_label.setPixmap(pix.scaled(self.preview_label.size(),
-                                                        QtCore.Qt.KeepAspectRatio,
-                                                        QtCore.Qt.SmoothTransformation))
-            else:
-                self.preview_label.clear()
-                self.preview_label.setText('No Preview')
+        self._refresh_action_state()
+        self.show_subtype_preview(self.current_asset_type, self.selected_asset, self.selected_subtype)
 
     def on_subtype_double_clicked(self, item):
         st = item.text()
         self.selected_subtype = st
-        latest = self.pm.get_latest_workshop(self.current_asset_type, self.selected_asset, st)
+        latest = self.pmgr.get_latest_workshop(self.current_asset_type, self.selected_asset, st)
         if latest:
             if IN_MAYA:
                 try:
@@ -968,24 +972,18 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         if not item:
             return
         version_name = item.text()
-        notes = self.pm.get_notes(
-            self.current_asset_type,
-            self.selected_asset,
-            self.selected_subtype,
-            version_filename=version_name
-        )
-        self.notes_text.setPlainText("{}".format(notes))
-
-    def safe_run(self, func):
-        try:
-            func()
-        except Exception as e:
-            self.show_critical(u'错误', str(e))
+        # notes = self.pmgr.get_notes(
+        #     self.current_asset_type,
+        #     self.selected_asset,
+        #     self.selected_subtype,
+        # )
+        # self.notes_text.setPlainText("{}".format(notes))
+        self.highlight_note_for_version(version_name)
 
     def open_selected_version(self):
         item = self.version_list.currentItem()
         if not item:
-            latest = self.pm.get_latest_workshop(self.current_asset_type, self.selected_asset, self.selected_subtype)
+            latest = self.pmgr.get_latest_workshop(self.current_asset_type, self.selected_asset, self.selected_subtype)
             if latest:
                 try:
                     fname = latest.split('\\')[-1]
@@ -1001,7 +999,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         fname = item.text()
         try:
             fops.open_latest_or_selected_version(
-                self.pm, self.current_asset_type, self.selected_asset, self.selected_subtype, fname
+                self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype, fname
             )
             self.show_info_inview('The version has been opened', 'yellow')
         except Exception as e:
@@ -1009,7 +1007,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
 
     def open_master(self):
         try:
-            fops.open_master_file(self.pm, self.current_asset_type, self.selected_asset, self.selected_subtype)
+            fops.open_master_file(self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype)
             self.show_info_inview('Master has been opened', 'yellow')
         except Exception as e:
             self.show_warning(u'错误', str(e))
@@ -1022,7 +1020,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         fname = item.text()
         try:
             fops.import_selected_version(
-                self.pm, self.current_asset_type, self.selected_asset, self.selected_subtype,
+                self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype,
                 fname, namespace=None
             )
             self.show_info_inview('Import Finished')
@@ -1038,7 +1036,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         try:
             ns = fname.split(".")[0]
             fops.reference_selected_version(
-                self.pm, self.current_asset_type, self.selected_asset, self.selected_subtype,
+                self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype,
                 fname, namespace=ns, group_locator=True, merge_namespaces=False
             )
             self.show_info_inview('Reference Finished')
@@ -1048,7 +1046,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
     def reference_master(self, namespace=True):
 
         try:
-            mf = self.pm.get_master_file(
+            mf = self.pmgr.get_master_file(
                 self.current_asset_type,
                 self.selected_asset,
                 self.selected_subtype
@@ -1076,16 +1074,16 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             self.show_warning(u'失败', str(e))
 
     def save_new_version(self):
-        if not (self.pm and self.selected_asset and self.selected_subtype):
+        if not (self.pmgr and self.selected_asset and self.selected_subtype):
             self.show_warning(u'提示', u'请先选择资产与子类型')
             return
         notes, ok = QtWidgets.QInputDialog.getText(self, u'保存新版本', u'输入版本备注:')
         if not ok:
             return
         try:
-            if fops.save_workshop(None, notes, self.pm, self.current_asset_type, self.selected_asset, self.selected_subtype):
+            if fops.save_workshop(None, notes, self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype):
                 self.show_info_inview('The new version has been saved', '#4ECC00')
-                versions = self.pm.get_workshop_versions(self.current_asset_type, self.selected_asset, self.selected_subtype)
+                versions = self.pmgr.get_workshop_versions(self.current_asset_type, self.selected_asset, self.selected_subtype)
                 self.version_list.clear()
                 if versions:
                     self.version_list.addItems(versions)
@@ -1096,7 +1094,7 @@ class PYPenpipelineDialog(PyouPersistentWindow):
             self.show_warning(u'失败', str(e))
 
     def save_new_master(self):
-        if not (self.pm and self.selected_asset and self.selected_subtype):
+        if not (self.pmgr and self.selected_asset and self.selected_subtype):
             self.show_warning(u'提示', u'请先选择资产与子类型')
             return
         confirm_msg = u"确认保存当前场景为Master？？？\n\n建议: 如有旧的master请去往{}下的master备份\n".format(
@@ -1108,27 +1106,28 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         if reply == QtWidgets.QMessageBox.No:
             return
         try:
-            if fops.save_master(None, self.pm, self.current_asset_type, self.selected_asset, self.selected_subtype):
+            if fops.save_master(None, self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype):
                 self.show_info_inview('Master has been saved', "#4ECC00")
             else:
                 self.show_warning(u'失败', u'Master保存失败')
         except Exception as e:
             self.show_warning(u'失败', str(e))
 
-    def show_version_count(self, counts):
-        if counts:
-            self.version_count_text.setText("版本量: {}".format(str(counts)))
+    def show_version_count(self, count):
+        if count:
+            self.version_count_text.setText("版本量: {}".format(str(count)))
         else:
             self.version_count_text.setText("")
 
     def take_snapshot(self):
-        if not (self.pm and self.selected_asset or self.selected_subtype):
-            self.show_warning(u'提示', u'请先选择资产与子类型')
+        # 先验证管理器和资产；避免仅 selected_subtype 非空时通过校验。
+        if not (self.pmgr and self.selected_asset):
+            self.show_warning(u'提示', u'请先选择资产')
             return
 
-        if self.pm and self.selected_asset and self.selected_subtype:
+        if self.selected_subtype:
             try:
-                path = self.pm.take_snapshot(self.current_asset_type, self.selected_asset, self.selected_subtype)
+                path = self.pmgr.take_snapshot(self.current_asset_type, self.selected_asset, self.selected_subtype)
                 if os.path.exists(path):
                     pix = QtGui.QPixmap(path)
                     if not pix.isNull():
@@ -1141,9 +1140,9 @@ class PYPenpipelineDialog(PyouPersistentWindow):
                     self.show_warning(u'失败', u'预览保存失败')
             except Exception as e:
                 self.show_warning(u'失败', u'截图过程中发生错误: {error}'.format(error=str(e)))
-        elif self.pm and self.selected_asset and not self.selected_subtype:
+        else:
             try:
-                path = self.pm.take_snapshot(self.current_asset_type, self.selected_asset)
+                path = self.pmgr.take_snapshot(self.current_asset_type, self.selected_asset)
                 if os.path.exists(path):
                     pix = QtGui.QPixmap(path)
                     if not pix.isNull():
@@ -1167,25 +1166,42 @@ class PYPenpipelineDialog(PyouPersistentWindow):
         self.clear_right()
         self.show_version_count(0)
 
+    def _refresh_action_state(self):
+        """根据当前选择层级统一刷新所有操作按钮的 enabled/visible。"""
+        has_project = bool(self.pmgr)
+        has_type    = bool(self.current_asset_type) and self.current_asset_type != u'暂无资产类型'
+        has_asset   = has_project and has_type and bool(self.selected_asset)
+        has_subtype = has_asset and bool(self.selected_subtype)
+
+        # 资产列
+        self.btn_create_asset.setEnabled(has_project and has_type)
+        self.btn_delete_asset.setEnabled(has_asset)
+        self.btn_delete_asset.setVisible(has_asset)
+        self.btn_snapshot.setEnabled(has_asset)          # 含 subtype 情况
+
+        # 子类型列
+        self.btn_add_sub.setEnabled(has_asset)
+        self.btn_del_sub.setEnabled(has_subtype)
+        self.btn_rename_sub.setEnabled(has_subtype)
+
+        # 版本列
+        self.btn_save_new_version.setEnabled(has_subtype)
+        self.btn_set_master.setEnabled(has_subtype)
+        self.btn_open_master.setEnabled(has_subtype)
+        self.btn_reference_master.setEnabled(has_subtype)
+    
     def clear_right(self):
         self.version_list.clear()
         self.notes_text.clear()
-        self.btn_save_new_version.setEnabled(False)
-        self.btn_set_master.setEnabled(False)
-        self.btn_open_master.setEnabled(False)
-        self.btn_reference_master.setEnabled(False)
-        self.btn_del_sub.setEnabled(False)
-        self.btn_rename_sub.setEnabled(False)
+        self._clear_note_highlight()          # 清高亮
         if not self.selected_asset:
-            self.btn_delete_asset.setEnabled(False)
-            self.btn_delete_asset.setVisible(False)
-            self.btn_snapshot.setEnabled(False)
             self.preview_label.clear()
             self.preview_label.setText('No Preview')
+        self._refresh_action_state()
 
     def closeEvent(self, event):
         self.saveWindowSettings()
-        super(PYPenpipelineDialog, self).closeEvent(event)
+        super(OpenPipeLineDialog, self).closeEvent(event)
 
 
 def main():
@@ -1196,7 +1212,7 @@ def main():
     except:
         pass
 
-    py_Penpipeline = PYPenpipelineDialog()
+    py_Penpipeline = OpenPipeLineDialog()
     py_Penpipeline.show()
     return py_Penpipeline
 

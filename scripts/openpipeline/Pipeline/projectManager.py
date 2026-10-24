@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import base64
 import json
 import os
 import re
@@ -86,11 +85,11 @@ class ProjectManager(object):
         os.rename(old_path, new_path)
         return True, u'子类型已重命名为 {}'.format(new_name)
 
-    def _get_subtype_dir(self, asset_type, asset_name, subtype_name):
+    def get_subtype_dir(self, asset_type, asset_name, subtype_name):
         return os.path.join(self.get_asset_dir(asset_type, asset_name), 'components', subtype_name)
 
     def get_workshop_versions(self, asset_type, asset_name, subtype_name):
-        workshop_dir = os.path.join(self._get_subtype_dir(asset_type, asset_name, subtype_name), 'workshop')
+        workshop_dir = os.path.join(self.get_subtype_dir(asset_type, asset_name, subtype_name), 'workshop')
         if not os.path.exists(workshop_dir):
             return []
         versions = []
@@ -104,7 +103,7 @@ class ProjectManager(object):
         versions = self.get_workshop_versions(asset_type, asset_name, subtype_name)
         if not versions:
             return None
-        workshop_dir = os.path.join(self._get_subtype_dir(asset_type, asset_name, subtype_name), 'workshop')
+        workshop_dir = os.path.join(self.get_subtype_dir(asset_type, asset_name, subtype_name), 'workshop')
         latest_path = None
         latest_time = None
         for version in versions:
@@ -143,7 +142,7 @@ class ProjectManager(object):
             return False
 
     def delete_note_entry(self, asset_type, asset_name, subtype_name, version_filename):
-        subtype_dir = self._get_subtype_dir(asset_type, asset_name, subtype_name)
+        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
         notes_data = self._load_notes_json(subtype_dir)
         if version_filename in notes_data:
             notes_data.pop(version_filename, None)
@@ -159,33 +158,80 @@ class ProjectManager(object):
             if key in metadata:
                 lines.append(u"{}: {}".format(key, metadata[key]))
         return u"\n".join(lines)
+    def _build_notes_text_and_blocks(self, notes_data):
+        """
+        根据 notes_data 构建完整 notes 文本，并记录每个版本组的字符区间。
+
+        返回:
+            (notes_text, blocks)
+            blocks: list[dict]
+                filename          : JSON key（版本文件名）
+                version           : JSON 里的 Version 值
+                version_line      : 'Version: 001'
+                version_char_start: Version 行起始字符位置（含）
+                version_char_end  : Version 行结束字符位置（不含）
+                group_char_start  : 整组起始字符位置
+                group_char_end    : 整组结束字符位置（不含）
+        """
+        ordered_files = sorted(notes_data.keys(), reverse=True)
+        entries = []
+        blocks = []
+        cursor = 0
+
+        for filename in ordered_files:
+            metadata = notes_data[filename]
+            entry_text = self._format_note_entry(filename, metadata)
+            if not entry_text:
+                continue
+
+            version_value = metadata.get('Version', '')
+            version_line = u'Version: {}'.format(version_value)
+
+            # 防御：确保 entry 第一行确实是 Version 行，否则该组不做定位
+            has_version_line = entry_text.startswith(version_line)
+
+            block = {
+                'filename': filename,
+                'version': version_value,
+                'version_line': version_line,
+                'version_char_start': cursor if has_version_line else -1,
+                'version_char_end': (cursor + len(version_line)) if has_version_line else -1,
+                'group_char_start': cursor,
+                'group_char_end': cursor + len(entry_text),
+            }
+            blocks.append(block)
+            entries.append(entry_text)
+            cursor = block['group_char_end'] + 2  # '\n\n'
+
+        return u"\n\n".join(entries), blocks
 
     def get_notes(self, asset_type, asset_name, subtype_name, version_filename=None):
-        subtype_dir = self._get_subtype_dir(asset_type, asset_name, subtype_name)
+        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
         if not os.path.exists(subtype_dir):
-            return ''
+            return '', None
 
         notes_data = self._load_notes_json(subtype_dir)
         if not notes_data:
-            return ''
+            return '', None
 
         if version_filename:
-            if version_filename in notes_data:
-                return self._format_note_entry(version_filename, notes_data[version_filename])
-            return ''
+            notes_text, blocks = self._build_notes_text_and_blocks(notes_data)
+            for block in blocks:
+                if block['filename'] == version_filename:
+                    if block['version_char_start'] < 0:
+                        return notes_text, None
+                    return notes_text, block
+            return notes_text, None
 
-        entries = []
-        for filename in sorted(notes_data.keys(),reverse=True):
-            entries.append(self._format_note_entry(filename, notes_data[filename]))
-        return u"\n\n".join(entries)
-
-    def write_note_info(self, task_dir, version_filename, info='', workshop=True):
-        if not task_dir or not version_filename:
+        notes_text, _ = self._build_notes_text_and_blocks(notes_data)
+        return notes_text, None
+    
+    def write_note_info(self, subtype_dir, version_filename, info='', workshop=True):
+        if not subtype_dir or not version_filename:
             return False
-        if not os.path.exists(task_dir):
-            os.makedirs(task_dir, exist_ok=True)
+        if not os.path.exists(subtype_dir):
+            os.makedirs(subtype_dir, exist_ok=True)
 
-        subtype_dir = task_dir
         notes_data = self._load_notes_json(subtype_dir)
         version_index = ''
         match = re.search(r'workshop_(\d{3})', version_filename, re.IGNORECASE)
@@ -210,7 +256,7 @@ class ProjectManager(object):
 
     def _get_next_version_index(self, asset_type, asset_name, subtype_name):
         workshop_dir = os.path.join(
-            self._get_subtype_dir(asset_type, asset_name, subtype_name),
+            self.get_subtype_dir(asset_type, asset_name, subtype_name),
             'workshop'
         )
         if not os.path.exists(workshop_dir):
@@ -231,37 +277,35 @@ class ProjectManager(object):
                     pass
         return highest + 1
 
-    def _get_version_filename_for_scene(self, asset_type, asset_name, subtype_name, notes=None):
+    def _get_version_filename_for_scene(self, asset_type, asset_name, subtype_name):
         index = self._get_next_version_index(asset_type, asset_name, subtype_name)
         return '{}_{}_workshop_{:03d}.ma'.format(
             asset_name, subtype_name, index
         )
 
     def save_version(self, asset_type, asset_name, subtype_name, notes=None):
-        subtype_dir = self._get_subtype_dir(asset_type, asset_name, subtype_name)
+        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
         workshop_dir = os.path.join(subtype_dir, 'workshop')
         self._ensure_dir(workshop_dir)
 
-        version_filename = self._get_version_filename_for_scene(asset_type, asset_name, subtype_name, notes)
+        version_filename = self._get_version_filename_for_scene(asset_type, asset_name, subtype_name)
         version_path = os.path.join(workshop_dir, version_filename)
         if cmds is not None:
             try:
                 cmds.file(rename=version_path)
                 cmds.file(save=True, type=self._get_scene_file_type(version_path))
-                if notes:
-                    self.write_note_info(subtype_dir, version_filename, notes, workshop=True)
+                self.write_note_info(subtype_dir, version_filename, notes, workshop=True)
                 return True
             except Exception:
                 pass
 
         with open(version_path, 'wb') as fh:
             fh.write(b'placeholder')
-        if notes:
-            self.write_note_info(subtype_dir, version_filename, notes, workshop=True)
+        self.write_note_info(subtype_dir, version_filename, notes, workshop=True)
         return True
 
     def save_master(self, asset_type, asset_name, subtype_name):
-        subtype_dir = self._get_subtype_dir(asset_type, asset_name, subtype_name)
+        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
         master_dir = os.path.join(subtype_dir, 'master')
         self._ensure_dir(master_dir)
 
@@ -278,13 +322,13 @@ class ProjectManager(object):
         return True
 
     def get_master_file(self, asset_type, asset_name, subtype_name):
-        master_path = os.path.join(self._get_subtype_dir(asset_type, asset_name, subtype_name), 'master', asset_name + '_' + subtype_name + '.ma')
+        master_path = os.path.join(self.get_subtype_dir(asset_type, asset_name, subtype_name), 'master', asset_name + '_' + subtype_name + '.ma')
         if os.path.exists(master_path):
             return master_path
         return None
 
     def set_master(self, asset_type, asset_name, subtype_name, version_filename):
-        subtype_dir = self._get_subtype_dir(asset_type, asset_name, subtype_name)
+        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
         workshop_dir = os.path.join(subtype_dir, 'workshop')
         source_path = os.path.join(workshop_dir, version_filename)
         if not os.path.exists(source_path):
@@ -297,7 +341,7 @@ class ProjectManager(object):
         asset_dir = self.get_asset_dir(asset_type, asset_name)
         self._ensure_dir(asset_dir)
         if subtype_name:
-            image_path = os.path.join(self._get_subtype_dir(asset_type, asset_name, subtype_name), 'preview.png')
+            image_path = os.path.join(self.get_subtype_dir(asset_type, asset_name, subtype_name), 'preview.png')
         else:
             image_path = os.path.join(asset_dir, 'preview.png')
 

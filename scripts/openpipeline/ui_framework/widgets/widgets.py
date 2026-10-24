@@ -53,9 +53,9 @@ class Widgets(object):
         return label
 
 
-class PyouPersistentWindow(QtWidgets.QWidget):
+class PersistentWindow(QtWidgets.QWidget):
     def __init__(self, app_name, window_name, parent=None):
-        super(PyouPersistentWindow, self).__init__(parent)
+        super(PersistentWindow, self).__init__(parent)
         self.app_name = app_name
         self.window_name = window_name
 
@@ -90,4 +90,4 @@ class PyouPersistentWindow(QtWidgets.QWidget):
             cmds.warning("saveWindowSettings failed: {}".format(e))
 
 
-__all__ = ['Widgets', 'PyouPersistentWindow']
+__all__ = ['Widgets', 'PersistentWindow']

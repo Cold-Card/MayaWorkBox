@@ -9,7 +9,7 @@ from ..asset_info import PROJECTS_XML
 
 
 def get_projects_xml_path(cfg):
-    root_path = cfg.get_project_root_path() if cfg else ''
+    root_path = cfg.get_work_path() if cfg else ''
     if not root_path:
         return ''
     return os.path.join(root_path, PROJECTS_XML)

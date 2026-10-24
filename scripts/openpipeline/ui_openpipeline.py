@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
-from datetime import datetime
-
 from .ui_framework.widgets.widgets import Widgets
 
 try:
@@ -31,28 +28,28 @@ def build_openpipeline_ui(main_window):
     main_layout.addLayout(main)
 
     root_row = QtWidgets.QHBoxLayout()
-    lbl_root = QtWidgets.QLabel(u'项目路径:')
+    lbl_root = QtWidgets.QLabel(u'工作路径:')
     #lbl_root.setStyleSheet("font: bold ; ")
     lbl_root.setFixedWidth(80)
     self.root_path_label = QtWidgets.QLabel(u'未设置')
     self.root_path_label.setStyleSheet(' color:#5285A6; font: bold; ')
-    self.root_path_label.setFixedWidth(320)
+    #self.root_path_label.setFixedWidth(320)
 
-    btn_set_root = QtWidgets.QPushButton(u' [设置项目路径] ')
+    btn_set_root = QtWidgets.QPushButton(u' [设置工作路径] ')
     btn_set_root.setProperty("primary", 'true')
     #btn_set_root.setStyleSheet("font: bold; {} color: black;".format(_widgets.button_bgc))
-    btn_set_root.clicked.connect(self.set_project_root_path)
+    btn_set_root.clicked.connect(self.set_work_path)
     btn_check_root = QtWidgets.QPushButton(u' [检查项目] ')
     btn_check_root.clicked.connect(self.check_projects_in_root)
     btn_check_config = QtWidgets.QPushButton(u' [检查配置] ')
     btn_check_config.clicked.connect(self.check_config)
 
-    root_row.addWidget(lbl_root)
-    root_row.addWidget(self.root_path_label)
-    root_row.addWidget(btn_set_root)
-    root_row.addWidget(btn_check_root)
-    root_row.addWidget(btn_check_config)
-    root_row.addStretch()
+    root_row.addWidget(lbl_root, 0)
+    root_row.addWidget(self.root_path_label, 3)
+    root_row.addWidget(btn_set_root, 1)
+    root_row.addWidget(btn_check_root, 1)
+    root_row.addWidget(btn_check_config, 1)
+    #root_row.addStretch()
     main.addLayout(root_row)
 
     prow = QtWidgets.QHBoxLayout()
@@ -60,25 +57,25 @@ def build_openpipeline_ui(main_window):
     #lbl.setStyleSheet("font: bold ; ")
     lbl.setFixedWidth(80)
     self.project_combo = QtWidgets.QComboBox()
-    self.project_combo.setFixedWidth(200)
+    #self.project_combo.setFixedWidth(200)
     self.project_combo.currentTextChanged.connect(self.on_project_changed)
     btn_new = QtWidgets.QPushButton(u' [新建] ')
     btn_new.setProperty("primary", 'true')
     #btn_new.setStyleSheet("font: bold; {} color: black;".format(_widgets.button_bgc))
     btn_new.clicked.connect(self.create_project_dialog)
-    btn_open = QtWidgets.QPushButton(u' [打开项目位置] ')
+    btn_open = QtWidgets.QPushButton(u' [选择项目] ')
     btn_open.clicked.connect(self.open_existing_project)
     btn_refresh = QtWidgets.QPushButton('')
     btn_refresh.setIcon(QtGui.QIcon(":refresh.png"))
     btn_refresh.setToolTip(u"刷新")
     btn_refresh.clicked.connect(self.load_projects)
 
-    prow.addWidget(lbl)
-    prow.addWidget(self.project_combo)
-    prow.addWidget(btn_new)
-    prow.addWidget(btn_open)
-    prow.addWidget(btn_refresh)
-    prow.addStretch()
+    prow.addWidget(lbl, 0)
+    prow.addWidget(self.project_combo, 3)
+    prow.addWidget(btn_new, 1)
+    prow.addWidget(btn_open, 1)
+    prow.addWidget(btn_refresh, 0)
+    #prow.addStretch()
     main.addLayout(prow)
 
     _widgets.separator(main, True)
@@ -163,7 +160,7 @@ def build_openpipeline_ui(main_window):
     self.info_label = QtWidgets.QLabel(u'未选择资产')
     self.info_label.setWordWrap(True)
     self.info_label.setAlignment(QtCore.Qt.AlignLeft)
-    self.info_label.setMaximumHeight(15)
+    self.info_label.setMaximumHeight(18)
     self.info_label.setStyleSheet('color:#FFD700; font: bold 12px;')
     subtype_layout.addWidget(self.info_label)
 
@@ -203,7 +200,6 @@ def build_openpipeline_ui(main_window):
     version_layout.setContentsMargins(4, 4, 4, 4)
 
     version_title_layout = QtWidgets.QHBoxLayout()
-    version_title_layout.addWidget(QtWidgets.QLabel(''))
     self.version_count_text = QtWidgets.QLabel('')
     self.version_count_text.setStyleSheet('color:#5285A6; font: bold 12px;')
     self.version_count_text.setWordWrap(True)
@@ -251,8 +247,8 @@ def build_openpipeline_ui(main_window):
     vsplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
     vsplitter.addWidget(subtype_frame)
     vsplitter.addWidget(version_frame)
-    subtype_frame.setMinimumHeight(155)
-    vsplitter.setSizes([155, 600])
+    subtype_frame.setMinimumHeight(157)
+    vsplitter.setSizes([157, 600])
     center_layout.addWidget(vsplitter)
     centerw.setMinimumWidth(150)
 
@@ -313,4 +309,3 @@ def build_openpipeline_ui(main_window):
 
     main_layout.setStretch(0, 1)
     main_layout.setStretch(1, 0)
-    main_layout.setStretch(2, 0)

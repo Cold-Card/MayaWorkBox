@@ -5,7 +5,7 @@ FBX导出设置对话框模块
 独立的非模态对话框，解决界面阻塞问题。
 """
 
-from .ui_framework.widgets.widgets import Widgets, PyouPersistentWindow
+from .ui_framework.widgets.widgets import Widgets, PersistentWindow
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
 except ImportError:

@@ -90,11 +90,11 @@ class PipelineContext(object):
         return self.ui.selected_subtype
 
     def validate_asset(self):
-        return bool(self.pm and self.asset_type)
+        return bool(self.pmgr and self.asset_type)
 
     def validate_subtype(self):
         return bool(
-            self.pm and
+            self.pmgr and
             self.asset_type and
             self.asset and
             self.subtype
@@ -105,7 +105,7 @@ class PathService(PipelineContext):
 
     def asset_dir(self, asset_name=None):
         asset_name = asset_name or self.asset
-        return self.pm.get_asset_dir(
+        return self.pmgr.get_asset_dir(
             self.asset_type,
             asset_name
         )
@@ -212,7 +212,7 @@ class VersionService(PathService):
         if not self.validate_subtype():
             return
 
-        versions = self.pm.get_workshop_versions(
+        versions = self.pmgr.get_workshop_versions(
             self.asset_type,
             self.asset,
             self.subtype
@@ -250,7 +250,7 @@ class VersionService(PathService):
 
     def is_master_version(self, version_filename):
         try:
-            master_path = self.pm.get_master_file(
+            master_path = self.pmgr.get_master_file(
                 self.asset_type,
                 self.asset,
                 self.subtype
@@ -321,7 +321,7 @@ class VersionService(PathService):
         # Remove stored notes metadata for this version.
         version_filename = os.path.basename(file_path)
         try:
-            self.pm.delete_note_entry(self.asset_type, self.asset, self.subtype, version_filename)
+            self.pmgr.delete_note_entry(self.asset_type, self.asset, self.subtype, version_filename)
         except Exception:
             pass
 
@@ -558,7 +558,7 @@ class FileOperationService(PathService):
 
     def open_master(self):
         return file_ops.open_master_file(
-            self.pm,
+            self.pmgr,
             self.asset_type,
             self.asset,
             self.subtype
@@ -566,7 +566,7 @@ class FileOperationService(PathService):
 
     def import_master(self, namespace=None):
         return file_ops.import_master_file(
-            self.pm,
+            self.pmgr,
             self.asset_type,
             self.asset,
             self.subtype,
@@ -579,7 +579,7 @@ class FileOperationService(PathService):
         若 namespace 为 None（默认），则无命名空间（使用 ":" 合并到根）。
         若指定 namespace，则使用该命名空间。
         """
-        mf = self.pm.get_master_file(
+        mf = self.pmgr.get_master_file(
             self.asset_type,
             self.asset,
             self.subtype
@@ -605,7 +605,7 @@ class FileOperationService(PathService):
 
     def set_master(self, version_name):
         return file_ops.set_master_from_version(
-            self.pm, self.asset_type, self.asset, self.subtype, version_name
+            self.pmgr, self.asset_type, self.asset, self.subtype, version_name
         )
 
     def write_note_info(self, subtype_name, version_filename, info="", workshop=True):
@@ -614,7 +614,7 @@ class FileOperationService(PathService):
             'components',
             subtype_name
         )
-        self.pm.write_note_info(task_dir, version_filename, info, workshop)
+        self.pmgr.write_note_info(task_dir, version_filename, info, workshop)
 
 
 class VersionContextMenu(PipelineContext):
