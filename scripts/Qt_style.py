@@ -147,13 +147,13 @@ def apply_style(widget):
         padding: 3px 3px;
     }
     /* ── 输入框 / 搜索框 ── */
-    QLineEdit, QTextEdit {
+    QLineEdit, QTextEdit, QPlainTextEdit{
         background-color: #272727;
         border: 1px solid #272727;
         border-radius: 3px;
         padding: 3px;
     }
-    QLineEdit:focus, QTextEdit:focus {
+    QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
         border: 2px solid #5285A6;
     }
     /* ── 列表控件 ── */

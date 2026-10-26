@@ -102,10 +102,10 @@ class FindConnectionUI(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(FindConnectionUI, self).__init__(parent or maya_main_window())
         self.setWindowTitle('查找连接节点')
-        self.setWindowFlags(
-            (self.windowFlags() | QtCore.Qt.WindowType.Window)
-            ^ QtCore.Qt.WindowType.WindowContextHelpButtonHint
-        )
+        self.setWindowFlags(QtCore.Qt.Window |
+            QtCore.Qt.WindowMinimizeButtonHint |
+            QtCore.Qt.WindowMaximizeButtonHint |
+            QtCore.Qt.WindowCloseButtonHint)
         try:
             Qt_style.apply_style(self)  # 应用优化后的样式表
         except Exception:
