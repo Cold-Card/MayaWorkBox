@@ -142,12 +142,12 @@ def save_scene_as(file_path):
 
 
 def save_workshop(file_path=None, notes=None,
-                  pm=None,
+                  pmgr=None,
                   asset_type=None,
                   asset=None,
                   subtype=None):
-    if pm and asset_type and asset and subtype:
-        return pm.save_version(
+    if pmgr and asset_type and asset and subtype:
+        return pmgr.save_version(
             asset_type,
             asset,
             subtype,
@@ -161,12 +161,12 @@ def save_workshop(file_path=None, notes=None,
 
 
 def save_master(file_path=None,
-                pm=None,
+                pmgr=None,
                 asset_type=None,
                 asset=None,
                 subtype=None):
-    if pm and asset_type and asset and subtype:
-        return pm.save_master(asset_type, asset, subtype)
+    if pmgr and asset_type and asset and subtype:
+        return pmgr.save_master(asset_type, asset, subtype)
 
     if not file_path:
         raise RuntimeError("file_path required")
@@ -174,12 +174,12 @@ def save_master(file_path=None,
     return save_scene_as(file_path)
 
 
-def set_master_from_version(pm, asset_type, asset, subtype, version_filename):
-    return pm.set_master(asset_type, asset, subtype, version_filename)
+def set_master_from_version(pmgr, asset_type, asset, subtype, version_filename):
+    return pmgr.set_master(asset_type, asset, subtype, version_filename)
 
 
-def _get_workshop_file(pm, asset_type, asset, subtype, version_filename):
-    asset_dir = pm.get_asset_dir(asset_type, asset)
+def _get_workshop_file(pmgr, asset_type, asset, subtype, version_filename):
+    asset_dir = pmgr.get_asset_dir(asset_type, asset)
     workshop_dir = os.path.join(
         asset_dir,
         "components",
@@ -196,17 +196,17 @@ def _get_workshop_file(pm, asset_type, asset, subtype, version_filename):
     return file_path
 
 
-def open_latest_or_selected_version(pm,
+def open_latest_or_selected_version(pmgr,
                                     asset_type,
                                     asset,
                                     subtype,
                                     version_filename=None):
     if version_filename:
         path = _get_workshop_file(
-            pm, asset_type, asset, subtype, version_filename
+            pmgr, asset_type, asset, subtype, version_filename
         )
     else:
-        path = pm.get_latest_workshop(
+        path = pmgr.get_latest_workshop(
             asset_type,
             asset,
             subtype
@@ -218,8 +218,8 @@ def open_latest_or_selected_version(pm,
     return open_file(path)
 
 
-def open_master_file(pm, asset_type, asset, subtype):
-    mf = pm.get_master_file(asset_type, asset, subtype)
+def open_master_file(pmgr, asset_type, asset, subtype):
+    mf = pmgr.get_master_file(asset_type, asset, subtype)
 
     if not mf or not os.path.exists(mf):
         raise FileNotFoundError("Master file not found")
@@ -227,8 +227,8 @@ def open_master_file(pm, asset_type, asset, subtype):
     return open_file(mf)
 
 
-def import_master_file(pm, asset_type, asset, subtype, namespace=None):
-    mf = pm.get_master_file(asset_type, asset, subtype)
+def import_master_file(pmgr, asset_type, asset, subtype, namespace=None):
+    mf = pmgr.get_master_file(asset_type, asset, subtype)
 
     if not mf:
         raise FileNotFoundError("Master file not found")
@@ -236,8 +236,8 @@ def import_master_file(pm, asset_type, asset, subtype, namespace=None):
     return import_file(mf, namespace=namespace)
 
 
-def reference_master_file(pm, asset_type, asset, subtype, namespace=None):
-    mf = pm.get_master_file(asset_type, asset, subtype)
+def reference_master_file(pmgr, asset_type, asset, subtype, namespace=None):
+    mf = pmgr.get_master_file(asset_type, asset, subtype)
 
     if not mf:
         raise FileNotFoundError("Master file not found")
@@ -245,5 +245,5 @@ def reference_master_file(pm, asset_type, asset, subtype, namespace=None):
     return reference_file(mf, namespace=namespace)
 
 
-def write_note_info(pm, task_dir, version_filename, info="", workshop=True):
-        pm.write_note_info(task_dir, version_filename, info, workshop=workshop)
+def write_note_info(pmgr, task_dir, version_filename, info="", workshop=True):
+        pmgr.write_note_info(task_dir, version_filename, info, workshop=workshop)

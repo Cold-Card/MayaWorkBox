@@ -6,7 +6,7 @@ class createSlideSystem():
         self.objs = pm.ls(sl=True)
         self.prefix = prefix
         self.ctrl = pm.PyNode(ctrl) if isinstance(ctrl, str) else ctrl
-        self.uValueNodePath = uValueNodePath.split(',') if isinstance(uValueNodePath, str) else uValueNodePath
+        self.uValueNodePath = uValueNodePath.split(',') if uValueNodePath else []
         self.uValueAttr = uValueAttr
         self.enable_stretch = stretch
         self.enable_slide = slide
@@ -15,6 +15,8 @@ class createSlideSystem():
         
     def getUValueNode(self,node,attrChain):
         uValueNode = node
+        if attrChain is None or len(attrChain) == 0:
+            return uValueNode
         for i, attr in enumerate(attrChain):
             try:
                 inputs = uValueNode.attr(attr).inputs()

@@ -74,8 +74,8 @@ class PipelineContext(object):
         self.ui = main_window
 
     @property
-    def pm(self):
-        return self.ui.pm
+    def pmgr(self):
+        return self.ui.pmgr
 
     @property
     def asset_type(self):

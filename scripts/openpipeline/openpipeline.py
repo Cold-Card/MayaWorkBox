@@ -267,42 +267,59 @@ class OpenPipeLineDialog(PersistentWindow):
             self.project_combo.addItem(name, path)
 
     def select_last_project(self):
-        last_project = (self.cfg.get_last_project() or '').replace('\\', '/').rstrip('/')
-        if not last_project:
-            return
+        last_project_path = self.cfg.get_last_project()
+        last_assetType = self.cfg.get_last_select_type()
+        last_asset = self.cfg.get_last_select_asset()
+        last_subtype = self.cfg.get_last_select_subtype()
 
-        idx = next(
-            (i for i in range(self.project_combo.count())
-            if (self.project_combo.itemData(i) or '').replace('\\', '/').rstrip('/') == last_project),
-            -1,
-        )
-        if idx < 0:
-            return
-        self.project_combo.setCurrentIndex(idx)
+        if last_project_path:
+            normalized_last_path = last_project_path.replace('\\', '/').rstrip('/')
+            print(u"尝试选择上次的项目: {}".format(normalized_last_path))
 
-        self._select_combo_text(self.type_combo,   self.cfg.get_last_select_type())
-        self._select_list_text(self.asset_list,    self.cfg.get_last_select_asset(),  self.on_asset_clicked)
-        self._select_list_text(self.subtype_list,  self.cfg.get_last_select_subtype(), self.on_subtype_clicked)
+            for i in range(self.project_combo.count()):
+                item_data = self.project_combo.itemData(i)
+                if item_data:
+                    normalized_item_data = item_data.replace('\\', '/').rstrip('/')
+                    if normalized_item_data == normalized_last_path:
+                        self.project_combo.setCurrentIndex(i)
+                        print(u"已自动选择上次的项目: {}".format(self.project_combo.itemText(i)))
+                        self._select_last_type_and_asset(last_assetType, last_asset, last_subtype)
+                        break
 
-    @staticmethod
-    def _select_combo_text(combo, text):
-        if not text:
-            return
-        i = combo.findText(text)
-        if i >= 0:
-            combo.setCurrentIndex(i)
+    def _select_last_type_and_asset(self, last_assetType, last_asset, last_subtype):
+        if last_assetType:
+            for t in range(self.type_combo.count()):
+                type_text = self.type_combo.itemText(t)
+                if type_text == last_assetType:
+                    self.type_combo.setCurrentIndex(t)
+                    print(u"已自动选择上次的项目类型: {}".format(last_assetType))
+                    self._select_last_asset(last_asset, last_subtype)
+                    break
 
-    @staticmethod
-    def _select_list_text(lst, text, on_select):
-        if not text:
-            return
-        for i in range(lst.count()):
-            item = lst.item(i)
-            if item and item.text() == text:
-                lst.setCurrentRow(i)
-                on_select(item)     # setCurrentRow 不发 itemClicked，手动调
-                return
+    def _select_last_asset(self, last_asset, last_subtype):
+        if last_asset:
+            for a in range(self.asset_list.count()):
+                item = self.asset_list.item(a)
+                if item and item.text() == last_asset:
+                    self.asset_list.setCurrentRow(a)
+                    self.selected_asset = last_asset
+                    self.on_asset_clicked(item)
+                    #self.load_subtypes()
+                    #self.show_asset_preview(self.current_asset_type, last_asset)
+                    print(u"已自动选择上次的项目资产: {}".format(last_asset))
+                    self._select_last_subtype(last_subtype)
+                    break
 
+    def _select_last_subtype(self, last_subtype):
+            if last_subtype:
+                for s in range(self.subtype_list.count()):
+                    item = self.subtype_list.item(s)
+                    if item and item.text() == last_subtype:
+                        self.subtype_list.setCurrentRow(s)
+                        self.selected_subtype = last_subtype
+                        self.on_subtype_clicked(item)
+                        print(u"已自动选择上次的子类型: {}".format(last_subtype))
+                        break
     def on_project_changed(self, text):
         if not text or text == '-- 选择项目 --' or text == u'请先设置工作路径' or text == u'没有找到项目':
             self.pmgr = None

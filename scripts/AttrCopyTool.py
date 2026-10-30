@@ -93,10 +93,10 @@ def _box_attrs():
 
 
 def _resolve(node, attr):
-    if cmds.attributeQuery(attr, node=node, exists=True):
+    if cmds.objExists('{}.{}'.format(node, attr)):
         return node
     for s in cmds.listRelatives(node, shapes=True) or []:
-        if cmds.attributeQuery(attr, node=s, exists=True):
+        if cmds.objExists('{}.{}'.format(s, attr)):
             return s
     return None
 
