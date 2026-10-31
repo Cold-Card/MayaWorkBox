@@ -6,14 +6,10 @@ import re
 import shutil
 import time
 
-try:
-    import maya.cmds as cmds
-except ImportError:  # pragma: no cover
-    cmds = None
+import maya.cmds as cmds
 
 
 class ProjectManager(object):
-    """管理单个项目下的资产、子类型和版本文件。"""
 
     def __init__(self, project_root, project_name, library_folder='lib'):
         self.project_root = project_root.replace('\\', '/') if project_root else ''
@@ -53,43 +49,43 @@ class ProjectManager(object):
         self._ensure_dir(os.path.join(asset_dir, 'components'))
         return True
 
-    def list_subtypes(self, asset_type, asset_name):
+    def list_tasks(self, asset_type, asset_name):
         asset_dir = self.get_asset_dir(asset_type, asset_name)
-        subtype_dir = os.path.join(asset_dir, 'components')
-        if not os.path.exists(subtype_dir):
+        task_dir = os.path.join(asset_dir, 'components')
+        if not os.path.exists(task_dir):
             return []
-        subtypes = []
-        for name in sorted(os.listdir(subtype_dir),reverse=True):
-            path = os.path.join(subtype_dir, name)
+        tasks = []
+        for name in sorted(os.listdir(task_dir),reverse=True):
+            path = os.path.join(task_dir, name)
             if os.path.isdir(path):
-                subtypes.append(name)
-        return subtypes
+                tasks.append(name)
+        return tasks
 
-    def create_subtype(self, asset_type, asset_name, subtype_name):
+    def create_task(self, asset_type, asset_name, task_name):
         asset_dir = self.get_asset_dir(asset_type, asset_name)
-        subtype_path = os.path.join(asset_dir, 'components', subtype_name)
-        if os.path.exists(subtype_path):
+        task_path = os.path.join(asset_dir, 'components', task_name)
+        if os.path.exists(task_path):
             return False
-        self._ensure_dir(os.path.dirname(subtype_path))
-        self._ensure_dir(subtype_path)
-        self._ensure_dir(os.path.join(subtype_path, 'master'))
-        self._ensure_dir(os.path.join(subtype_path, 'notes'))
-        self._ensure_dir(os.path.join(subtype_path, 'workshop'))
+        self._ensure_dir(os.path.dirname(task_path))
+        self._ensure_dir(task_path)
+        self._ensure_dir(os.path.join(task_path, 'master'))
+        self._ensure_dir(os.path.join(task_path, 'notes'))
+        self._ensure_dir(os.path.join(task_path, 'workshop'))
         return True
 
-    def rename_subtype(self, asset_type, asset_name, subtype_name, new_name):
-        old_path = os.path.join(self.get_asset_dir(asset_type, asset_name), 'components', subtype_name)
+    def rename_task(self, asset_type, asset_name, task_name, new_name):
+        old_path = os.path.join(self.get_asset_dir(asset_type, asset_name), 'components', task_name)
         new_path = os.path.join(self.get_asset_dir(asset_type, asset_name), 'components', new_name)
         if not os.path.exists(old_path) or os.path.exists(new_path):
             return False, u'子类型不存在或新名称已存在'
         os.rename(old_path, new_path)
         return True, u'子类型已重命名为 {}'.format(new_name)
 
-    def get_subtype_dir(self, asset_type, asset_name, subtype_name):
-        return os.path.join(self.get_asset_dir(asset_type, asset_name), 'components', subtype_name)
+    def get_task_dir(self, asset_type, asset_name, task_name):
+        return os.path.join(self.get_asset_dir(asset_type, asset_name), 'components', task_name)
 
-    def get_workshop_versions(self, asset_type, asset_name, subtype_name):
-        workshop_dir = os.path.join(self.get_subtype_dir(asset_type, asset_name, subtype_name), 'workshop')
+    def get_workshop_versions(self, asset_type, asset_name, task_name):
+        workshop_dir = os.path.join(self.get_task_dir(asset_type, asset_name, task_name), 'workshop')
         if not os.path.exists(workshop_dir):
             return []
         versions = []
@@ -99,11 +95,11 @@ class ProjectManager(object):
                 versions.append(name)
         return versions
 
-    def get_latest_workshop(self, asset_type, asset_name, subtype_name):
-        versions = self.get_workshop_versions(asset_type, asset_name, subtype_name)
+    def get_latest_workshop(self, asset_type, asset_name, task_name):
+        versions = self.get_workshop_versions(asset_type, asset_name, task_name)
         if not versions:
             return None
-        workshop_dir = os.path.join(self.get_subtype_dir(asset_type, asset_name, subtype_name), 'workshop')
+        workshop_dir = os.path.join(self.get_task_dir(asset_type, asset_name, task_name), 'workshop')
         latest_path = None
         latest_time = None
         for version in versions:
@@ -116,14 +112,14 @@ class ProjectManager(object):
                 latest_path = path
         return latest_path
 
-    def _get_notes_json_path(self, subtype_dir):
-        notes_dir = os.path.join(subtype_dir, 'notes')
+    def _get_notes_json_path(self, task_dir):
+        notes_dir = os.path.join(task_dir, 'notes')
         if not os.path.exists(notes_dir):
             os.makedirs(notes_dir, exist_ok=True)
         return os.path.join(notes_dir, 'notes.json')
 
-    def _load_notes_json(self, subtype_dir):
-        note_json = self._get_notes_json_path(subtype_dir)
+    def _load_notes_json(self, task_dir):
+        note_json = self._get_notes_json_path(task_dir)
         if os.path.exists(note_json):
             try:
                 with open(note_json, 'r', encoding='utf-8') as fh:
@@ -132,8 +128,8 @@ class ProjectManager(object):
                 return {}
         return {}
 
-    def _save_notes_json(self, subtype_dir, data):
-        note_json = self._get_notes_json_path(subtype_dir)
+    def _save_notes_json(self, task_dir, data):
+        note_json = self._get_notes_json_path(task_dir)
         try:
             with open(note_json, 'w', encoding='utf-8') as fh:
                 json.dump(data, fh, ensure_ascii=False, indent=4)
@@ -141,12 +137,12 @@ class ProjectManager(object):
         except Exception:
             return False
 
-    def delete_note_entry(self, asset_type, asset_name, subtype_name, version_filename):
-        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
-        notes_data = self._load_notes_json(subtype_dir)
+    def delete_note_entry(self, asset_type, asset_name, task_name, version_filename):
+        task_dir = self.get_task_dir(asset_type, asset_name, task_name)
+        notes_data = self._load_notes_json(task_dir)
         if version_filename in notes_data:
             notes_data.pop(version_filename, None)
-            return self._save_notes_json(subtype_dir, notes_data)
+            return self._save_notes_json(task_dir, notes_data)
         return False
 
     def _format_note_entry(self, filename, metadata):
@@ -205,12 +201,12 @@ class ProjectManager(object):
 
         return u"\n\n".join(entries), blocks
 
-    def get_notes(self, asset_type, asset_name, subtype_name, version_filename=None):
-        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
-        if not os.path.exists(subtype_dir):
+    def get_notes(self, asset_type, asset_name, task_name, version_filename=None):
+        task_dir = self.get_task_dir(asset_type, asset_name, task_name)
+        if not os.path.exists(task_dir):
             return '', None
 
-        notes_data = self._load_notes_json(subtype_dir)
+        notes_data = self._load_notes_json(task_dir)
         if not notes_data:
             return '', None
 
@@ -226,13 +222,13 @@ class ProjectManager(object):
         notes_text, _ = self._build_notes_text_and_blocks(notes_data)
         return notes_text, None
     
-    def write_note_info(self, subtype_dir, version_filename, info='', workshop=True):
-        if not subtype_dir or not version_filename:
+    def write_note_info(self, task_dir, version_filename, info='', workshop=True):
+        if not task_dir or not version_filename:
             return False
-        if not os.path.exists(subtype_dir):
-            os.makedirs(subtype_dir, exist_ok=True)
+        if not os.path.exists(task_dir):
+            os.makedirs(task_dir, exist_ok=True)
 
-        notes_data = self._load_notes_json(subtype_dir)
+        notes_data = self._load_notes_json(task_dir)
         version_index = ''
         match = re.search(r'workshop_(\d{3})', version_filename, re.IGNORECASE)
         if match:
@@ -246,7 +242,7 @@ class ProjectManager(object):
         }
 
         notes_data[version_filename] = metadata
-        return self._save_notes_json(subtype_dir, notes_data)
+        return self._save_notes_json(task_dir, notes_data)
 
     def _get_scene_file_type(self, file_path):
         ext = os.path.splitext(file_path)[1].lower()
@@ -254,9 +250,9 @@ class ProjectManager(object):
             return 'mayaBinary'
         return 'mayaAscii'
 
-    def _get_next_version_index(self, asset_type, asset_name, subtype_name):
+    def _get_next_version_index(self, asset_type, asset_name, task_name):
         workshop_dir = os.path.join(
-            self.get_subtype_dir(asset_type, asset_name, subtype_name),
+            self.get_task_dir(asset_type, asset_name, task_name),
             'workshop'
         )
         if not os.path.exists(workshop_dir):
@@ -264,7 +260,7 @@ class ProjectManager(object):
 
         highest = 0
         pattern = re.compile(r'^{}_{}_workshop_(\d{{3}})\.ma$'.format(
-            re.escape(asset_name), re.escape(subtype_name)
+            re.escape(asset_name), re.escape(task_name)
         ), re.IGNORECASE)
         for filename in os.listdir(workshop_dir):
             match = pattern.match(filename)
@@ -277,39 +273,39 @@ class ProjectManager(object):
                     pass
         return highest + 1
 
-    def _get_version_filename_for_scene(self, asset_type, asset_name, subtype_name):
-        index = self._get_next_version_index(asset_type, asset_name, subtype_name)
+    def _get_version_filename_for_scene(self, asset_type, asset_name, task_name):
+        index = self._get_next_version_index(asset_type, asset_name, task_name)
         return '{}_{}_workshop_{:03d}.ma'.format(
-            asset_name, subtype_name, index
+            asset_name, task_name, index
         )
 
-    def save_version(self, asset_type, asset_name, subtype_name, notes=None):
-        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
-        workshop_dir = os.path.join(subtype_dir, 'workshop')
+    def save_version(self, asset_type, asset_name, task_name, notes=None):
+        task_dir = self.get_task_dir(asset_type, asset_name, task_name)
+        workshop_dir = os.path.join(task_dir, 'workshop')
         self._ensure_dir(workshop_dir)
 
-        version_filename = self._get_version_filename_for_scene(asset_type, asset_name, subtype_name)
+        version_filename = self._get_version_filename_for_scene(asset_type, asset_name, task_name)
         version_path = os.path.join(workshop_dir, version_filename)
         if cmds is not None:
             try:
                 cmds.file(rename=version_path)
                 cmds.file(save=True, type=self._get_scene_file_type(version_path))
-                self.write_note_info(subtype_dir, version_filename, notes, workshop=True)
+                self.write_note_info(task_dir, version_filename, notes, workshop=True)
                 return True
             except Exception:
                 pass
 
         with open(version_path, 'wb') as fh:
             fh.write(b'placeholder')
-        self.write_note_info(subtype_dir, version_filename, notes, workshop=True)
+        self.write_note_info(task_dir, version_filename, notes, workshop=True)
         return True
 
-    def save_master(self, asset_type, asset_name, subtype_name):
-        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
-        master_dir = os.path.join(subtype_dir, 'master')
+    def save_master(self, asset_type, asset_name, task_name):
+        task_dir = self.get_task_dir(asset_type, asset_name, task_name)
+        master_dir = os.path.join(task_dir, 'master')
         self._ensure_dir(master_dir)
 
-        master_path = os.path.join(master_dir, asset_name + '_' + subtype_name + '.ma')
+        master_path = os.path.join(master_dir, asset_name + '_' + task_name + '.ma')
         if cmds is not None:
             try:
                 cmds.file(rename=master_path)
@@ -321,27 +317,27 @@ class ProjectManager(object):
             fh.write(b'placeholder')
         return True
 
-    def get_master_file(self, asset_type, asset_name, subtype_name):
-        master_path = os.path.join(self.get_subtype_dir(asset_type, asset_name, subtype_name), 'master', asset_name + '_' + subtype_name + '.ma')
+    def get_master_file(self, asset_type, asset_name, task_name):
+        master_path = os.path.join(self.get_task_dir(asset_type, asset_name, task_name), 'master', asset_name + '_' + task_name + '.ma')
         if os.path.exists(master_path):
             return master_path
         return None
 
-    def set_master(self, asset_type, asset_name, subtype_name, version_filename):
-        subtype_dir = self.get_subtype_dir(asset_type, asset_name, subtype_name)
-        workshop_dir = os.path.join(subtype_dir, 'workshop')
+    def set_master(self, asset_type, asset_name, task_name, version_filename):
+        task_dir = self.get_task_dir(asset_type, asset_name, task_name)
+        workshop_dir = os.path.join(task_dir, 'workshop')
         source_path = os.path.join(workshop_dir, version_filename)
         if not os.path.exists(source_path):
             return False
-        master_path = os.path.join(subtype_dir, 'master', asset_name + '_' + subtype_name + '.ma')
+        master_path = os.path.join(task_dir, 'master', asset_name + '_' + task_name + '.ma')
         shutil.copy2(source_path, master_path)
         return True
 
-    def take_snapshot(self, asset_type, asset_name, subtype_name=None):
+    def take_snapshot(self, asset_type, asset_name, task_name=None):
         asset_dir = self.get_asset_dir(asset_type, asset_name)
         self._ensure_dir(asset_dir)
-        if subtype_name:
-            image_path = os.path.join(self.get_subtype_dir(asset_type, asset_name, subtype_name), 'preview.png')
+        if task_name:
+            image_path = os.path.join(self.get_task_dir(asset_type, asset_name, task_name), 'preview.png')
         else:
             image_path = os.path.join(asset_dir, 'preview.png')
 

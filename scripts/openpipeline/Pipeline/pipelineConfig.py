@@ -5,7 +5,6 @@ import os
 
 
 class OpenPipelineConfig(object):
-    """轻量级配置管理器，兼容现有 UI 代码的调用方式。"""
 
     def __init__(self, config_file=None):
         self.config = {}
@@ -23,13 +22,11 @@ class OpenPipelineConfig(object):
     def _ensure_defaults(self):
         self.config.setdefault('work_path', '')
         self.config.setdefault('projects', [])
-        self.config.setdefault('asset_types', [])
         self.config.setdefault('library_folder', 'lib')
         self.config.setdefault('last_project', '')
         self.config.setdefault('last_assetType', '')
         self.config.setdefault('last_asset', '')
-        self.config.setdefault('last_subtype', '')
-        self.config.setdefault('fbx_export', ['Geo_grp', 'root_jnt'])
+        self.config.setdefault('last_task', '')
         return self.config
 
     def load(self):
@@ -85,11 +82,11 @@ class OpenPipelineConfig(object):
         self.config['last_asset'] = asset_name
         return self.save()
 
-    def get_last_select_subtype(self):
-        return self.config.get('last_subtype', '')
+    def get_last_select_task(self):
+        return self.config.get('last_task', '')
 
-    def set_last_select_subtype(self, subtype_name):
-        self.config['last_subtype'] = subtype_name
+    def set_last_select_task(self, task_name):
+        self.config['last_task'] = task_name
         return self.save()
 
     def get_projects(self):
@@ -111,16 +108,6 @@ class OpenPipelineConfig(object):
 
     def set_library_folder(self, folder_name):
         self.config['library_folder'] = folder_name or 'lib'
-        return self.save()
-
-    def get_fbx_export_info(self):
-        value = self.config.get('fbx_export', ['Geo_grp', 'root_jnt'])
-        if not isinstance(value, list):
-            value = [str(value)]
-        return value
-
-    def set_fbx_export_info(self, fbx_export):
-        self.config['fbx_export'] = list(fbx_export or ['Geo_grp', 'root_jnt'])
         return self.save()
 
 

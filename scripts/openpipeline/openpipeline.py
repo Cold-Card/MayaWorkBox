@@ -5,14 +5,9 @@ import json
 import shutil
 import xml.etree.ElementTree as ET
 
-try:
-    import maya.cmds as cmds
-    IN_MAYA = True
-except ImportError:
-    cmds = None
-    IN_MAYA = False
+import maya.cmds as cmds
 
-from .version_context import (show_asset_context_menu, show_subtype_context_menu, show_version_context_menu)
+from .version_context import (show_asset_context_menu, show_task_context_menu, show_version_context_menu)
 from .version import VERSION, TIMESTAMP
 from .asset_info import PROJECTS_XML
 from .ui_openpipeline import build_openpipeline_ui
@@ -54,12 +49,10 @@ class OpenPipeLineDialog(PersistentWindow):
         self.current_project_name = u''
         self.current_asset_type = u''
         self.selected_asset = None
-        self.selected_subtype = None
+        self.selected_task = None
         self.new_proj_name = None
         self.new_proj_path = None
         self.new_asset_name = None
-        self.fbx_config = None
-        self._fbx_dialog = None
 
         self.setWindowTitle(self.WINDOW_NAME)
         self.loadWindowSettings()
@@ -68,7 +61,6 @@ class OpenPipeLineDialog(PersistentWindow):
         self.update_root_path_label()
         self.load_projects()
         self.select_last_project()
-        self.load_fbx_config()
 
     def show_info(self, title, message):
         QtWidgets.QMessageBox.information(self, title, message)
@@ -96,8 +88,8 @@ class OpenPipeLineDialog(PersistentWindow):
     def show_asset_context_menu(self, position):
         show_asset_context_menu(self, position)
 
-    def show_subtype_context_menu(self, position):
-        show_subtype_context_menu(self, position)
+    def show_task_context_menu(self, position):
+        show_task_context_menu(self, position)
 
     def show_version_context_menu(self, position):
         show_version_context_menu(self, position)
@@ -136,50 +128,6 @@ class OpenPipeLineDialog(PersistentWindow):
             self.show_info(u'配置检查', message)
         except Exception as e:
             self.show_warning(u'错误', u"检查配置时出错: {}".format(str(e)))
-
-    #FBX配置管理
-    def load_fbx_config(self):
-        try:
-            self.fbx_config = self.cfg.get_fbx_export_info()
-            if not self.fbx_config:
-                self.fbx_config = ['Geo_grp', 'root_jnt']
-                self.save_fbx_config(self.fbx_config)
-        except Exception as e:
-            print(u"加载FBX配置失败: {}".format(str(e)))
-
-    def save_fbx_config(self, fbx_export):
-        try:
-            self.cfg.set_fbx_export_info(fbx_export)
-        except Exception as e:
-            print(u"保存FBX配置失败: {}".format(str(e)))
-
-    def set_fbx_export_objects(self):
-        from openpipeline.fbx_dialog import FBXExportDialog
-
-        if hasattr(self, '_fbx_dialog') and self._fbx_dialog:
-            self._fbx_dialog.raise_()
-            self._fbx_dialog.activateWindow()
-            return
-
-        dialog = FBXExportDialog(parent=self, fbx_config=self.fbx_config)
-        dialog.setWindowFlags(QtCore.Qt.Window)
-        self._fbx_dialog = dialog
-
-        dialog.accepted.connect(lambda: self._on_fbx_dialog_accepted(dialog))
-        dialog.rejected.connect(lambda: setattr(self, '_fbx_dialog', None))
-        dialog.finished.connect(lambda: setattr(self, '_fbx_dialog', None))
-
-        dialog.show()
-
-    def _on_fbx_dialog_accepted(self, dialog):
-        new_settings = dialog.get_settings()
-        if new_settings[0] and new_settings[1]:
-            self.fbx_config = new_settings
-            self.save_fbx_config(self.fbx_config)
-            self.show_info(u'成功',
-                           u'FBX导出设置已保存:\n\n几何体组: {}\n根关节: {}'.format(
-                               new_settings[0], new_settings[1]))
-        self._fbx_dialog = None
 
     def set_work_path(self):
         current_root = self.cfg.get_work_path()
@@ -267,59 +215,62 @@ class OpenPipeLineDialog(PersistentWindow):
             self.project_combo.addItem(name, path)
 
     def select_last_project(self):
-        last_project_path = self.cfg.get_last_project()
-        last_assetType = self.cfg.get_last_select_type()
-        last_asset = self.cfg.get_last_select_asset()
-        last_subtype = self.cfg.get_last_select_subtype()
+        last_project = (self.cfg.get_last_project() or '').replace('\\', '/').rstrip('/')
+        last_type    = self.cfg.get_last_select_type()
+        last_asset   = self.cfg.get_last_select_asset()
+        last_task = self.cfg.get_last_select_task()
 
-        if last_project_path:
-            normalized_last_path = last_project_path.replace('\\', '/').rstrip('/')
-            print(u"尝试选择上次的项目: {}".format(normalized_last_path))
+        if not last_project:
+            print(u"没有上次选择的项目记录")
+            return
+        print(u"尝试选择上次的项目: {}".format(last_project))
+        idx = next(
+            (i for i in range(self.project_combo.count())
+            if (self.project_combo.itemData(i) or '').replace('\\', '/').rstrip('/') == last_project),
+            -1,
+        )
+        if idx < 0:
+            return
+        self.project_combo.setCurrentIndex(idx)
 
-            for i in range(self.project_combo.count()):
-                item_data = self.project_combo.itemData(i)
-                if item_data:
-                    normalized_item_data = item_data.replace('\\', '/').rstrip('/')
-                    if normalized_item_data == normalized_last_path:
-                        self.project_combo.setCurrentIndex(i)
-                        print(u"已自动选择上次的项目: {}".format(self.project_combo.itemText(i)))
-                        self._select_last_type_and_asset(last_assetType, last_asset, last_subtype)
-                        break
-
-    def _select_last_type_and_asset(self, last_assetType, last_asset, last_subtype):
-        if last_assetType:
-            for t in range(self.type_combo.count()):
-                type_text = self.type_combo.itemText(t)
-                if type_text == last_assetType:
-                    self.type_combo.setCurrentIndex(t)
-                    print(u"已自动选择上次的项目类型: {}".format(last_assetType))
-                    self._select_last_asset(last_asset, last_subtype)
-                    break
-
-    def _select_last_asset(self, last_asset, last_subtype):
+        if last_type:
+            if self._select_combo_text(self.type_combo, last_type):
+                print(u"已自动选择上次的项目类型: {}".format(last_type))
+            else:
+                print(u"未在类型列表中找到上次的项目类型: {}".format(last_type))
         if last_asset:
-            for a in range(self.asset_list.count()):
-                item = self.asset_list.item(a)
-                if item and item.text() == last_asset:
-                    self.asset_list.setCurrentRow(a)
-                    self.selected_asset = last_asset
-                    self.on_asset_clicked(item)
-                    #self.load_subtypes()
-                    #self.show_asset_preview(self.current_asset_type, last_asset)
-                    print(u"已自动选择上次的项目资产: {}".format(last_asset))
-                    self._select_last_subtype(last_subtype)
-                    break
+            if self._select_list_text(self.asset_list, last_asset, self.on_asset_clicked):
+                print(u"已自动选择上次的项目资产: {}".format(last_asset))
+            else:
+                print(u"未在资产列表中找到上次的项目资产: {}".format(last_asset))
+        if last_task:
+            if self._select_list_text(self.task_list, last_task, self.on_task_clicked):
+                print(u"已自动选择上次的子类型: {}".format(last_task))
+            else:
+                print(u"未在子类型列表中找到上次的子类型: {}".format(last_task))
 
-    def _select_last_subtype(self, last_subtype):
-            if last_subtype:
-                for s in range(self.subtype_list.count()):
-                    item = self.subtype_list.item(s)
-                    if item and item.text() == last_subtype:
-                        self.subtype_list.setCurrentRow(s)
-                        self.selected_subtype = last_subtype
-                        self.on_subtype_clicked(item)
-                        print(u"已自动选择上次的子类型: {}".format(last_subtype))
-                        break
+    @staticmethod
+    def _select_combo_text(combo, text):
+        if not text:
+            return False
+        i = combo.findText(text)
+        if i >= 0:
+            combo.setCurrentIndex(i)
+            return True
+        return False
+
+    @staticmethod
+    def _select_list_text(lst, text, on_select):
+        if not text:
+            return False
+        for i in range(lst.count()):
+            item = lst.item(i)
+            if item and item.text() == text:
+                lst.setCurrentRow(i)
+                on_select(item)
+                return True
+        return False
+        
     def on_project_changed(self, text):
         if not text or text == '-- 选择项目 --' or text == u'请先设置工作路径' or text == u'没有找到项目':
             self.pmgr = None
@@ -327,9 +278,9 @@ class OpenPipeLineDialog(PersistentWindow):
             self.current_project_name = ''
             self.current_asset_type = ''          # 防御：显式清空
             self.selected_asset = None
-            self.selected_subtype = None
+            self.selected_task = None
             self.asset_list.clear()
-            self.subtype_list.clear()
+            self.task_list.clear()
             self.type_combo.clear()               # 触发 on_asset_type_changed → clear_right → refresh
             self.clear_right()                    # refresh
             return
@@ -341,6 +292,9 @@ class OpenPipeLineDialog(PersistentWindow):
                 self.current_project_path = normalized_path
                 self.current_project_name = text
                 self.cfg.set_last_project(normalized_path)
+                self.cfg.set_last_select_type(None)
+                self.cfg.set_last_select_asset(None)
+                self.cfg.set_last_select_task(None)
                 lib = self.get_library_folder_from_xml(text)
                 self.pmgr = ProjectManager(normalized_path, text, lib)
                 self.update_asset_type_combo()
@@ -594,7 +548,7 @@ class OpenPipeLineDialog(PersistentWindow):
                 shutil.rmtree(type_path)
                 self.update_asset_type_combo()
                 self.asset_list.clear()
-                self.subtype_list.clear()
+                self.task_list.clear()
                 self.clear_right()
                 self.load_assets()
                 self.show_info(u'成功',
@@ -604,9 +558,9 @@ class OpenPipeLineDialog(PersistentWindow):
 
     def load_assets(self):
         self.selected_asset = None
-        self.selected_subtype = None
+        self.selected_task = None
         self.asset_list.clear()
-        self.subtype_list.clear()
+        self.task_list.clear()
         self.info_label.setText(u'未选择资产')
         self.clear_right()
         self.show_version_count(0)
@@ -620,19 +574,21 @@ class OpenPipeLineDialog(PersistentWindow):
         if not text or text == u'暂无资产类型':
             self.current_asset_type = ''
             self.selected_asset = None
-            self.selected_subtype = None
+            self.selected_task = None
             self.asset_list.clear()
-            self.subtype_list.clear()
+            self.task_list.clear()
             self.info_label.setText(u'未选择资产')
             self.clear_right()
             return
 
         self.current_asset_type = text
         self.selected_asset = None
-        self.selected_subtype = None
+        self.selected_task = None
         self.info_label.setText(u'未选择资产')
         self.load_assets()
         self.cfg.set_last_select_type(self.current_asset_type)
+        self.cfg.set_last_select_asset(None)
+        self.cfg.set_last_select_task(None)
 
     def filter_assets(self, text):
         for i in range(self.asset_list.count()):
@@ -732,7 +688,7 @@ class OpenPipeLineDialog(PersistentWindow):
                     self.load_assets()
                     self.clear_right()
                     self.selected_asset = None
-                    self.selected_subtype = None
+                    self.selected_task = None
                     self.info_label.setText(u'未选择资产')
                 else:
                     self.show_warning(u'删除失败', message)
@@ -772,44 +728,44 @@ class OpenPipeLineDialog(PersistentWindow):
     def show_asset_preview(self, asset_type, asset):
         self._show_preview_from_dir(self.pmgr.get_asset_dir(asset_type, asset))
 
-    def show_subtype_preview(self, asset_type, asset, subtype):
-        self._show_preview_from_dir(self.pmgr.get_subtype_dir(asset_type, asset, subtype))
+    def show_task_preview(self, asset_type, asset, task):
+        self._show_preview_from_dir(self.pmgr.get_task_dir(asset_type, asset, task))
 
     def on_asset_clicked(self, item):
         self.selected_asset = item.text()
-        self.selected_subtype = None
+        self.selected_task = None
         self.info_label.setText(u'资产: {asset}'.format(asset=self.selected_asset))
-        self.load_subtypes()
+        self.load_tasks()
         self.show_asset_preview(self.current_asset_type, self.selected_asset)
         self.clear_right()
         self.show_version_count(0)
         self.cfg.set_last_select_asset(self.selected_asset)
-        self.cfg.set_last_select_subtype('')
+        self.cfg.set_last_select_task(None)
 
-    def load_subtypes(self):
-        self.subtype_list.clear()
+    def load_tasks(self):
+        self.task_list.clear()
         if not (self.pmgr and self.selected_asset):
             return
-        subs = self.pmgr.list_subtypes(self.current_asset_type, self.selected_asset)
-        self.subtype_list.addItems(subs)
+        subs = self.pmgr.list_tasks(self.current_asset_type, self.selected_asset)
+        self.task_list.addItems(subs)
 
-    def add_subtype_dialog(self):
+    def add_task_dialog(self):
         if not (self.pmgr and self.selected_asset):
             self.show_warning(u'提示', u'请先选择资产')
             return
         text, ok = QtWidgets.QInputDialog.getText(self, u'添加子类型', u'输入子类型名称:')
         if ok and text.strip():
-            if self.pmgr.create_subtype(self.current_asset_type, self.selected_asset, text.strip()):
+            if self.pmgr.create_task(self.current_asset_type, self.selected_asset, text.strip()):
                 #self.show_info(u'成功', u'子类型创建成功')
-                self.load_subtypes()
-                item_list = self.subtype_list.findItems(text.strip(), QtCore.Qt.MatchExactly)
+                self.load_tasks()
+                item_list = self.task_list.findItems(text.strip(), QtCore.Qt.MatchExactly)
                 if item_list:
-                    self.subtype_list.setCurrentItem(item_list[0])
-                    self.on_subtype_clicked(item_list[0])
+                    self.task_list.setCurrentItem(item_list[0])
+                    self.on_task_clicked(item_list[0])
             else:
                 self.show_warning(u'失败', u'创建失败或已存在')
 
-    def delete_subtype(self):
+    def delete_task(self):
         if not (self.pmgr and self.selected_asset):
             self.show_warning(u'提示', u'请先选择资产')
             return
@@ -824,8 +780,8 @@ class OpenPipeLineDialog(PersistentWindow):
                     try:
                         shutil.rmtree(p)
                         self.show_info(u'已删除', u'{text} 已删除'.format(text=text))
-                        self.selected_subtype = None
-                        self.load_subtypes()
+                        self.selected_task = None
+                        self.load_tasks()
                         self.clear_right()
                         self.show_version_count(0)
                         self.info_label.setText(u'资产: {}'.format(self.selected_asset))
@@ -834,41 +790,41 @@ class OpenPipeLineDialog(PersistentWindow):
             else:
                 self.show_warning(u'失败', u'找不到该子类型')
 
-    def rename_subtype(self):
-        if not (self.pmgr and self.selected_asset and self.selected_subtype):
+    def rename_task(self):
+        if not (self.pmgr and self.selected_asset and self.selected_task):
             self.show_warning(u'提示', u'请先选择资产和子类型')
             return
 
         new_name, ok = QtWidgets.QInputDialog.getText(self, u'重命名子类型',
-                                                      u'重命名 "{old}" 为:'.format(old=self.selected_subtype),
-                                                      text=self.selected_subtype)
+                                                      u'重命名 "{old}" 为:'.format(old=self.selected_task),
+                                                      text=self.selected_task)
 
         if ok and new_name.strip():
             new_name = new_name.strip()
-            if new_name == self.selected_subtype:
+            if new_name == self.selected_task:
                 self.show_warning(u'提示', u'新名称与当前名称相同')
                 return
 
-            existing_subs = self.pmgr.list_subtypes(self.current_asset_type, self.selected_asset)
+            existing_subs = self.pmgr.list_tasks(self.current_asset_type, self.selected_asset)
             if new_name in existing_subs:
                 self.show_warning(u'失败', u'子类型 "{new_name}" 已存在'.format(new_name=new_name))
                 return
 
-            success, message = self.pmgr.rename_subtype(
+            success, message = self.pmgr.rename_task(
                 self.current_asset_type,
                 self.selected_asset,
-                self.selected_subtype,
+                self.selected_task,
                 new_name
             )
 
             if success:
                 self.show_info(u'成功', message)
-                self.load_subtypes()
-                self.selected_subtype = new_name
-                item_list = self.subtype_list.findItems(new_name, QtCore.Qt.MatchExactly)
+                self.load_tasks()
+                self.selected_task = new_name
+                item_list = self.task_list.findItems(new_name, QtCore.Qt.MatchExactly)
                 if item_list:
-                    self.subtype_list.setCurrentItem(item_list[0])
-                    self.on_subtype_clicked(item_list[0])
+                    self.task_list.setCurrentItem(item_list[0])
+                    self.on_task_clicked(item_list[0])
             else:
                 self.show_warning(u'失败', message)
 
@@ -908,14 +864,14 @@ class OpenPipeLineDialog(PersistentWindow):
     def highlight_note_for_version(self, version_name):
         if not hasattr(self, 'notes_text') or not version_name:
             return
-        if not (self.pmgr and self.selected_asset and self.selected_subtype):
+        if not (self.pmgr and self.selected_asset and self.selected_task):
             return
 
         # 从 ProjectManager 拿 notes 文本 + 精确定位（版本号来自 JSON）
         notes_text, info = self.pmgr.get_notes(
             self.current_asset_type,
             self.selected_asset,
-            self.selected_subtype,
+            self.selected_task,
             version_name,
         )
 
@@ -949,10 +905,10 @@ class OpenPipeLineDialog(PersistentWindow):
         end_cursor.setPosition(info['group_char_end'])
         self._scroll_range_into_view(start_cursor, end_cursor)
 
-    def on_subtype_clicked(self, item):
+    def on_task_clicked(self, item):
         st = item.text()
-        self.selected_subtype = st
-        self.info_label.setText(u'选中: {asset}.{subtype}'.format(asset=self.selected_asset, subtype=st))
+        self.selected_task = st
+        self.info_label.setText(u'选中: {asset}.{task}'.format(asset=self.selected_asset, task=st))
 
         versions = self.pmgr.get_workshop_versions(self.current_asset_type, self.selected_asset, st)
         self.version_list.clear()
@@ -963,25 +919,22 @@ class OpenPipeLineDialog(PersistentWindow):
         notes, _ = self.pmgr.get_notes(self.current_asset_type, self.selected_asset, st)
         self.notes_text.setPlainText("{}".format(notes))
         self._clear_note_highlight()
-        self.cfg.set_last_select_subtype(st)
+        self.cfg.set_last_select_task(st)
         self._refresh_action_state()
-        self.show_subtype_preview(self.current_asset_type, self.selected_asset, self.selected_subtype)
+        self.show_task_preview(self.current_asset_type, self.selected_asset, self.selected_task)
 
-    def on_subtype_double_clicked(self, item):
+    def on_task_double_clicked(self, item):
         st = item.text()
-        self.selected_subtype = st
+        self.selected_task = st
         latest = self.pmgr.get_latest_workshop(self.current_asset_type, self.selected_asset, st)
         if latest:
-            if IN_MAYA:
-                try:
-                    fname = latest.split('\\')[-1]
-                    print("double clicked latest: ", fname)
-                    fops.open_file(latest)
-                    self.show_info_inview('The latest version has been opened', 'yellow')
-                except Exception as e:
-                    self.show_warning(u'错误', str(e))
-            else:
-                self.show_info(u'打开', u'最新版本路径:\n' + latest)
+            try:
+                fname = latest.split('\\')[-1]
+                print("double clicked latest: ", fname)
+                fops.open_file(latest)
+                self.show_info_inview('The latest version has been opened', 'yellow')
+            except Exception as e:
+                self.show_warning(u'错误', str(e))
         else:
             self.show_warning(u'提示', u'未找到任何版本')
 
@@ -992,7 +945,7 @@ class OpenPipeLineDialog(PersistentWindow):
         # notes = self.pmgr.get_notes(
         #     self.current_asset_type,
         #     self.selected_asset,
-        #     self.selected_subtype,
+        #     self.selected_task,
         # )
         # self.notes_text.setPlainText("{}".format(notes))
         self.highlight_note_for_version(version_name)
@@ -1000,7 +953,7 @@ class OpenPipeLineDialog(PersistentWindow):
     def open_selected_version(self):
         item = self.version_list.currentItem()
         if not item:
-            latest = self.pmgr.get_latest_workshop(self.current_asset_type, self.selected_asset, self.selected_subtype)
+            latest = self.pmgr.get_latest_workshop(self.current_asset_type, self.selected_asset, self.selected_task)
             if latest:
                 try:
                     fname = latest.split('\\')[-1]
@@ -1016,7 +969,7 @@ class OpenPipeLineDialog(PersistentWindow):
         fname = item.text()
         try:
             fops.open_latest_or_selected_version(
-                self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype, fname
+                self.pmgr, self.current_asset_type, self.selected_asset, self.selected_task, fname
             )
             self.show_info_inview('The version has been opened', 'yellow')
         except Exception as e:
@@ -1024,41 +977,10 @@ class OpenPipeLineDialog(PersistentWindow):
 
     def open_master(self):
         try:
-            fops.open_master_file(self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype)
+            fops.open_master_file(self.pmgr, self.current_asset_type, self.selected_asset, self.selected_task)
             self.show_info_inview('Master has been opened', 'yellow')
         except Exception as e:
             self.show_warning(u'错误', str(e))
-
-    def import_selected_version(self):
-        item = self.version_list.currentItem()
-        if not item:
-            self.show_warning(u'提示', u'请先选择一个版本')
-            return
-        fname = item.text()
-        try:
-            fops.import_selected_version(
-                self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype,
-                fname, namespace=None
-            )
-            self.show_info_inview('Import Finished')
-        except Exception as e:
-            self.show_warning(u'失败', str(e))
-
-    def reference_selected_version(self):
-        item = self.version_list.currentItem()
-        if not item:
-            self.show_warning(u'提示', u'请先选择一个版本')
-            return
-        fname = item.text()
-        try:
-            ns = fname.split(".")[0]
-            fops.reference_selected_version(
-                self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype,
-                fname, namespace=ns, group_locator=True, merge_namespaces=False
-            )
-            self.show_info_inview('Reference Finished')
-        except Exception as e:
-            self.show_warning(u'失败', str(e))
 
     def reference_master(self, namespace=True):
 
@@ -1066,7 +988,7 @@ class OpenPipeLineDialog(PersistentWindow):
             mf = self.pmgr.get_master_file(
                 self.current_asset_type,
                 self.selected_asset,
-                self.selected_subtype
+                self.selected_task
             )
             if not mf or not os.path.exists(mf):
                 self.show_warning(u'错误', u'Master 文件不存在')
@@ -1091,16 +1013,16 @@ class OpenPipeLineDialog(PersistentWindow):
             self.show_warning(u'失败', str(e))
 
     def save_new_version(self):
-        if not (self.pmgr and self.selected_asset and self.selected_subtype):
+        if not (self.pmgr and self.selected_asset and self.selected_task):
             self.show_warning(u'提示', u'请先选择资产与子类型')
             return
         notes, ok = QtWidgets.QInputDialog.getText(self, u'保存新版本', u'输入版本备注:')
         if not ok:
             return
         try:
-            if fops.save_workshop(None, notes, self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype):
+            if fops.save_workshop(None, notes, self.pmgr, self.current_asset_type, self.selected_asset, self.selected_task):
                 self.show_info_inview('The new version has been saved', '#4ECC00')
-                versions = self.pmgr.get_workshop_versions(self.current_asset_type, self.selected_asset, self.selected_subtype)
+                versions = self.pmgr.get_workshop_versions(self.current_asset_type, self.selected_asset, self.selected_task)
                 self.version_list.clear()
                 if versions:
                     self.version_list.addItems(versions)
@@ -1111,11 +1033,11 @@ class OpenPipeLineDialog(PersistentWindow):
             self.show_warning(u'失败', str(e))
 
     def save_new_master(self):
-        if not (self.pmgr and self.selected_asset and self.selected_subtype):
+        if not (self.pmgr and self.selected_asset and self.selected_task):
             self.show_warning(u'提示', u'请先选择资产与子类型')
             return
         confirm_msg = u"确认保存当前场景为Master？？？\n\n建议: 如有旧的master请去往{}下的master备份\n".format(
-            self.selected_subtype)
+            self.selected_task)
         reply = QtWidgets.QMessageBox.question(
             self, u'确认保存Master', confirm_msg,
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No
@@ -1123,7 +1045,7 @@ class OpenPipeLineDialog(PersistentWindow):
         if reply == QtWidgets.QMessageBox.No:
             return
         try:
-            if fops.save_master(None, self.pmgr, self.current_asset_type, self.selected_asset, self.selected_subtype):
+            if fops.save_master(None, self.pmgr, self.current_asset_type, self.selected_asset, self.selected_task):
                 self.show_info_inview('Master has been saved', "#4ECC00")
             else:
                 self.show_warning(u'失败', u'Master保存失败')
@@ -1137,14 +1059,14 @@ class OpenPipeLineDialog(PersistentWindow):
             self.version_count_text.setText("")
 
     def take_snapshot(self):
-        # 先验证管理器和资产；避免仅 selected_subtype 非空时通过校验。
+        # 先验证管理器和资产；避免仅 selected_task 非空时通过校验。
         if not (self.pmgr and self.selected_asset):
             self.show_warning(u'提示', u'请先选择资产')
             return
 
-        if self.selected_subtype:
+        if self.selected_task:
             try:
-                path = self.pmgr.take_snapshot(self.current_asset_type, self.selected_asset, self.selected_subtype)
+                path = self.pmgr.take_snapshot(self.current_asset_type, self.selected_asset, self.selected_task)
                 if os.path.exists(path):
                     pix = QtGui.QPixmap(path)
                     if not pix.isNull():
@@ -1174,11 +1096,11 @@ class OpenPipeLineDialog(PersistentWindow):
                 self.show_warning(u'失败', u'截图过程中发生错误: {error}'.format(error=str(e)))
 
     def refresh_all(self):
-        if self.selected_subtype:
-            for i in range(self.subtype_list.count()):
-                item = self.subtype_list.item(i)
-                if item and item.text() == self.selected_subtype:
-                    self.on_subtype_clicked(item)
+        if self.selected_task:
+            for i in range(self.task_list.count()):
+                item = self.task_list.item(i)
+                if item and item.text() == self.selected_task:
+                    self.on_task_clicked(item)
                     return
         self.clear_right()
         self.show_version_count(0)
@@ -1188,24 +1110,24 @@ class OpenPipeLineDialog(PersistentWindow):
         has_project = bool(self.pmgr)
         has_type    = bool(self.current_asset_type) and self.current_asset_type != u'暂无资产类型'
         has_asset   = has_project and has_type and bool(self.selected_asset)
-        has_subtype = has_asset and bool(self.selected_subtype)
+        has_task = has_asset and bool(self.selected_task)
 
         # 资产列
         self.btn_create_asset.setEnabled(has_project and has_type)
         self.btn_delete_asset.setEnabled(has_asset)
         self.btn_delete_asset.setVisible(has_asset)
-        self.btn_snapshot.setEnabled(has_asset)          # 含 subtype 情况
+        self.btn_snapshot.setEnabled(has_asset)          # 含 task 情况
 
         # 子类型列
         self.btn_add_sub.setEnabled(has_asset)
-        self.btn_del_sub.setEnabled(has_subtype)
-        self.btn_rename_sub.setEnabled(has_subtype)
+        self.btn_del_sub.setEnabled(has_task)
+        self.btn_rename_sub.setEnabled(has_task)
 
         # 版本列
-        self.btn_save_new_version.setEnabled(has_subtype)
-        self.btn_set_master.setEnabled(has_subtype)
-        self.btn_open_master.setEnabled(has_subtype)
-        self.btn_reference_master.setEnabled(has_subtype)
+        self.btn_save_new_version.setEnabled(has_task)
+        self.btn_set_master.setEnabled(has_task)
+        self.btn_open_master.setEnabled(has_task)
+        self.btn_reference_master.setEnabled(has_task)
     
     def clear_right(self):
         self.version_list.clear()
@@ -1222,16 +1144,16 @@ class OpenPipeLineDialog(PersistentWindow):
 
 
 def main():
-    global py_Penpipeline
+    global Penpipeline
     try:
-        py_Penpipeline.close()
-        py_Penpipeline.deleteLater()
+        Penpipeline.close()
+        Penpipeline.deleteLater()
     except:
         pass
 
-    py_Penpipeline = OpenPipeLineDialog()
-    py_Penpipeline.show()
-    return py_Penpipeline
+    Penpipeline = OpenPipeLineDialog()
+    Penpipeline.show()
+    return Penpipeline
 
 
 if __name__ == '__main__':

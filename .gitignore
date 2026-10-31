@@ -64,6 +64,7 @@ AdvancedSkeleton*/
 Maya_PY3_plug-in_2025/
 git_ignore/
 *.ce2-workspace
+.openpipeline_config.json
 
 # Tracking
 !scripts/AttrBatch/**/*.pyc

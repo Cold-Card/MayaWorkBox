@@ -2,10 +2,7 @@
 
 import os
 
-try:
-    import maya.cmds as cmds
-except ImportError:  # pragma: no cover
-    cmds = None
+import maya.cmds as cmds
 
 try:
     FileNotFoundError
@@ -145,12 +142,12 @@ def save_workshop(file_path=None, notes=None,
                   pmgr=None,
                   asset_type=None,
                   asset=None,
-                  subtype=None):
-    if pmgr and asset_type and asset and subtype:
+                  task=None):
+    if pmgr and asset_type and asset and task:
         return pmgr.save_version(
             asset_type,
             asset,
-            subtype,
+            task,
             notes=notes
         )
 
@@ -164,9 +161,9 @@ def save_master(file_path=None,
                 pmgr=None,
                 asset_type=None,
                 asset=None,
-                subtype=None):
-    if pmgr and asset_type and asset and subtype:
-        return pmgr.save_master(asset_type, asset, subtype)
+                task=None):
+    if pmgr and asset_type and asset and task:
+        return pmgr.save_master(asset_type, asset, task)
 
     if not file_path:
         raise RuntimeError("file_path required")
@@ -174,16 +171,16 @@ def save_master(file_path=None,
     return save_scene_as(file_path)
 
 
-def set_master_from_version(pmgr, asset_type, asset, subtype, version_filename):
-    return pmgr.set_master(asset_type, asset, subtype, version_filename)
+def set_master_from_version(pmgr, asset_type, asset, task, version_filename):
+    return pmgr.set_master(asset_type, asset, task, version_filename)
 
 
-def _get_workshop_file(pmgr, asset_type, asset, subtype, version_filename):
+def _get_workshop_file(pmgr, asset_type, asset, task, version_filename):
     asset_dir = pmgr.get_asset_dir(asset_type, asset)
     workshop_dir = os.path.join(
         asset_dir,
         "components",
-        subtype,
+        task,
         "workshop"
     )
 
@@ -199,17 +196,17 @@ def _get_workshop_file(pmgr, asset_type, asset, subtype, version_filename):
 def open_latest_or_selected_version(pmgr,
                                     asset_type,
                                     asset,
-                                    subtype,
+                                    task,
                                     version_filename=None):
     if version_filename:
         path = _get_workshop_file(
-            pmgr, asset_type, asset, subtype, version_filename
+            pmgr, asset_type, asset, task, version_filename
         )
     else:
         path = pmgr.get_latest_workshop(
             asset_type,
             asset,
-            subtype
+            task
         )
 
         if not path:
@@ -218,8 +215,8 @@ def open_latest_or_selected_version(pmgr,
     return open_file(path)
 
 
-def open_master_file(pmgr, asset_type, asset, subtype):
-    mf = pmgr.get_master_file(asset_type, asset, subtype)
+def open_master_file(pmgr, asset_type, asset, task):
+    mf = pmgr.get_master_file(asset_type, asset, task)
 
     if not mf or not os.path.exists(mf):
         raise FileNotFoundError("Master file not found")
@@ -227,8 +224,8 @@ def open_master_file(pmgr, asset_type, asset, subtype):
     return open_file(mf)
 
 
-def import_master_file(pmgr, asset_type, asset, subtype, namespace=None):
-    mf = pmgr.get_master_file(asset_type, asset, subtype)
+def import_master_file(pmgr, asset_type, asset, task, namespace=None):
+    mf = pmgr.get_master_file(asset_type, asset, task)
 
     if not mf:
         raise FileNotFoundError("Master file not found")
@@ -236,8 +233,8 @@ def import_master_file(pmgr, asset_type, asset, subtype, namespace=None):
     return import_file(mf, namespace=namespace)
 
 
-def reference_master_file(pmgr, asset_type, asset, subtype, namespace=None):
-    mf = pmgr.get_master_file(asset_type, asset, subtype)
+def reference_master_file(pmgr, asset_type, asset, task, namespace=None):
+    mf = pmgr.get_master_file(asset_type, asset, task)
 
     if not mf:
         raise FileNotFoundError("Master file not found")

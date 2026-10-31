@@ -5,50 +5,21 @@ import shutil
 from datetime import datetime
 
 try:
-    from importlib import reload
-except ImportError:
-    pass
-
-try:
     from PySide6 import QtWidgets, QtCore, QtGui
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
 
 from .Pipeline import file_operations as file_ops
-from .Pipeline.pipelineConfig import OpenPipelineConfig
-from .Pipeline.projectManager import ProjectManager
 
-try:
-    from .Pipeline.pipelineUtils import *
-    from .Pipeline.pipelineUtils import (
-        load_projects_from_xml,
-        get_projects_xml_path,
-        ensure_projects_xml,
-        add_project_to_xml,
-        open_folder_in_explorer,
-        open_file_in_explorer
-    )
-except ImportError:
-    try:
-        from .pipelineUtils import *
-    except ImportError:
-        print(u"version_context导入工具pipeline_utils模块失败")
+from .Pipeline.pipelineUtils import (
+    open_folder_in_explorer,
+    open_file_in_explorer
+)
 
-try:
-    import maya.cmds as cmds
-    import maya.mel as mel
-    import maya.OpenMaya as om
-
-    IN_MAYA = True
-except Exception:
-    IN_MAYA = False
-
-_cfg = OpenPipelineConfig()
-
+import maya.cmds as cmds
 
 def _show_info_inview(title=u"Finished", color='yellow'):
-    import HelpImageUI as help
-    help.inView_Message(color, u"{}".format(title))
+    cmds.inViewMessage(amg=u"<hl style='color:{};'>{}</hl>".format(color,title),pos='midCenterBot',fade=False,dk=True)
 
 
 def add_menu_label(menu, text):
@@ -86,18 +57,18 @@ class PipelineContext(object):
         return self.ui.selected_asset
 
     @property
-    def subtype(self):
-        return self.ui.selected_subtype
+    def task(self):
+        return self.ui.selected_task
 
     def validate_asset(self):
         return bool(self.pmgr and self.asset_type)
 
-    def validate_subtype(self):
+    def validate_task(self):
         return bool(
             self.pmgr and
             self.asset_type and
             self.asset and
-            self.subtype
+            self.task
         )
 
 
@@ -110,17 +81,17 @@ class PathService(PipelineContext):
             asset_name
         )
 
-    def subtype_dir(self, subtype_name=None):
-        subtype_name = subtype_name or self.subtype
+    def task_dir(self, task_name=None):
+        task_name = task_name or self.task
         return os.path.join(
             self.asset_dir(),
             'components',
-            subtype_name
+            task_name
         )
 
     def workshop_dir(self):
         return os.path.join(
-            self.subtype_dir(),
+            self.task_dir(),
             'workshop'
         )
 
@@ -148,8 +119,8 @@ class PathService(PipelineContext):
                 u'资产路径不存在:\n{}'.format(path)
             )
 
-    def open_subtype_path(self, subtype_name):
-        if not self.validate_subtype():
+    def open_task_path(self, task_name):
+        if not self.validate_task():
             self.ui.show_warning(
                 u'错误',
                 u'请先选择资产和任务'
@@ -159,7 +130,7 @@ class PathService(PipelineContext):
         path = os.path.join(
             self.asset_dir(),
             'components',
-            subtype_name
+            task_name
         )
 
         if os.path.exists(path):
@@ -171,7 +142,7 @@ class PathService(PipelineContext):
             )
 
     def open_version_path(self, version_name):
-        if not self.validate_subtype():
+        if not self.validate_task():
             self.ui.show_warning(
                 u'错误',
                 u'请先选择资产和任务'
@@ -209,13 +180,13 @@ class PathService(PipelineContext):
 class VersionService(PathService):
 
     def refresh_version_list(self):
-        if not self.validate_subtype():
+        if not self.validate_task():
             return
 
         versions = self.pmgr.get_workshop_versions(
             self.asset_type,
             self.asset,
-            self.subtype
+            self.task
         ) or []
 
         version_list = self.ui.version_list
@@ -229,7 +200,7 @@ class VersionService(PathService):
             return False
 
         deleted_dir = os.path.join(
-            self.subtype_dir(),
+            self.task_dir(),
             "deleted"
         )
 
@@ -253,7 +224,7 @@ class VersionService(PathService):
             master_path = self.pmgr.get_master_file(
                 self.asset_type,
                 self.asset,
-                self.subtype
+                self.task
             )
 
             if not master_path:
@@ -265,7 +236,7 @@ class VersionService(PathService):
             return False
 
     def delete_selected_version(self, version_filename):
-        if not self.validate_subtype():
+        if not self.validate_task():
             self.ui.show_warning(
                 u'错误',
                 u'请先选择资产和任务'
@@ -321,7 +292,7 @@ class VersionService(PathService):
         # Remove stored notes metadata for this version.
         version_filename = os.path.basename(file_path)
         try:
-            self.pmgr.delete_note_entry(self.asset_type, self.asset, self.subtype, version_filename)
+            self.pmgr.delete_note_entry(self.asset_type, self.asset, self.task, version_filename)
         except Exception:
             pass
 
@@ -336,201 +307,6 @@ class VersionService(PathService):
                 pass
 
         return True
-
-
-class FBXExporter(PathService):
-
-    def ensure_scene_safe(self):
-        if not IN_MAYA:
-            return False
-
-        modified = cmds.file(q=True, modified=True)
-
-        if not modified:
-            return True
-
-        reply = QtWidgets.QMessageBox.question(
-            self.ui,
-            u"警告",
-            u"当前场景有未保存内容。\n继续导出会清空当前场景，是否继续？",
-            QtWidgets.QMessageBox.Yes |
-            QtWidgets.QMessageBox.No
-        )
-
-        return reply == QtWidgets.QMessageBox.Yes
-
-    def get_export_objects(self):
-        if not hasattr(self.ui, "fbx_config"):
-            raise RuntimeError("fbx_config missing")
-
-        config = self.ui.fbx_config
-
-        if len(config) < 2:
-            raise RuntimeError("FBX config invalid")
-
-        geo_grp = config[0]
-        root_joint = config[1]
-
-        export_objects = []
-
-        if geo_grp and cmds.objExists(geo_grp):
-            export_objects.append(geo_grp)
-
-        if root_joint and cmds.objExists(root_joint):
-            export_objects.append(root_joint)
-
-        if not export_objects:
-            raise RuntimeError("Export objects missing")
-        self.geo_grp = geo_grp
-        self.root_joint = root_joint
-        return export_objects
-
-    def delete_matrix_nodes(self):
-        skins = cmds.ls(type="skinCluster") or []
-        for skin in skins:
-            attrs = cmds.listAttr(skin, multi=True) or []
-            matrix_attrs = [a for a in attrs if a.startswith("matrix")]
-            for mx in matrix_attrs:
-                cons = cmds.listConnections(
-                    "{}.{}".format(skin, mx),
-                    d=True
-                ) or []
-
-                if not cons:
-                    continue
-
-                matrix_node = cons[0]
-
-                if cmds.objExists(matrix_node):
-                    try:
-                        cmds.delete(matrix_node)
-                    except:
-                        pass
-
-    def delete_blendshape_nodes(self):
-        meshes = cmds.ls(type="mesh", long=True) or []
-
-        transforms = []
-
-        for mesh in meshes:
-            parent = cmds.listRelatives(mesh, parent=True, fullPath=True) or []
-            if parent:
-                transforms.extend(parent)
-
-        transforms = list(set(transforms))
-
-        for obj in transforms:
-            history = cmds.listHistory(obj) or []
-            blend_nodes = cmds.ls(history, type='blendShape') or []
-
-            for bs in blend_nodes:
-                if cmds.objExists(bs):
-                    try:
-                        cmds.delete(bs)
-                    except:
-                        pass
-
-    def cleanup_scene(self):
-        self.delete_matrix_nodes()
-        self.delete_blendshape_nodes()
-
-    def build_fbx_path(self, version_filename):
-        fbx_dir = os.path.join(
-            self.subtype_dir(),
-            "fbx"
-        )
-
-        if not os.path.exists(fbx_dir):
-            os.makedirs(fbx_dir)
-
-        base_name = os.path.splitext(version_filename)[0]
-
-        fbx_path = os.path.join(
-            fbx_dir,
-            base_name + ".fbx"
-        )
-
-        return fbx_path.replace("\\", "/")
-
-    def export_selected_to_fbx(self, fbx_path):
-        export_objects = self.get_export_objects()
-        cmds.select(clear=True)
-        cmds.select(export_objects, r=True)
-        mel.eval('file -force -options "v=0;" -typ "FBX export" -pr -es "{}";'.format(fbx_path))
-        return os.path.exists(fbx_path)
-
-    def _export_to_unreal(self, fbx_path):
-        try:
-            import work_patch.project_asset_browser.fbx_to_unreal as fbx_to_unreal
-            reload(fbx_to_unreal)
-            obj_fold = {"chr": "Chr",
-                        "Chr": "Chr",
-                        "char": "Chr",
-                        "prp": "Prp",
-                        "Prp": "Prp"}
-            ue_content_path = "/Game/{}/{}".format(CONTENT, obj_fold.get(self.asset_type, "Chr"))
-            fbx_to_unreal.export_to_unreal(fbx_path, UnrealEditor, UE_PROJECT, ue_content_path, self.asset)
-        except Exception as e:
-            self.ui.show_warning_delayed(u'UE 导出警告', u'{}\n前往ue手动运行ue_importer.py移动材质贴图即可'.format(e))
-
-    def _save_json_for_ue(self, fbx_path):
-        try:
-            import work_patch.project_asset_browser.fbx_to_unreal as fbx_to_unreal
-            reload(fbx_to_unreal)
-            obj_fold = {"chr": "Chr",
-                        "Chr": "Chr",
-                        "char": "Chr",
-                        "prp": "Prp",
-                        "Prp": "Prp"}
-            ue_content_path = "/Game/{}/{}".format(CONTENT, obj_fold.get(self.asset_type, "Chr"))
-            fbx_to_unreal.save_json(fbx_path, ue_content_path, self.asset)
-        except:
-            pass
-
-    def export_fbx_for_version(self, version_filename, to_ue=False):
-        if not IN_MAYA:
-            self.ui.show_critical(u"错误", u"只能在 Maya 中运行")
-            return False
-
-        if not self.ensure_scene_safe():
-            return False
-
-        version_path = self.version_path(version_filename)
-
-        if not os.path.exists(version_path):
-            raise RuntimeError(
-                "Version file missing:\n{}".format(version_path)
-            )
-
-        fbx_path = self.build_fbx_path(version_filename)
-
-        try:
-            cmds.file(new=True, force=True)
-            file_ops.import_file(version_path)
-
-            self.cleanup_scene()
-
-            ok = self.export_selected_to_fbx(fbx_path)
-            if ok:
-                cmds.file(new=True, force=True)
-                base_name = self.asset
-
-                if to_ue:
-                    self._export_to_unreal(fbx_path)
-                else:
-                    self._save_json_for_ue(fbx_path)
-                    self.ui.show_info_delayed(u'导出成功', u'FBX导出完成:\n\n导出对象: {} 和 {}\n导出路径: {}'.format(
-                        self.geo_grp, self.root_joint,
-                        fbx_path))
-            if not ok:
-                raise RuntimeError("FBX export failed")
-
-            return fbx_path
-
-        except Exception as e:
-            self.ui.show_warning_delayed(u'导出失败', str(e))
-            return False
-
 
 class FileOperationService(PathService):
 
@@ -561,7 +337,7 @@ class FileOperationService(PathService):
             self.pmgr,
             self.asset_type,
             self.asset,
-            self.subtype
+            self.task
         )
 
     def import_master(self, namespace=None):
@@ -569,7 +345,7 @@ class FileOperationService(PathService):
             self.pmgr,
             self.asset_type,
             self.asset,
-            self.subtype,
+            self.task,
             namespace=namespace
         )
 
@@ -582,7 +358,7 @@ class FileOperationService(PathService):
         mf = self.pmgr.get_master_file(
             self.asset_type,
             self.asset,
-            self.subtype
+            self.task
         )
 
         if not mf or not os.path.exists(mf):
@@ -605,14 +381,14 @@ class FileOperationService(PathService):
 
     def set_master(self, version_name):
         return file_ops.set_master_from_version(
-            self.pmgr, self.asset_type, self.asset, self.subtype, version_name
+            self.pmgr, self.asset_type, self.asset, self.task, version_name
         )
 
-    def write_note_info(self, subtype_name, version_filename, info="", workshop=True):
+    def write_note_info(self, task_name, version_filename, info="", workshop=True):
         task_dir = os.path.join(
             self.asset_dir(),
             'components',
-            subtype_name
+            task_name
         )
         self.pmgr.write_note_info(task_dir, version_filename, info, workshop)
 
@@ -624,7 +400,6 @@ class VersionContextMenu(PipelineContext):
 
         self.path_service = PathService(main_window)
         self.version_service = VersionService(main_window)
-        self.exporter = FBXExporter(main_window)
         self.file_ops = FileOperationService(main_window)
 
     def show_asset_menu(self, position):
@@ -646,14 +421,14 @@ class VersionContextMenu(PipelineContext):
         open_path_action.triggered.connect(_open)
         menu.exec_(list_widget.mapToGlobal(position))
 
-    def show_subtype_menu(self, position):
-        list_widget = self.ui.subtype_list
+    def show_task_menu(self, position):
+        list_widget = self.ui.task_list
         item = list_widget.itemAt(position)
 
         if not item:
             return
 
-        subtype_name = item.text()
+        task_name = item.text()
 
         menu = QtWidgets.QMenu(list_widget)
 
@@ -674,7 +449,7 @@ class VersionContextMenu(PipelineContext):
                 )
 
         def _open():
-            self.path_service.open_subtype_path(subtype_name)
+            self.path_service.open_task_path(task_name)
 
         def _open_master():
             safe_run(lambda: self.file_ops.open_master())
@@ -772,9 +547,6 @@ class VersionContextMenu(PipelineContext):
         reference_action.triggered.connect(_reference)
         locate_action.triggered.connect(_locate)
         set_master_action.triggered.connect(_set_master)
-        #set_fbx_action.triggered.connect(self.ui.set_fbx_export_objects)
-        #export_fbx_action.triggered.connect(_export)
-        #export_fbx_ue_action.triggered.connect(lambda: _export(True))
         delete_action.triggered.connect(_delete)
 
         menu.exec_(list_widget.mapToGlobal(position))
@@ -785,9 +557,9 @@ def show_asset_context_menu(main_window, position):
     ctx.show_asset_menu(position)
 
 
-def show_subtype_context_menu(main_window, position):
+def show_task_context_menu(main_window, position):
     ctx = VersionContextMenu(main_window)
-    ctx.show_subtype_menu(position)
+    ctx.show_task_menu(position)
 
 
 def show_version_context_menu(main_window, position):
@@ -797,6 +569,6 @@ def show_version_context_menu(main_window, position):
 
 __all__ = [
     'show_asset_context_menu',
-    'show_subtype_context_menu',
+    'show_task_context_menu',
     'show_version_context_menu'
 ]
