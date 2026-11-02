@@ -104,7 +104,7 @@ def ctrl_maker(prefix, ctrl_type, count, deg, sp, name=""):
         ctrls.append(mc.duplicate(c1))
 
     for x, ctrl in enumerate(ctrls):
-        ctrls[x] = mc.rename(ctrl, "{}{}ctrl_{:02d}".format(prefix, name, x+1))
+        ctrls[x] = mc.rename(ctrl, "{}{}{:02d}_ctrl".format(prefix, name, x+1))
         shapes = mc.listRelatives(ctrls[x], f = True, s=True)
         for y, shape in enumerate(shapes):
             mc.rename(shape, "{}Shape{:02d}".format(ctrls[x], y+1))
@@ -361,7 +361,7 @@ def ribbonize(surf_tr, equal=1, num_of_ctrls=5, num_of_jnts=29, prefix="", const
     ####################################################
 
     #create controls and control joints
-    controls = ctrl_maker(prefix, ctrl_type="cube", count=num_of_ctrls, deg=3, sp=8)
+    controls = ctrl_maker(prefix, ctrl_type="cube", count=num_of_ctrls, deg=3, sp=8, name="ik")
 
     ctrl_ofs_grps = []
     ctrl_joints = []
@@ -543,7 +543,7 @@ def ribbonize(surf_tr, equal=1, num_of_ctrls=5, num_of_jnts=29, prefix="", const
         mc.sets(fk_ctrls, add=fk_ctrls_set)
 
         ########
-        ik_ctrl_constr_grps = [mc.group(ctrl, n=ctrl + "_constr_grp") for ctrl in controls]
+        ik_ctrl_constr_grps = [mc.group(ctrl, n=ctrl + "_grp") for ctrl in controls]
         [mc.xform(ik_ctrl_constr_grp, piv=(0,0,0), os=True) for ik_ctrl_constr_grp in ik_ctrl_constr_grps]
 
         for ik, fk in zip(controls[:-1], fk_ctrl_off_grps):
