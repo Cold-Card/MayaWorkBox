@@ -135,9 +135,14 @@ class BendSetUI(QtWidgets.QDialog):
         self.bend_ctrl_name_widget = self.create_line_edit("控制器名称", "bend_ctrl")
         bend_layout.addLayout(self.bend_ctrl_name_widget)
 
+        aixs_group_row = QtWidgets.QHBoxLayout()
         self.aixs_group = self.create_checkbox_group("卷曲轴向", ["X", "Y", "Z"], default_checked=["Z", "Y", "X"])
+        self.shift_aixs_group = self.create_checkbox_group("偏移轴向", ["X", "Y", "Z"], default_checked=["Z", "Y", "X"])
         self.aixs_group.setFixedHeight(55)
-        bend_layout.addWidget(self.aixs_group)
+        self.shift_aixs_group.setFixedHeight(55)
+        aixs_group_row.addWidget(self.aixs_group)
+        aixs_group_row.addWidget(self.shift_aixs_group)
+        bend_layout.addLayout(aixs_group_row)
 
         btn_create = QtWidgets.QPushButton("创建卷曲系统")
         btn_create.setProperty("primary", True)
@@ -183,7 +188,7 @@ class BendSetUI(QtWidgets.QDialog):
         #layout.addStretch()        
 
         # 角度权重控制参数
-        group_weight = QtWidgets.QGroupBox("角度权重控制")
+        group_weight = QtWidgets.QGroupBox("权重控制")
         weight_layout = QtWidgets.QVBoxLayout(group_weight)
         weight_layout.setSpacing(8)
 
@@ -209,12 +214,20 @@ class BendSetUI(QtWidgets.QDialog):
 
         weight_layout.addLayout(ctrl_num_layout)
 
+        btn_create_weight_row = QtWidgets.QHBoxLayout()
         btn_create_weight = QtWidgets.QPushButton("创建角度权重控制")
         btn_create_weight.setProperty("primary", True)
         btn_create_weight.setStyleSheet("QPushButton {font-size: 14px;}")
         btn_create_weight.setFixedHeight(36)
-        btn_create_weight.clicked.connect(self.create_angle_weight_ctrl)
-        weight_layout.addWidget(btn_create_weight)
+        btn_create_weight.clicked.connect(lambda: self.create_angle_weight_ctrl(shift=False))
+        btn_create_shift_weight = QtWidgets.QPushButton("创建偏移权重控制")
+        btn_create_shift_weight.setProperty("primary", True)
+        btn_create_shift_weight.setStyleSheet("QPushButton {font-size: 14px;}")
+        btn_create_shift_weight.setFixedHeight(36)
+        btn_create_shift_weight.clicked.connect(lambda: self.create_angle_weight_ctrl(shift=True))
+        btn_create_weight_row.addWidget(btn_create_weight)
+        btn_create_weight_row.addWidget(btn_create_shift_weight)
+        weight_layout.addLayout(btn_create_weight_row)
 
         layout.addWidget(group_weight)
 
@@ -366,7 +379,8 @@ class BendSetUI(QtWidgets.QDialog):
         ctrl_list = self.get_list_from_text(self.ctrl_list_widget.text_edit)
         prefix = self.prefix_widget.edit.text().strip()
         bend_ctrl_name = self.bend_ctrl_name_widget.edit.text().strip()
-        aixs = self.get_checked_values(self.aixs_group)
+        roll_aixs = self.get_checked_values(self.aixs_group)
+        shift_aixs = self.get_checked_values(self.shift_aixs_group)
 
         if not bend_list or not ctrl_list:
             cmds.warning("请确保 Bend列表 和 控制列表 不为空")
@@ -374,7 +388,7 @@ class BendSetUI(QtWidgets.QDialog):
         if len(bend_list) != len(ctrl_list):
             cmds.warning("卷曲列表与控制列表数量必须一致")
             return
-        if not aixs:
+        if not roll_aixs:
             cmds.warning("至少选择一个旋转轴")
             return
         if not bend_ctrl_name:
@@ -384,7 +398,7 @@ class BendSetUI(QtWidgets.QDialog):
         try:
             bend_ctrl = bs.get_bend_ctrl(bend_ctrl_name, prefix)
             remap_list = bs.create_bend_system(
-                bend_list, ctrl_list, bend_ctrl, prefix, aixs,
+                bend_list, ctrl_list, bend_ctrl, prefix, roll_aixs, shift_aixs,
                 self.remap_AngleWeight_list
             )
         except Exception as exc:
@@ -395,7 +409,7 @@ class BendSetUI(QtWidgets.QDialog):
         self.update_remap_list()
         cmds.confirmDialog(title="完成", message="卷曲系统创建完成！", button=["确定"])
 
-    def create_angle_weight_ctrl(self):
+    def create_angle_weight_ctrl(self, shift=False):
         prefix = bs.prefix_logic(self.prefix_widget.edit.text())
         bend_ctrl_name = self.bend_ctrl_name_widget.edit.text()
         bend_ctrl = bs.get_bend_ctrl(bend_ctrl_name, prefix)
@@ -406,7 +420,7 @@ class BendSetUI(QtWidgets.QDialog):
         if not self.remap_AngleWeight_list:
             cmds.warning("当前 remap 列表为空，请先创建卷曲系统或从场景加载")
             return
-        bs.create_AngleWeight_ctrl(bend_ctrl, ctrl_num, self.remap_AngleWeight_list, prefix)
+        bs.create_AngleWeight_ctrl(bend_ctrl, ctrl_num, self.remap_AngleWeight_list, prefix, shift)
         cmds.confirmDialog(title="完成", message="角度权重控制创建完成！", button=["确定"])
 
     def connect_follow_parent(self):

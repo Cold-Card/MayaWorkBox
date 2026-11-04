@@ -129,12 +129,11 @@ def createNode(nodeType, nodeName, editData=None):
     return pm.PyNode(node)
 
 
-def build_bend_logic(source, roll, rollAix, angle, falloff, followParent, target, weight, next_weight, aixs, ctrl, prefix):
+def build_bend_logic(source, roll, rollAix_attr, shiftAix_attr, angle, shift, falloff, followParent, target, weight, next_weight, ctrl, prefix):
     prefix_ = prefix_logic(prefix)
     # addAttr #############################
     add_sep_attr(ctrl, prefix + 'Bend')
     on_off = addAttr(ctrl, 'bendOn', prefix, attributeType="float", keyable=True, minValue=0, maxValue=1, defaultValue=1)
-    offset = addAttr(ctrl, 'bendOffset', prefix, attributeType="float", keyable=True, defaultValue=0)
     #######################################
 
     pm.undoInfo(openChunk=True)
@@ -144,41 +143,46 @@ def build_bend_logic(source, roll, rollAix, angle, falloff, followParent, target
         add_RollStart = createNode('addDL', f'{target}_{prefix_}bend_add_RollStart',{'input1': weight})
         clamp_RollStart = createNode('clamp', f'{target}_{prefix_}bend_clamp_RollStart',{'maxR':1})
         remap_RollWeight = createNode('remapValue', f'{target}_{prefix_}bend_remap_RollWeight',{'inputMax': next_weight})
-        mult_RotWeight = createNode('multDL', f'{target}_{prefix_}bend_mult_RotWeight')
-        mult_RotAngle = createNode('multDL', f'{target}_{prefix_}bend_mult_RotAngle')
-        remap_AngleWeight = createNode('remapValue', f'{target}_{prefix_}bend_remap_AngleWeight',{'inputValue': 1-weight})
-        add_weightOffset = createNode('addDL', f'{target}_{prefix_}bend_add_weightOffset')
-        mult_weightOnOff = createNode('multDL', f'{target}_{prefix_}bend_mult_weightOnOff')
-        mult_RotAix = createNode('multiplyDivide', f'{target}_{prefix_}bend_mult_RotAix',{'input2': (0,0,0)})
 
         pm.connectAttr(falloff, f'{mult_RollFalloffRvs}.input1', force=True)
-        pm.connectAttr(angle, f'{mult_RotAngle}.input2', force=True)
         pm.connectAttr(roll, f'{mult_Roll}.input1', force=True)
         pm.connectAttr(f'{mult_Roll}.output', f'{remap_RollWeight}.inputValue', force=True)
         pm.connectAttr(f'{mult_RollFalloffRvs}.output', f'{add_RollStart}.input2', force=True)
         pm.connectAttr(f'{add_RollStart}.output', f'{clamp_RollStart}.inputR', force=True)
         pm.connectAttr(f'{clamp_RollStart}.outputR', f'{remap_RollWeight}.inputMin', force=True)
-        pm.connectAttr(f'{remap_RollWeight}.outValue', f'{mult_RotWeight}.input1', force=True)
-        pm.connectAttr(f'{mult_RotWeight}.output', f'{mult_RotAngle}.input1', force=True)
-        pm.connectAttr(f'{remap_AngleWeight}.outValue', f'{add_weightOffset}.input1', force=True)
-        pm.connectAttr(offset, f'{add_weightOffset}.input2', force=True)
-        pm.connectAttr(f'{add_weightOffset}.output', f'{mult_weightOnOff}.input1', force=True)
-        pm.connectAttr(on_off, f'{mult_weightOnOff}.input2', force=True)
-        pm.connectAttr(f'{mult_weightOnOff}.output', f'{mult_RotWeight}.input2', force=True)
 
-        for aix in aixs:
-            pm.connectAttr(f'{mult_RotAngle}.output', f'{mult_RotAix}.input1{aix}', force=True)
-            pm.connectAttr(f'{mult_RotAix}.output{aix}', f'{target}.rotate{aix}', force=True)
-            for i in range(0,len(aixs)):
-                value = 0
-                if rollAix.getEnums()[i] == aix:
-                    value = 1
-                pm.setDrivenKeyframe(f'{mult_RotAix}.input2{aix}',
-                                cd=rollAix,
-                                driverValue=i,
-                                value=value
-                            )
-                
+        ###################################
+        for type_ in ['bend' if rollAix_attr else None, 'shift' if shiftAix_attr else None]:
+            if not type_:
+                continue
+            if type_ == 'bend':
+                attr = angle
+                aixAttr = rollAix_attr
+                RorT = 'rotate'
+            elif type_ == 'shift':
+                attr = shift
+                aixAttr = shiftAix_attr
+                RorT = 'translate'
+
+            offset = addAttr(ctrl, f'{type_}Offset', prefix, attributeType="float", keyable=True, defaultValue=0)
+            mult_RotWeight = createNode('multDL', f'{target}_{prefix_}{type_}_mult_RotWeight')
+            mult_RotAngle = createNode('multDL', f'{target}_{prefix_}{type_}_mult_RotAngle')
+            remap_AngleWeight = createNode('remapValue', f'{target}_{prefix_}{type_}_remap_AngleWeight',{'inputValue': 1-weight})
+            add_weightOffset = createNode('addDL', f'{target}_{prefix_}{type_}_add_weightOffset')
+            mult_weightOnOff = createNode('multDL', f'{target}_{prefix_}{type_}_mult_weightOnOff')
+            mult_RotAix = createNode('multiplyDivide', f'{target}_{prefix_}{type_}_mult_RotAix',{'input2': (0,0,0)})
+
+            pm.connectAttr(attr, f'{mult_RotAngle}.input2', force=True)
+            pm.connectAttr(f'{remap_RollWeight}.outValue', f'{mult_RotWeight}.input1', force=True)
+            pm.connectAttr(f'{mult_RotWeight}.output', f'{mult_RotAngle}.input1', force=True)
+            pm.connectAttr(f'{remap_AngleWeight}.outValue', f'{add_weightOffset}.input1', force=True)
+            pm.connectAttr(offset, f'{add_weightOffset}.input2', force=True)
+            pm.connectAttr(f'{add_weightOffset}.output', f'{mult_weightOnOff}.input1', force=True)
+            pm.connectAttr(on_off, f'{mult_weightOnOff}.input2', force=True)
+            pm.connectAttr(f'{mult_weightOnOff}.output', f'{mult_RotWeight}.input2', force=True)
+
+            setDrivenKeyframe_for_aix(mult_RotAngle, mult_RotAix, aixAttr, f'{target}.{RorT}')
+
         # followParent logic ###########################
         rev_followParent = createNode('reverse', f'{target}_{prefix_}bend_rev_followParent')
         pm.connectAttr(f'{remap_RollWeight}.outValue', f'{rev_followParent}.inputX', force=True)
@@ -190,6 +194,21 @@ def build_bend_logic(source, roll, rollAix, angle, falloff, followParent, target
         pm.undoInfo(closeChunk=True)
     return remap_AngleWeight
 
+def setDrivenKeyframe_for_aix(mult_RotAngle, mult_RotAix, aixAttr, target):
+    aixs = aixAttr.getEnums()
+    for aix in aixs:
+        pm.connectAttr(f'{mult_RotAngle}.output', f'{mult_RotAix}.input1{aix}', force=True)
+        pm.connectAttr(f'{mult_RotAix}.output{aix}', f'{target}{aix}', force=True)
+        for i in range(0,len(aixs)):
+            value = 0
+            if aixs[i] == aix:
+                value = 1
+            pm.setDrivenKeyframe(f'{mult_RotAix}.input2{aix}',
+                            cd=aixAttr,
+                            driverValue=i,
+                            value=value
+                        )
+                
 def create_group(obj, name, prefix=''):
     prefix_ = prefix_logic(prefix)
     name = prefix_ + name
@@ -216,12 +235,13 @@ def create_curve_ctrl(objs):
     return ctrl_group_list
 
 # create AngleWeight ctrl #############################################
-def create_AngleWeight_ctrl(bend_ctrl, ctrl_num, remap_AngleWeight_list, prefix):
+def create_AngleWeight_ctrl(bend_ctrl, ctrl_num, remap_AngleWeight_list, prefix, shift=False, weight_type=0):
     prefix_ = prefix_logic(prefix)
     angleWeightCtrlVis = addAttr(bend_ctrl, 'weightVis', prefix, attributeType="bool", keyable=False, defaultValue=0)
     loc_list = []
+    type_ = 'shift' if shift else 'bend'
     for i in range(0,ctrl_num):
-        loc = prefix_ + f'bend_AngleWeight_{i:02d}'
+        loc = prefix_ + f'{type_}_AngleWeight_{i:02d}'
         if not pm.objExists(loc):
             loc = pm.spaceLocator(n = loc)
         else:
@@ -255,9 +275,9 @@ def create_AngleWeight_ctrl(bend_ctrl, ctrl_num, remap_AngleWeight_list, prefix)
         loc.localScaleY.set(0.1)
         loc.localScaleZ.set(0.1)
         loc.getShape().v.set(0)
-    AngleWeight_loc_grp = create_group(loc_list, 'bend_AngleWeight_loc_grp', prefix)
+    AngleWeight_loc_grp = create_group(loc_list, f'{type_}_AngleWeight_loc_grp', prefix)
 
-    border_curve = pm.curve(d=1, p=[(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, 0)], n=prefix_ + 'bend_AngleWeight_border')
+    border_curve = pm.curve(d=1, p=[(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, 0)], n=prefix_ + f'{type_}_AngleWeight_border')
     border_curve.template.set(1)
     border_curve.getShape().template.set(1)
     border_curve.getShape().lineWidth.set(2)
@@ -273,9 +293,9 @@ def create_AngleWeight_ctrl(bend_ctrl, ctrl_num, remap_AngleWeight_list, prefix)
         loc_list[i].getShape().worldPosition[0] >> line.getShape().controlPoints[0]
         loc_list[i+1].getShape().worldPosition[0] >> line.getShape().controlPoints[1]
         line_list.append(line)
-    line_grp = create_group(line_list, 'bend_AngleWeight_line_grp', prefix)
+    line_grp = create_group(line_list, f'{type_}_AngleWeight_line_grp', prefix)
 
-    loc_ctrl_grp = create_group(create_curve_ctrl(loc_list), 'bend_loc_ctrl_grp', prefix)
+    loc_ctrl_grp = create_group(create_curve_ctrl(loc_list), f'{type_}_loc_ctrl_grp', prefix)
     #AngleWeight_loc_grp_scale_mdl = createNode('multDL', f'{AngleWeight_loc_grp}_scale_multDL', {'input2': 0.5})
     #pm.connectAttr(f'{AngleWeight_loc_grp}.sx', f'{AngleWeight_loc_grp_scale_mdl}.input1', force=True)
     #pm.connectAttr(f'{AngleWeight_loc_grp_scale_mdl}.output', f'{AngleWeight_loc_grp}.sy', force=True)
@@ -284,7 +304,7 @@ def create_AngleWeight_ctrl(bend_ctrl, ctrl_num, remap_AngleWeight_list, prefix)
     #pm.setAttr(f'{AngleWeight_loc_grp}.sy', lock=True, keyable=False, channelBox=False)
     #pm.setAttr(f'{AngleWeight_loc_grp}.sz', lock=True, keyable=False, channelBox=False)
 
-    AngleWeight_grp = create_group([loc_ctrl_grp,AngleWeight_loc_grp,line_grp,border_group], 'bend_AngleWeight_grp', prefix)
+    AngleWeight_grp = create_group([loc_ctrl_grp,AngleWeight_loc_grp,line_grp,border_group], f'{type_}_AngleWeight_grp', prefix)
     pm.connectAttr(angleWeightCtrlVis, f'{AngleWeight_grp}.v', force=True)
     bend_ctrl_grp = create_group(AngleWeight_grp, 'bend_ctrl_grp', prefix)
 
@@ -336,8 +356,9 @@ def get_bend_ctrl(bend_ctrl_name='', prefix=''):
         bend_ctrl = name
     return bend_ctrl
 
-def create_bend_system(bend_list, ctrl_list, bend_ctrl, prefix='', aixs=None, remap_AngleWeight_list=None):
-    aixs = list(aixs or ['Z', 'Y', 'X'])
+def create_bend_system(bend_list, ctrl_list, bend_ctrl, prefix='', roll_aixs=None, shift_aixs=None, remap_AngleWeight_list=None):
+    roll_aixs = list(roll_aixs or ['Z', 'Y', 'X'])
+    shift_aixs = list(shift_aixs or [])
     if len(bend_list) != len(ctrl_list):
         raise ValueError("Bend列表与控制列表数量必须一致")
     if not bend_list:
@@ -346,25 +367,31 @@ def create_bend_system(bend_list, ctrl_list, bend_ctrl, prefix='', aixs=None, re
         remap_AngleWeight_list = []
     add_sep_attr(bend_ctrl, prefix + 'Bend')
     roll = addAttr(bend_ctrl, 'roll', prefix, attributeType="float", minValue=0, maxValue=10, keyable=True)
-    rollAix = addAttr(bend_ctrl, 'rollAix', prefix, attributeType="enum", enumName=f"{':'.join(aixs)}", defaultValue=0, keyable=True)
+    rollAix_attr = addAttr(bend_ctrl, 'rollAix', prefix, attributeType="enum", enumName=f"{':'.join(roll_aixs)}", defaultValue=0, keyable=True)
     angle = addAttr(bend_ctrl, 'angle', prefix, attributeType="float", keyable=True, defaultValue=70)
     falloff = addAttr(bend_ctrl, 'falloff', prefix, attributeType="float", keyable=True, minValue=0, maxValue=10, defaultValue=1)
+    shift = None
+    shiftAix_attr = None
+    if shift_aixs:
+        shift = addAttr(bend_ctrl, 'shift', prefix, attributeType="float", keyable=True, defaultValue=1)
+        shiftAix_attr = addAttr(bend_ctrl, 'shiftAix', prefix, attributeType="enum", enumName=f"{':'.join(shift_aixs)}", defaultValue=0, keyable=True)
     for i, obj in enumerate(bend_list):
         followParent = addAttr(obj, 'followParent', prefix, attributeType="float", keyable=True, minValue=0, maxValue=1, defaultValue=0)
         weight = i / len(bend_list)
         next_weight = (i + 1) / len(bend_list)
-        remap_AngleWeight = build_bend_logic(bend_ctrl, roll, rollAix, angle, falloff, followParent, obj, weight, next_weight, aixs, ctrl_list[i], prefix)
+        remap_AngleWeight = build_bend_logic(bend_ctrl, roll, rollAix_attr, shiftAix_attr, angle, shift, falloff, followParent, obj, weight, next_weight, ctrl_list[i], prefix)
         remap_AngleWeight_list.append(remap_AngleWeight)
     return remap_AngleWeight_list
 
-def main(bend_list, ctrl_list, prefix='', bend_ctrl_name='', aixs=None,
+def main(bend_list, ctrl_list, prefix='', bend_ctrl_name='', roll_aixs=None, shift_aixs=None,
          create_bend_system_def=False, create_AngleWeight_ctrl_def=False,
          ctrl_num=5, remap_AngleWeight_list=None):
-    aixs = list(aixs or ['Z', 'Y', 'X'])
+    roll_aixs = list(roll_aixs)
+    shift_aixs = list(shift_aixs or [])
     remap_AngleWeight_list = list(remap_AngleWeight_list or [])
     bend_ctrl = get_bend_ctrl(bend_ctrl_name, prefix)
     if create_bend_system_def:
-        create_bend_system(bend_list, ctrl_list, bend_ctrl, prefix, aixs)
+        create_bend_system(bend_list, ctrl_list, bend_ctrl, prefix, roll_aixs, shift_aixs)
     elif create_AngleWeight_ctrl_def:
         create_AngleWeight_ctrl(bend_ctrl, ctrl_num, remap_AngleWeight_list, prefix)
 
@@ -375,7 +402,8 @@ if __name__ == '__main__':
     ctrl_list = pm.ls(sl=True)
     prefix = ''
     bend_ctrl_name = ''
-    aixs = ['Z','Y','X']
+    roll_aixs = ['Z','Y','X']
+    shift_aixs = ['Z','Y','X']
     remap_AngleWeight_list = []
 
 
